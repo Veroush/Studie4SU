@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
 
     // Return a token so the frontend can log the user in straight away
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );

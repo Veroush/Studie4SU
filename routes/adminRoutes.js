@@ -98,7 +98,9 @@ router.get('/users', async (req, res) => {
     const users = await prisma.user.findMany({
       select: {
         id:        true,
+        name:      true,
         email:     true,
+        role:      true,
         createdAt: true
         // password is intentionally NOT selected
       },
@@ -414,5 +416,182 @@ router.delete('/programs/:id', async (req, res) => {
   }
 });
 
+// Update user role
+router.put('/users/:id', async (req, res) => {
+  const { role } = req.body;
+  if (!['admin', 'student'].includes(role)) {
+    return res.status(400).json({ message: 'Invalid role' });
+  }
+  try {
+    const user = await prisma.user.update({
+      where: { id: parseInt(req.params.id) },
+      data: { role },
+    });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update user' });
+  }
+});
+
+// ============================================================
+//  QUIZ QUESTION MANAGEMENT ROUTES
+//  Paste this block into your adminRoutes.js (or wherever your
+//  admin routes live).  Requires the QuizQuestion + QuizAnswer
+//  models in your Prisma schema — see schema additions below.
+// ============================================================
+
+// ── GET /admin/quiz/questions ─────────────────────────────────
+// Returns all questions ordered by their `order` field, each
+// including their answers sorted by answer `order`.
+router.get('/quiz/questions', async (req, res) => {
+  try {
+    const questions = await prisma.quizQuestion.findMany({
+      orderBy: { order: 'asc' },
+      include: {
+        answers: { orderBy: { order: 'asc' } },
+      },
+    });
+    res.json(questions);
+  } catch (err) {
+    console.error('[GET /admin/quiz/questions]', err);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
+
+// ── GET /admin/quiz/questions/:id ─────────────────────────────
+router.get('/quiz/questions/:id', async (req, res) => {
+  try {
+    const question = await prisma.quizQuestion.findUnique({
+      where: { id: req.params.id },
+      include: { answers: { orderBy: { order: 'asc' } } },
+    });
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+    res.json(question);
+  } catch (err) {
+    console.error('[GET /admin/quiz/questions/:id]', err);
+    res.status(500).json({ error: 'Failed to fetch question' });
+  }
+});
+
+// ── POST /admin/quiz/questions ────────────────────────────────
+// Body: { text: string, type: 'single'|'multiple', answers: [{text, programLink?, order}] }
+router.post('/quiz/questions', async (req, res) => {
+  const { text, type, answers = [] } = req.body;
+
+  if (!text?.trim())    return res.status(400).json({ error: 'Question text is required' });
+  if (!type)            return res.status(400).json({ error: 'Question type is required' });
+  if (answers.length < 2) return res.status(400).json({ error: 'At least 2 answers are required' });
+
+  try {
+    // Determine the next order value
+    const maxOrder = await prisma.quizQuestion.aggregate({ _max: { order: true } });
+    const nextOrder = (maxOrder._max.order ?? 0) + 1;
+
+    const question = await prisma.quizQuestion.create({
+      data: {
+        text: text.trim(),
+        type,
+        order: nextOrder,
+        answers: {
+          create: answers.map((a, i) => ({
+            text:        a.text.trim(),
+            programLink: a.programLink || null,
+            order:       a.order ?? i + 1,
+          })),
+        },
+      },
+      include: { answers: { orderBy: { order: 'asc' } } },
+    });
+
+    res.status(201).json(question);
+  } catch (err) {
+    console.error('[POST /admin/quiz/questions]', err);
+    res.status(500).json({ error: 'Failed to create question' });
+  }
+});
+
+// ── PUT /admin/quiz/questions/:id ─────────────────────────────
+// Replaces the question's text/type AND recreates all its answers.
+router.put('/quiz/questions/:id', async (req, res) => {
+  const { text, type, answers = [] } = req.body;
+
+  if (!text?.trim())    return res.status(400).json({ error: 'Question text is required' });
+  if (!type)            return res.status(400).json({ error: 'Question type is required' });
+  if (answers.length < 2) return res.status(400).json({ error: 'At least 2 answers are required' });
+
+  try {
+    // Delete existing answers then recreate (simplest strategy)
+    await prisma.quizAnswer.deleteMany({ where: { questionId: req.params.id } });
+
+    const question = await prisma.quizQuestion.update({
+      where: { id: req.params.id },
+      data: {
+        text: text.trim(),
+        type,
+        answers: {
+          create: answers.map((a, i) => ({
+            text:        a.text.trim(),
+            programLink: a.programLink || null,
+            order:       a.order ?? i + 1,
+          })),
+        },
+      },
+      include: { answers: { orderBy: { order: 'asc' } } },
+    });
+
+    res.json(question);
+  } catch (err) {
+    console.error('[PUT /admin/quiz/questions/:id]', err);
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Question not found' });
+    res.status(500).json({ error: 'Failed to update question' });
+  }
+});
+
+// ── PUT /admin/quiz/questions/:id/answers ─────────────────────
+// Replaces only the answers for a question (used by Manage Answers modal).
+// Body: { answers: [{text, programLink?, order}] }
+router.put('/quiz/questions/:id/answers', async (req, res) => {
+  const { answers = [] } = req.body;
+  if (answers.length < 2) return res.status(400).json({ error: 'At least 2 answers are required' });
+
+  try {
+    await prisma.quizAnswer.deleteMany({ where: { questionId: req.params.id } });
+
+    const question = await prisma.quizQuestion.update({
+      where: { id: req.params.id },
+      data: {
+        answers: {
+          create: answers.map((a, i) => ({
+            text:        a.text.trim(),
+            programLink: a.programLink || null,
+            order:       a.order ?? i + 1,
+          })),
+        },
+      },
+      include: { answers: { orderBy: { order: 'asc' } } },
+    });
+
+    res.json(question);
+  } catch (err) {
+    console.error('[PUT /admin/quiz/questions/:id/answers]', err);
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Question not found' });
+    res.status(500).json({ error: 'Failed to update answers' });
+  }
+});
+
+// ── DELETE /admin/quiz/questions/:id ─────────────────────────
+router.delete('/quiz/questions/:id', async (req, res) => {
+  try {
+    // Answers are cascade-deleted if you add onDelete: Cascade to the schema
+    // Otherwise delete them manually first:
+    await prisma.quizAnswer.deleteMany({ where: { questionId: req.params.id } });
+    await prisma.quizQuestion.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: 'Question deleted successfully' });
+  } catch (err) {
+    console.error('[DELETE /admin/quiz/questions/:id]', err);
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Question not found' });
+    res.status(500).json({ error: 'Failed to delete question' });
+  }
+});
 
 module.exports = router;

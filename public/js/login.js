@@ -184,12 +184,11 @@ document.getElementById('auth-form').addEventListener('submit', async function(e
     });
     const data = await res.json();
 
-    if (res.ok) {
-      const tx = t[currentLang];
-      const successMsg = isLoginMode ? tx.loginSuccess : tx.registerSuccess;
-      showBanner(successMsg, 'success');
-      if (data.token) localStorage.setItem('auth_token', data.token);
-      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    if (data.token) {
+      localStorage.setItem('auth_token', data.token);
+      const payload = JSON.parse(atob(data.token.split('.')[1]));
+      const redirect = payload.role === 'admin' ? 'admin-dashboard.html' : 'index.html';
+      setTimeout(() => { window.location.href = redirect; }, 1500);
     } else {
       setLoading(false);
       const tx = t[currentLang];

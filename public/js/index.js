@@ -117,6 +117,60 @@ function setLang(lang) {
 }
 
 // =============================================================
+// AUTH — Profile button + popup
+// =============================================================
+function decodeToken(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return null;
+  }
+}
+
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  const loginBtn = document.getElementById('login-btn');
+  const profileBtn = document.getElementById('profile-btn');
+  const mobileLogin = document.getElementById('mobile-login');
+  const mobileProfile = document.getElementById('mobile-profile');
+
+  if (!token) return;
+
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+
+  // Swap login → profile
+  loginBtn.style.display = 'none';
+  profileBtn.style.display = 'flex';
+  mobileLogin.style.display = 'none';
+  mobileProfile.style.display = 'block';
+
+  // Fill popup info
+  document.getElementById('popup-name').textContent = payload.name || 'Student';
+  document.getElementById('popup-email').textContent = payload.email || '';
+  document.getElementById('popup-role').textContent = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+}
+
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+
+// Close popup when clicking outside
+document.addEventListener('click', () => {
+  const popup = document.getElementById('profile-popup');
+  if (popup) popup.classList.remove('open');
+});
+
+// =============================================================
 // INIT
 // =============================================================
 document.addEventListener("DOMContentLoaded", () => {
@@ -124,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderEvents();
   setLang(localStorage.getItem("lang") || "nl");
   document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+  initAuth();
   
   // Close mobile nav on click
   document.querySelectorAll(".mobile-nav a").forEach(link => {

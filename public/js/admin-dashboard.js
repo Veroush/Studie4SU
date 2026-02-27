@@ -1,3 +1,11 @@
+function checkAdminAccess() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) { window.location.href = 'login.html'; return; }
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  if (payload.role !== 'admin') { window.location.href = 'index.html'; }
+}
+checkAdminAccess();
+
 'use strict';
 
 // ── SideBar & Overlay ─────────────────────────────────────────

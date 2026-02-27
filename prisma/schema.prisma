@@ -94,3 +94,24 @@ model OpenHouse {
   schoolId        String
   school          School   @relation(fields: [schoolId], references: [id])
 }
+
+model QuizQuestion {
+  id        String       @id @default(cuid())
+  text      String
+  type      String       // "single" | "multiple"
+  order     Int          @default(0)
+  answers   QuizAnswer[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model QuizAnswer {
+  id          String       @id @default(cuid())
+  questionId  String
+  question    QuizQuestion @relation(fields: [questionId], references: [id])
+  text        String
+  programLink String?      // e.g. "Technologie", "Economie" — matches quiz cluster scoring
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

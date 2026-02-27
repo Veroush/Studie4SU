@@ -34,9 +34,23 @@
           <button class="active" onclick="setLang('nl')" id="btn-nl">NL</button>
           <button onclick="setLang('en')" id="btn-en">EN</button>
         </div>
-        <a href="login.html" class="btn btn-primary btn-sm">
+        <a href="login.html" class="btn btn-primary btn-sm" id="login-btn">
           👤 <span data-i18n="nav.login">Login</span>
         </a>
+
+        <div class="profile-wrap" id="profile-btn" style="display:none; position:relative;">
+          <button class="btn btn-primary btn-sm" onclick="toggleProfilePopup(event)">
+        👤 <span>Profiel</span>
+          </button>
+          <div class="profile-popup" id="profile-popup">
+            <div class="popup-avatar">👤</div>
+            <div class="popup-name" id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+            <div class="popup-role" id="popup-role"></div>
+              <hr class="popup-divider"/>
+                <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+          </div>
+        </div>
       </div>
 
       <button class="hamburger" onclick="toggleMobileNav()" aria-label="Toggle navigation">
@@ -50,7 +64,8 @@
     <a href="#schools" data-i18n="nav.schools">🏫 Schools</a>
     <a href="#events" data-i18n="nav.openhouses">📅 Open Houses</a>
     <a href="quiz.html" data-i18n="nav.quiz">✨ Study Quiz</a>
-    <a href="login.html" data-i18n="nav.login">👤 Login</a>
+    <a href="login.html" id="mobile-login" data-i18n="nav.login">👤 Login</a>
+    <a href="#" id="mobile-profile" style="display:none;" onclick="toggleProfilePopup(event)">👤 Profiel</a>
   </nav>
 </header>
 
