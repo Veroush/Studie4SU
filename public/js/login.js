@@ -24,6 +24,12 @@ const t = {
     loginSuccess: 'Succesvol ingelogd! Doorverwijzen...', registerSuccess: 'Account aangemaakt! Doorverwijzen...',
     errServer: 'Er is iets misgegaan. Probeer het opnieuw.',
     errEmailTaken: 'Dit e-mailadres is al in gebruik.', errWrongCreds: 'Onjuist e-mailadres of wachtwoord.',
+    quoteTextLogin: '“Every failure is a step to success”',
+    quoteBookLogin: 'Lectures on the History of Moral Philosophy in England',
+    quoteAuthorLogin: 'by William Whewell',
+    quoteTextRegister: '“The strongest principle of growth lies in the human choice.”',
+    quoteBookRegister: 'Daniel Deronda',
+    quoteAuthorRegister: 'by George Eliot',
   },
   en: {
     heading: 'Welcome back', headingRegister: 'Create your account',
@@ -41,6 +47,12 @@ const t = {
     loginSuccess: 'Successfully logged in! Redirecting...', registerSuccess: 'Account created! Redirecting...',
     errServer: 'Something went wrong. Please try again.',
     errEmailTaken: 'This email address is already in use.', errWrongCreds: 'Incorrect email address or password.',
+    quoteTextLogin: '"Every failure is a step to success"',
+    quoteBookLogin: 'Lectures on the History of Moral Philosophy in England',
+    quoteAuthorLogin: 'by William Whewell',
+    quoteTextRegister: '"The strongest principle of growth lies in the human choice."',
+    quoteBookRegister: 'Daniel Deronda',
+    quoteAuthorRegister: 'by George Eliot',
   }
 };
 
@@ -60,6 +72,9 @@ const dom = {
   emailError: document.getElementById('email-error'), passError: document.getElementById('password-error'),
   srAnnounce: document.getElementById('sr-announcements'), btnNl: document.getElementById('btn-nl'),
   btnEn: document.getElementById('btn-en'),
+  quoteText: document.getElementById('quote-text'),
+  quoteBook: document.getElementById('quote-book'),
+  quoteAuthor: document.getElementById('quote-author'),
 };
 
 /* ────────────────────────────────────────────────────────────
@@ -99,6 +114,9 @@ function updateFormUI() {
   dom.toggleText.textContent = isLoginMode ? tx.noAccount : tx.hasAccount;
   dom.toggleLink.textContent = isLoginMode ? tx.switchRegister : tx.switchLogin;
   dom.backLink.textContent = tx.backHome;
+  dom.quoteText.textContent = isLoginMode ? tx.quoteTextLogin : tx.quoteTextRegister;
+  dom.quoteBook.textContent = isLoginMode ? tx.quoteBookLogin : tx.quoteBookRegister;
+  dom.quoteAuthor.textContent = isLoginMode ? tx.quoteAuthorLogin : tx.quoteAuthorRegister;
 }
 
 function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
