@@ -1,266 +1,753 @@
 // prisma/seed.js
-// ================================================================
-// This file fills your database with real Surinamese schools and
-// study programs. Run it once with: npx prisma db seed
-// ================================================================
-
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting seed...");
+  console.log('🌱 Seeding database...');
 
-  // ================================================================
-  // STEP 1 — Create all the schools
-  // We save each school in a variable so we can use its ID
-  // when creating programs below
-  // ================================================================
-
-  const adekus = await prisma.school.upsert({
-    where:  { id: "school_adekus" },
-    update: {},   // if it already exists, don't change anything
-    create: {
-      id:        "school_adekus",
-      name:      "Anton de Kom Universiteit van Suriname",
-      shortName: "AdeKUS",
-      type:      "University",
-      location:  "Paramaribo",
-      website:   "https://www.adekus.edu.sr",
+  // ── Schools ──────────────────────────────────────────────
+  const schools = [
+    {
+      id:        `school_adekus`,
+      name:      `Anton de Kom Universiteit van Suriname`,
+      shortName: `AdeKUS`,
+      type:      `HBO`,
+      location:  null,
+      website:   null,
     },
-  });
-  console.log("✅ Created school: AdeKUS");
-
-  const natin = await prisma.school.upsert({
-    where:  { id: "school_natin" },
-    update: {},
-    create: {
-      id:        "school_natin",
-      name:      "Natuurtechnisch Instituut",
-      shortName: "NATIN",
-      type:      "HBO",
-      location:  "Paramaribo",
-      website:   "https://www.natin.sr",
+    {
+      id:        `school_ptc`,
+      name:      `Polytechnic College Suriname`,
+      shortName: `PTC`,
+      type:      `HBO`,
+      location:  `Slangenhoutstraat #99a Saron`,
+      website:   `https://www.ptc.edu.sr/`,
     },
-  });
-  console.log("✅ Created school: NATIN");
-
-  const iol = await prisma.school.upsert({
-    where:  { id: "school_iol" },
-    update: {},
-    create: {
-      id:        "school_iol",
-      name:      "Instituut voor de Opleiding van Leraren",
-      shortName: "IOL",
-      type:      "HBO",
-      location:  "Paramaribo",
+    {
+      id:        `school_fhr`,
+      name:      `Frederik Hendrik Rudolf Lim A Po Institute for Higher Education`,
+      shortName: `FHR`,
+      type:      `HBO`,
+      location:  null,
+      website:   null,
     },
-  });
-  console.log("✅ Created school: IOL");
+  ];
 
-  const covab = await prisma.school.upsert({
-    where:  { id: "school_covab" },
-    update: {},
-    create: {
-      id:        "school_covab",
-      name:      "College voor Agrarische en Biologische Wetenschappen",
-      shortName: "COVAB",
-      type:      "HBO",
-      location:  "Paramaribo",
+  for (const school of schools) {
+    await prisma.school.upsert({
+      where:  { id: school.id },
+      update: school,
+      create: school,
+    });
+    console.log(`  ✅ School: ${school.shortName}`);
+  }
+
+  // ── Study Programs ───────────────────────────────────────
+  const programs = [
+    {
+      id:            `prog_aa1`,
+      name:          `Agrarische Produktie`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde, Natuurkunde en Scheikunde (Biologie in het pakket is een plus punt) | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created school: COVAB");
-
-  const imeao = await prisma.school.upsert({
-    where:  { id: "school_imeao" },
-    update: {},
-    create: {
-      id:        "school_imeao",
-      name:      "Instituut voor Middelbaar Economisch en Administratief Onderwijs",
-      shortName: "IMEAO",
-      type:      "MBO",
-      location:  "Paramaribo",
+    {
+      id:            `prog_aa2`,
+      name:          `Bedrijfskunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Economie I | Economie II | Wiskunde = 18pt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created school: IMEAO");
-
-  const ptc = await prisma.school.upsert({
-    where:  { id: "school_ptc" },
-    update: {},
-    create: {
-      id:        "school_ptc",
-      name:      "Polytechnical College Suriname",
-      shortName: "PTC",
-      type:      "MBO",
-      location:  "Paramaribo",
+    {
+      id:            `prog_aa3`,
+      name:          `Biologie`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Vakkenpakket: Biologie | Natuurkunde | Scheikunde | Wiskunde | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma: S-Pakket of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created school: PTC");
-
-  const igsr = await prisma.school.upsert({
-    where:  { id: "school_igsr" },
-    update: {},
-    create: {
-      id:        "school_igsr",
-      name:      "Instituut voor Geesteswetenschappen Suriname",
-      shortName: "IGSR",
-      type:      "HBO",
-      location:  "Paramaribo",
+    {
+      id:            `prog_aa4`,
+      name:          `Bouwkunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde I, Natuurkunde en Scheikunde, samen18pt, | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created school: IGSR");
-
-  // ================================================================
-  // STEP 2 — Create all the study programs
-  // Each program has:
-  //   - a fixed ID that matches clusterToProgramMap in quizRoutes.js
-  //   - a cluster tag (TECH, MED, BUS, etc.)
-  //   - a link to its school via schoolId
-  // ================================================================
-
-  // ── TECHNOLOGY ──────────────────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_technology" },
-    update: {},
-    create: {
-      id:            "program_technology",
-      name:          "ICT / Software Engineering",
-      cluster:       "TECH",
-      duration:      "4 years",
-      levelRequired: "HAVO",
-      tuitionCost:   "SRD 4,500 / year",
-      description:   "Learn to build software, manage networks, and solve technical problems using modern programming languages and tools.",
-      careers:       "Software Developer, Network Administrator, IT Support Specialist, Database Manager, Web Developer",
-      schoolId:      natin.id,
+    {
+      id:            `prog_aa5`,
+      name:          `Economie`,
+      schoolId:      `school_adekus`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Economie1 I Economie2 I Wiskunde | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld, Schakeljaar certificaat`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: ICT / Software Engineering (NATIN)");
-
-  // ── MEDICAL ─────────────────────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_medical" },
-    update: {},
-    create: {
-      id:            "program_medical",
-      name:          "Medicine & Health Sciences",
-      cluster:       "MED",
-      duration:      "6 years",
-      levelRequired: "VWO",
-      tuitionCost:   "SRD 6,000 / year",
-      description:   "Train to become a medical professional. Covers human biology, clinical skills, diagnostics, and patient care.",
-      careers:       "Medical Doctor, Specialist, Surgeon, Public Health Officer, Clinical Researcher",
-      schoolId:      adekus.id,
+    {
+      id:            `prog_aa6`,
+      name:          `Electrotechniek`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde I, Natuurkunde en Scheikunde=18pt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: Medicine (AdeKUS)");
-
-  // ── BUSINESS ────────────────────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_business" },
-    update: {},
-    create: {
-      id:            "program_business",
-      name:          "Business Administration & Economics",
-      cluster:       "BUS",
-      duration:      "4 years",
-      levelRequired: "HAVO",
-      tuitionCost:   "SRD 4,000 / year",
-      description:   "Study how businesses run, how money works, and how to manage teams and organizations effectively.",
-      careers:       "Business Manager, Accountant, Financial Analyst, Entrepreneur, Marketing Specialist, Banker",
-      schoolId:      adekus.id,
+    {
+      id:            `prog_aa7`,
+      name:          `Fysiotherapie`,
+      schoolId:      `school_adekus`,
+      cluster:       `MED`,
+      description:   `Vakkenpakket: Biologie, natuurkunde, scheikunde en wiskunde-1, met een puntenaantal van minimaal 24 behaald voor deze vakken | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: Business Administration (AdeKUS)");
-
-  // ── SOCIAL WORK ─────────────────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_social_work" },
-    update: {},
-    create: {
-      id:            "program_social_work",
-      name:          "Social Work & Community Development",
-      cluster:       "SOC",
-      duration:      "4 years",
-      levelRequired: "HAVO",
-      tuitionCost:   "SRD 3,500 / year",
-      description:   "Learn how to support individuals, families, and communities through counseling, advocacy, and social programs.",
-      careers:       "Social Worker, Community Developer, Youth Counselor, Policy Advisor, NGO Worker, Family Therapist",
-      schoolId:      adekus.id,
+    {
+      id:            `prog_aa8`,
+      name:          `Geneeskunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `MED`,
+      description:   `Vakkenpakket: Wiskunde 1, Scheikunde, Natuurkunde, Biologie = 24pt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld, Schakeljaar certificaat`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: Social Work (AdeKUS)");
-
-  // ── EDUCATION ───────────────────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_education" },
-    update: {},
-    create: {
-      id:            "program_education",
-      name:          "Teacher Training (Lerarenopleiding)",
-      cluster:       "EDU",
-      duration:      "4 years",
-      levelRequired: "HAVO",
-      tuitionCost:   "SRD 3,000 / year",
-      description:   "Train to become a teacher at primary or secondary level. Covers pedagogy, child development, and subject specialization.",
-      careers:       "Primary School Teacher, Secondary School Teacher, School Counselor, Education Coordinator, Special Needs Teacher",
-      schoolId:      iol.id,
+    {
+      id:            `prog_aa9`,
+      name:          `Geowetenschappen`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Natuurkunde | Scheikunde | Wiskunde 1 = 18pt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: Teacher Training (IOL)");
-
-  // ── SCIENCE / AGRICULTURE ───────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_science" },
-    update: {},
-    create: {
-      id:            "program_science",
-      name:          "Agronomy & Natural Sciences",
-      cluster:       "SCI",
-      duration:      "4 years",
-      levelRequired: "HAVO",
-      tuitionCost:   "SRD 3,500 / year",
-      description:   "Study Suriname's rich natural environment — agriculture, biology, ecology, and food science.",
-      careers:       "Agronomist, Biologist, Environmental Officer, Food Inspector, Forest Ranger, Lab Analyst",
-      schoolId:      covab.id,
+    {
+      id:            `prog_aa10`,
+      name:          `Geschiedenis`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Vakkenpakket: Elk pakket geeft toegang | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: Agronomy & Natural Sciences (COVAB)");
-
-  // ── LAW ─────────────────────────────────────────────────────────
-  await prisma.studyProgram.upsert({
-    where:  { id: "program_law" },
-    update: {},
-    create: {
-      id:            "program_law",
-      name:          "Law & Governance (Rechten)",
-      cluster:       "LAW",
-      duration:      "4 years",
-      levelRequired: "VWO",
-      tuitionCost:   "SRD 4,500 / year",
-      description:   "Study the Surinamese legal system, international law, governance, and justice. One of the most respected degrees in Suriname.",
-      careers:       "Lawyer, Notary, Judge, Civil Servant, Policy Maker, Legal Advisor, Diplomat",
-      schoolId:      adekus.id,
+    {
+      id:            `prog_aa11`,
+      name:          `Infrastructuur–Civiele Techniek`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde1,Natuurkunde, Scheikunde = 18pt, met hoogstens voor 1 vak minim. 5.0pt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
     },
-  });
-  console.log("✅ Created program: Law (AdeKUS)");
+    {
+      id:            `prog_aa12`,
+      name:          `Infrastructuur-oud (in afbouw)`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Natuurkunde | Scheikunde | Wiskunde 1 | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa13`,
+      name:          `Milieuwetenschappen`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Natuurkunde | Scheikunde | Wiskunde 1 | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa14`,
+      name:          `Natuurkunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Vakkenpakket: Natuurkunde en Wiskunde I: elk tenminste een 6 | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld; S-pakket`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa15`,
+      name:          `Taal en Communicatie`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Vakkenpakket: VWO Diploma of gelijkgesteld, certificaat Schakeljaar | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld, certificaat Schakeljaar`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa16`,
+      name:          `Onderwijs- en Pedagogische Wetenschappen`,
+      schoolId:      `school_adekus`,
+      cluster:       `EDU`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma, Schakeljaar certificaat of Verklaring Colloquium Doctum toets`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa17`,
+      name:          `Psychologie`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Vakkenpakket: Nederlands | Engels | Wiskunde =minimaal 3x6p | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa18`,
+      name:          `Public Administration`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa19`,
+      name:          `Public Health`,
+      schoolId:      `school_adekus`,
+      cluster:       `MED`,
+      description:   `Vakkenpakket: Biologie, natuurkunde, scheikunde en wiskunde-1, met een puntenaantal van minimaal 24 behaald voor deze vakken | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa20`,
+      name:          `Rechtswetenschappen`,
+      schoolId:      `school_adekus`,
+      cluster:       `LAW`,
+      description:   `Vakkenpakket: Economie 1 of Wiskunde 1 of Q, Nederlands en Engels met een voldoende voor deze vakken | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa21`,
+      name:          `Scheikunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Vakkenpakket: Scheikunde, Wiskunde I, Natuurkunde = 18pt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa22`,
+      name:          `Sociologie`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Vakkenpakket: Wiskunde I / Wiskunde Q | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa23`,
+      name:          `Werktuigbouwkunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde 1, Natuurkunde en Scheikunde | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of gelijkgesteld, Schakeljaar certificaat`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_aa24`,
+      name:          `Wiskunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Vakkenpakket: Wiskunde 1 en wiskunde 2 = 13pt, geen onvoldoendes Of wiskunde 1 en natuurkunde=13pnt, voor wiskunde 1 min 7 en geen onvoldoendes Of MO-A diploma , waarbij de som van het gemiddelde van de vakken Analyse 1, Analyse 2, Analyse 3 en Analyse 4 en het gemiddelde van de vakken Meetkunde 1, Meetkunde 2 en Meetkunde 3 minimaal 13 bedraagt | Niveau: bachelor`,
+      tuitionCost:   `SRD 4.200`,
+      levelRequired: `VWO Diploma of afgeronde MO-A Wiskunde`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab1`,
+      name:          `Applied Statistics`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Vakkenpakket: Wiskunde + Statistiek | Niveau: master`,
+      tuitionCost:   `US$ 1890,-`,
+      levelRequired: `BSc/ MOB-Economie, Wiskunde, Statistiek,HBO, BBA (na afronding van de pre-master opleiding Wetenschappelijke Vorming)`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab2`,
+      name:          `Bedrijfskunde`,
+      schoolId:      `school_adekus`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Bedrijfskunde of Economie of aanverwante richtingen | Niveau: master`,
+      tuitionCost:   `US$ 2000,`,
+      levelRequired: `WO Bachelor of Pre-Master HBO`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab3`,
+      name:          `Executive Master of Finance and Control (EMFC)`,
+      schoolId:      `school_adekus`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Specifieke vereisten m.b.t. de inhoud en studiebelastingsuren in het vakkenpakket van kandidaten *In geval niet voldaan is aan de instroomeis, moet er een deficiëntieprogramma worden gevolgd. | Niveau: post master`,
+      tuitionCost:   `S$ 4300,-`,
+      levelRequired: `Minimaal wetenschappelijk Masterdiploma in Bedrijfseconomie/ Bedrijfskunde - Relevante werkervaring op aantoonbaar academisch niveau *Onder speciale voorwaarden kunnen HBO master alumni wo...`,
+      duration:      `2 jaar`,
+    },
+    {
+      id:            `prog_ab4`,
+      name:          `Finance and Control`,
+      schoolId:      `school_adekus`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Bedrijfseconomie, bedrijfskunde | Niveau: master`,
+      tuitionCost:   `US$ 1890,`,
+      levelRequired: `BSc. Economie en BSc Bedrijskunde`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab5`,
+      name:          `Fysiotherapie`,
+      schoolId:      `school_adekus`,
+      cluster:       `MED`,
+      description:   `Niveau: master`,
+      tuitionCost:   `US$ 2000,-`,
+      levelRequired: `Bachelor of Science in Fysiotherapie`,
+      duration:      `2 jaar`,
+    },
+    {
+      id:            `prog_ab6`,
+      name:          `Geschiedenis`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Niveau: master`,
+      tuitionCost:   `US$ 1000,-`,
+      levelRequired: null,
+      duration:      null,
+    },
+    {
+      id:            `prog_ab7`,
+      name:          `Mineral Geosciences and Mining`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Niveau: master`,
+      tuitionCost:   null,
+      levelRequired: null,
+      duration:      null,
+    },
+    {
+      id:            `prog_ab8`,
+      name:          `Nederlands`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Niveau: master`,
+      tuitionCost:   `US$ 1000,-`,
+      levelRequired: `Mo-B-Nederlands-diploma of Wetenschappelijke Bachelor Nederlands`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab9`,
+      name:          `Petroleum Geoscience and Engineering`,
+      schoolId:      `school_adekus`,
+      cluster:       `TECH`,
+      description:   `Niveau: master`,
+      tuitionCost:   `US$ 2000,-`,
+      levelRequired: `BSc GeoWetenschappen/Werktuigbouwkunde`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab10`,
+      name:          `Psychologie`,
+      schoolId:      `school_adekus`,
+      cluster:       `SOC`,
+      description:   `Niveau: master`,
+      tuitionCost:   `US$ 2000,-`,
+      levelRequired: `Bachelor of Science in de Psychologie`,
+      duration:      `2 jaar`,
+    },
+    {
+      id:            `prog_ab11`,
+      name:          `Public Health`,
+      schoolId:      `school_adekus`,
+      cluster:       `MED`,
+      description:   `Vakkenpakket: Not applicable | Niveau: master`,
+      tuitionCost:   `US$ 3000,-`,
+      levelRequired: `Bachelor of Science`,
+      duration:      `2 jaar`,
+    },
+    {
+      id:            `prog_ab12`,
+      name:          `Science in Sustainable Development (MSD`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Niveau: master`,
+      tuitionCost:   `US$ 1500,-`,
+      levelRequired: `BSc obtained at the AdeKUS or equivalent`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab13`,
+      name:          `Surinaams Recht`,
+      schoolId:      `school_adekus`,
+      cluster:       `LAW`,
+      description:   `Vakkenpakket: Zie toelatingseisen | Niveau: master`,
+      tuitionCost:   `US$ 1000,-`,
+      levelRequired: `Een afgeronde Universitaire Bacheloropleiding in de Rechtswetenschap`,
+      duration:      `2 jaar`,
+    },
+    {
+      id:            `prog_ab14`,
+      name:          `Sustainable Management of Natural Resources`,
+      schoolId:      `school_adekus`,
+      cluster:       `SCI`,
+      description:   `Niveau: master`,
+      tuitionCost:   `7500,-`,
+      levelRequired: `FTeW Bachelor of Science of gelijkgesteld`,
+      duration:      `3 jaar`,
+    },
+    {
+      id:            `prog_ab15`,
+      name:          `Wetenschappelijke Vorming`,
+      schoolId:      `school_adekus`,
+      cluster:       `EDU`,
+      description:   `Vakkenpakket: Methoden en Technieken, Statistiek, Academische Vaardigheden, Onderzoeksproject | Niveau: pre master`,
+      tuitionCost:   null,
+      levelRequired: `HBO Bachelor/ MO-B diploma`,
+      duration:      `5 maanden`,
+    },
+    {
+      id:            `prog_ba1`,
+      name:          `Agribusiness Management`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Economie | Niveau: bachelor`,
+      tuitionCost:   `USD 1500 per collegejaar`,
+      levelRequired: `een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwijs (VWO; vrijstellingen mogelijk) een diploma op het niveau van Hoger Algemeen Vormend Onderwijs (HAVO) een diploma op h...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba2`,
+      name:          `Agronomie`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: wiskunde natuurkunde biologie scheikunde | Niveau: bachelor`,
+      tuitionCost:   `USD 1500`,
+      levelRequired: `Om tot het programma Agronomy toegelaten te worden, dien je te beschikken over tenminste één van de navolgende documenten:  Een diploma op het niveau van Voorbereidend Wetenschappelijk Ond...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba3`,
+      name:          `Animal Production and Health Technology`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde Natuurkunde Biologie en Scheikunde. | Niveau: bachelor`,
+      tuitionCost:   `USD 2500`,
+      levelRequired: `Om tot het programma APHT toegelaten te worden, dien je te beschikken over tenminste één van de navolgende documenten:  Een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwi...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba4`,
+      name:          `Elektrotechniek`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde en Natuurkunde | Niveau: bachelor`,
+      tuitionCost:   `USD 1500`,
+      levelRequired: `Om tot het programma Elektrotechniek toegelaten te worden, dien je te beschikken over tenminste één van de volgende documenten:  Een diploma op het niveau van Voorbereidend Wetenschappelij...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba5`,
+      name:          `Food Technology`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde Natuurkunde Biologie en Scheikunde | Niveau: bachelor`,
+      tuitionCost:   `usd 1500`,
+      levelRequired: `Om tot het programma Food Technology toegelaten te worden, dien je te beschikken over tenminste één van de volgende documenten:  Een diploma op het niveau van Voorbereidend Wetenschappelij...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba6`,
+      name:          `Hydrologie`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `usd 1750`,
+      levelRequired: `Een middelbare school diploma van: Natin/AMTO (Infrastructuur richting Meteorologie-Hydrologie, Weg & waterbouw, Bouwkunde, Geologie en Bodemkunde) Natin/AMTO (richting Werktuigbouwkunde) ...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba7`,
+      name:          `Hoger Laboratorium Onderwijs`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde Natuurkunde Scheikunde en Biologie | Niveau: bachelor`,
+      tuitionCost:   `USD 1500 per collegejaar (incl. inschrijfgeld van USD 150)USD 1500 per collegejaar (incl. inschrijfgeld van USD 150)`,
+      levelRequired: `Een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwijs (VWO) Een diploma op het niveau van Hoger Algemeen Vormend Onderwijs (HAVO) Een diploma op het niveau van Middelbaar ...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba8`,
+      name:          `Informatie & CommunicatienTechnologie`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `USD 1500`,
+      levelRequired: `Een middelbare school diploma van:  Een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwijs (VWO) Een diploma op het niveau van Hoger Algemeen Vormend Onderwijs (HAVO) Een d...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba9`,
+      name:          `Infrastructuur`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde en Natuurkunde | Niveau: bachelor`,
+      tuitionCost:   `USD 1500 per collegejaar (incl. inschrijfgeld van USD 150)`,
+      levelRequired: `Een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwijs (VWO) Een diploma op het niveau van Hoger Algemeen Vormend Onderwijs (HAVO) Een diploma op het niveau van Middelbaar ...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba10`,
+      name:          `Vastgoed en Makelaardij`,
+      schoolId:      `school_ptc`,
+      cluster:       `BUS`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `USD 2500`,
+      levelRequired: `Een recent bewijs van goed gedrag en tenminste één van de navolgende documenten:  een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwijs (VWO) een diploma op het niveau van...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba11`,
+      name:          `Werktuigbouwkunde`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Vakkenpakket: Wiskunde en Natuurkunde | Niveau: bachelor`,
+      tuitionCost:   `USD 1500`,
+      levelRequired: `Een diploma op het niveau van Voorbereidend Wetenschappelijk Onderwijs (VWO) Een diploma op het niveau van Hoger Algemeen Vormend Onderwijs (HAVO) Een diploma op het niveau van Middelbaar ...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ba12`,
+      name:          `Hospitality Management`,
+      schoolId:      `school_ptc`,
+      cluster:       `BUS`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `USD 1500 per collegejaar  (incl. inschrijfgeld van USD 150)`,
+      levelRequired: `Een (middelbare school) diploma van:  IMEAO (afhankelijk van de gekozen studierichting) Suriname Hospitality and Tourism Training Centre (SHTTC) Pedagogisch Instituut  VWO HAVO NATIN`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_bb1`,
+      name:          `Master of Business Administration in Innovation & Technology`,
+      schoolId:      `school_ptc`,
+      cluster:       `BUS`,
+      description:   `Niveau: master`,
+      tuitionCost:   `(exclusief literatuur en reiskosten) EURO 7000`,
+      levelRequired: `Een motivatiebrief versturen, waarom te worden toegelaten tot de opleiding. Minimaal een technische Bachelor graad of elk daaraan gelijkgesteld diploma bezitten. Beschik je niet over een t...`,
+      duration:      `20 maanden`,
+    },
+    {
+      id:            `prog_bb2`,
+      name:          `Master  Data Science`,
+      schoolId:      `school_ptc`,
+      cluster:       `TECH`,
+      description:   `Niveau: master`,
+      tuitionCost:   `7000`,
+      levelRequired: `Graduates with a minimum of 60% from any of the disciplines from recognized university – BE/B.tech/B.Sc, with Mathematics/statistics as one of the subjects.  Pre-College master’s program i...`,
+      duration:      `2 years`,
+    },
+    {
+      id:            `prog_ca1`,
+      name:          `Business Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca2`,
+      name:          `Financial Accounting`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `nschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca3`,
+      name:          `Financial Sector Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca4`,
+      name:          `Human Resource Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca5`,
+      name:          `International Business & Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-EN	€ 50,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca6`,
+      name:          `Law and Business`,
+      schoolId:      `school_fhr`,
+      cluster:       `LAW`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca7`,
+      name:          `Law and Governance`,
+      schoolId:      `school_fhr`,
+      cluster:       `LAW`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca8`,
+      name:          `Management Accounting`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca9`,
+      name:          `Marketing Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_ca10`,
+      name:          `Prebachelor`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 500,-`,
+      levelRequired: `Je niet beschikt over twee of meer van de vereiste vakken voor het BBA-programma; Je een score van < 6 voor twee of meer van de vereiste vakken hebt; Je geen middelbareschooldiploma hebt, ...`,
+      duration:      `1 jaar`,
+    },
+    {
+      id:            `prog_ca11`,
+      name:          `Small & Medium Enterprise Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
+      tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      duration:      `4 jaar`,
+    },
+    {
+      id:            `prog_cb1`,
+      name:          `Master in Business Law`,
+      schoolId:      `school_fhr`,
+      cluster:       `LAW`,
+      description:   `Niveau: master`,
+      tuitionCost:   `Application Fee	€ 400,- Program Tuition Fee	€ 12.500,-`,
+      levelRequired: `Degree Degree: A Bachelor’s degree, consisting of a minimum of three years University or HBO study, in law preferably. Work experience At least two (2) or more years of relevant working ex...`,
+      duration:      `2.5 jaar`,
+    },
+    {
+      id:            `prog_cb2`,
+      name:          `Master in Human Resource Management`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Niveau: master`,
+      tuitionCost:   `Application Fee	€ 300,- Program Tuition Fee	€ 10.000,-`,
+      levelRequired: `Degree A Bachelor degree, preferably in one of the Social Sciences; consisting of minimum of three years from a recognized institute (university/HBO), or its equivalent. Work experience At...`,
+      duration:      `2.5 jaar`,
+    },
+    {
+      id:            `prog_cb3`,
+      name:          `Master of Accounting`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Niveau: master`,
+      tuitionCost:   `Application Fee	€ 300,- Program Tuition Fee	€ 12.500,-`,
+      levelRequired: `Degree A Bachelor degree from a recognized institute (university or HBO) in Accounting, Finance or an equivalent degree. Work experience At least two (2) or more years of relevant working ...`,
+      duration:      `2.5 jaar`,
+    },
+    {
+      id:            `prog_cb4`,
+      name:          `Master of Business Administration`,
+      schoolId:      `school_fhr`,
+      cluster:       `BUS`,
+      description:   `Niveau: master`,
+      tuitionCost:   `Application Fee	€ 300,- Program Tuition Fee	€ 12.500,-`,
+      levelRequired: `Degree A Bachelor degree, preferably in one of the Social Sciences; consisting of minimum of three years from a recognized institute (university/HBO), or its equivalent. Work experience At...`,
+      duration:      `2.5 jaar`,
+    },
+    {
+      id:            `prog_cb5`,
+      name:          `Master of Public Administration in Governance`,
+      schoolId:      `school_fhr`,
+      cluster:       `SOC`,
+      description:   `Niveau: master`,
+      tuitionCost:   `Application Fee	€ 300,- Program Tuition Fee	€ 10.000,-`,
+      levelRequired: `Degree A Bachelor degree, preferably in one of the Social Sciences; consisting of minimum of three years from a recognized institute (university/HBO), or its equivalent. Work experience At...`,
+      duration:      `2.5 jaar`,
+    },
+  ];
 
-  // ================================================================
-  // Done!
-  // ================================================================
-  console.log("\n🎉 Seeding complete! Your database now has:");
-  console.log("   • 7 schools");
-  console.log("   • 7 study programs (one per career cluster)");
-  console.log("\nYou can now run: npx prisma studio");
-  console.log("And take the quiz at: http://localhost:3000/quiz.html");
+  for (const program of programs) {
+    await prisma.studyProgram.upsert({
+      where:  { id: program.id },
+      update: program,
+      create: program,
+    });
+    console.log(`  ✅ Program: ${program.name}`);
+  }
+
+  console.log('\n🎉 Done! 3 schools + 69 programs seeded.');
 }
 
-// ================================================================
-// Run the main function and handle errors
-// ================================================================
 main()
-  .catch((error) => {
-    console.error("❌ Seed failed:", error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(e => { console.error('❌ Seed failed:', e); process.exit(1); })
+  .finally(async () => { await prisma.$disconnect(); });

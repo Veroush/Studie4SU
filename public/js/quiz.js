@@ -333,6 +333,20 @@ const programsData = {
 };
 
 /* ============================================================
+   SCHOOL ID MAP
+   Maps quiz program IDs to real DB school IDs for linking
+============================================================ */
+const PROGRAM_SCHOOL_MAP = {
+  program_technology:  'school_natin',
+  program_medical:     'school_adekus',
+  program_business:    'school_adekus',
+  program_social_work: 'school_adekus',
+  program_education:   'school_iol',
+  program_science:     'school_covab',
+  program_law:         'school_adekus',
+};
+
+/* ============================================================
    QUIZ STATE
 ============================================================ */
 const quizState = {
@@ -424,7 +438,6 @@ function renderQuestion() {
     list.setAttribute('role', q.type === 'multiple' ? 'group' : 'radiogroup');
 
     q.options.forEach(option => {
-      // Is this option currently selected?
       const isSelected = q.type === 'multiple'
         ? (Array.isArray(ans) && ans.includes(option))
         : ans === option;
@@ -524,7 +537,7 @@ function handleNext() {
       `${translations[currentLang].progress} ${quizState.currentQuestion + 1}: ${questionsData[currentLang][quizState.currentQuestion].question}`
     );
   } else {
-    // Last question — show results
+    // Last question — check login before showing results
     quizState.showResults = true;
     submitAndShowResults();
   }
@@ -540,10 +553,40 @@ function handlePrevious() {
 }
 
 /* ============================================================
+   AUTH HELPERS
+============================================================ */
+function isLoggedIn() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Check token hasn't expired
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('auth_token');
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/* ============================================================
    SUBMIT TO BACKEND (optional — falls back gracefully)
 ============================================================ */
 async function submitAndShowResults() {
-  // Show results immediately using local algorithm
+  // ── LOGIN GATE ──────────────────────────────────────────────
+  // If the user is not logged in, save their answers and redirect
+  // to the login page. After login/register they'll be sent back
+  // here with ?showResults=true and the answers will be restored.
+  if (!isLoggedIn()) {
+    localStorage.setItem('quiz_pending_answers', JSON.stringify(quizState.answers));
+    localStorage.setItem('quiz_pending_lang', currentLang);
+    window.location.href = 'login.html?redirect=quiz-results';
+    return;
+  }
+
+  // User is logged in — show results immediately
   renderResults();
 
   // Also try to save to backend (fire-and-forget, won't break the page)
@@ -697,7 +740,9 @@ function renderResults() {
     return;
   }
 
-  list.innerHTML = recs.map((rec, i) => `
+  list.innerHTML = recs.map((rec, i) => {
+    const schoolId = PROGRAM_SCHOOL_MAP[rec.id] || '';
+    return `
     <div class="rec-card">
       <div class="rec-layout">
         <div class="rank-badge" aria-label="Rank ${i + 1}">#${i + 1}</div>
@@ -731,13 +776,18 @@ function renderResults() {
           </div>
 
           <div class="action-row">
-            <button class="btn-primary" onclick="window.location.href='index.html'">${t.viewSchool}</button>
-            <button class="btn-secondary" onclick="window.location.href='index.html'">${t.viewProgram}</button>
+            <button class="btn-primary" onclick="window.location.href='school-detail.html?id=${schoolId}'">${t.viewSchool}</button>
+            <button class="btn-secondary" onclick="window.location.href='schools.html'">${t.viewProgram}</button>
           </div>
         </div>
       </div>
     </div>
-  `).join('');
+  `;}
+  ).join('');
+
+  // Clean up pending answers from localStorage now that we've shown results
+  localStorage.removeItem('quiz_pending_answers');
+  localStorage.removeItem('quiz_pending_lang');
 
   scrollToTop();
   announceToScreenReader(t.resultsTitle);
@@ -775,11 +825,46 @@ function announceToScreenReader(msg) {
 }
 
 /* ============================================================
+   HAMBURGER (mobile nav toggle)
+============================================================ */
+document.getElementById('hamburger-btn').addEventListener('click', () => {
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+
+/* ============================================================
    INIT
+   — If the URL has ?showResults=true, the user was redirected
+     back here after logging in. Restore their saved answers
+     and go straight to results.
 ============================================================ */
 (function init() {
   updateLangButtons();
   updateStaticText();
-  renderQuestion();
-  updateProgressBar();
+
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get('showResults') === 'true') {
+    // Restore saved answers from before the login redirect
+    const savedAnswers = localStorage.getItem('quiz_pending_answers');
+    const savedLang    = localStorage.getItem('quiz_pending_lang');
+
+    if (savedAnswers) {
+      try {
+        quizState.answers = JSON.parse(savedAnswers);
+      } catch (e) {
+        console.warn('Could not restore quiz answers:', e);
+      }
+    }
+
+    if (savedLang) {
+      currentLang = savedLang;
+      updateLangButtons();
+    }
+
+    quizState.showResults = true;
+    renderResults();
+  } else {
+    renderQuestion();
+    updateProgressBar();
+  }
 })();

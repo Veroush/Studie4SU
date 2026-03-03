@@ -340,6 +340,11 @@ function renderPage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
             <span><strong>${tx.careers}</strong> ${p.careers}</span>
           </div>` : ''}
+        <div style="margin-top:12px;">
+          <a href="program-detail.html?id=${p.id}" style="display:inline-flex;align-items:center;gap:4px;font-size:.85rem;font-weight:600;color:var(--green-700,#15803d);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent;transition:border-color .2s;" onmouseover="this.style.borderBottomColor='var(--green-700,#15803d)'" onmouseout="this.style.borderBottomColor='transparent'">
+            ${language === 'nl' ? 'Bekijk opleiding' : 'View program'} →
+          </a>
+        </div>
       </div>`).join('');
 
   // ── FACILITIES / SERVICES ────────────────────────────────

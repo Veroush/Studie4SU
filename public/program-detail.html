@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opleiding | Studie4SU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/program-detail.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Studie<span>4SU</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="schools.html">Scholen</a></li>
+        <li><a href="quiz.html">Quiz</a></li>
+        <li><a href="open-houses.html">Open Dagen</a></li>
+      </ul>
+      <div class="header-right">
+        <button class="lang-btn active" id="btn-nl">NL</button>
+        <button class="lang-btn" id="btn-en">EN</button>
+        <a href="login.html" class="btn-login">Inloggen</a>
+        <button class="hamburger" id="hamburger-btn">☰</button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="index.html">Home</a>
+      <a href="schools.html">Scholen</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="open-houses.html">Open Dagen</a>
+    </nav>
+  </header>
+
+  <!-- LOADING STATE -->
+  <div class="page-loading" id="page-loading">
+    <div class="loading-spinner"></div>
+    <p>Laden...</p>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div class="page-error" id="page-error" hidden>
+    <div class="error-inner">
+      <div class="error-icon">⚠️</div>
+      <h2 id="error-title">Opleiding niet gevonden</h2>
+      <p id="error-msg">Deze opleiding bestaat niet of is verwijderd.</p>
+      <a href="schools.html" class="btn-back-error">← Terug naar scholen</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content" hidden>
+
+    <!-- BREADCRUMB + BACK -->
+    <div class="top-nav">
+      <div class="container">
+        <a class="back-link" id="back-link" href="schools.html">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <span id="back-label">Terug naar school</span>
+        </a>
+        <div class="breadcrumb">
+          <a href="schools.html" id="bc-schools">Scholen</a>
+          <span>›</span>
+          <a href="#" id="bc-school">—</a>
+          <span>›</span>
+          <span id="bc-program">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-left">
+            <div class="cluster-tag" id="cluster-tag">—</div>
+            <h1 class="hero-title" id="program-name">—</h1>
+            <div class="hero-school" id="hero-school">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span id="school-name">—</span>
+            </div>
+            <div class="hero-meta">
+              <div class="meta-pill" id="meta-duration" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="duration-val">—</span>
+              </div>
+              <div class="meta-pill" id="meta-level" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <span id="level-val">—</span>
+              </div>
+              <div class="meta-pill meta-pill--cost" id="meta-cost" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span id="cost-val">—</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero-right">
+            <a class="btn-website" id="btn-website" href="#" target="_blank" rel="noopener noreferrer" hidden>
+              <span id="btn-website-label">Bezoek schoolwebsite</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <button class="btn-fav-program" id="btn-fav-program" aria-label="Voeg toe aan favorieten" title="Voeg toe aan favorieten">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETAIL CARDS -->
+    <section class="detail-section">
+      <div class="container">
+        <div class="detail-grid">
+
+          <!-- Description / Subjects -->
+          <div class="detail-card detail-card--wide" id="card-description" hidden>
+            <div class="card-icon card-icon--green">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
+            <h2 class="card-title" id="lbl-description">Over deze opleiding</h2>
+            <p class="card-body" id="description-val">—</p>
+          </div>
+
+          <!-- Admission Requirements -->
+          <div class="detail-card" id="card-admission" hidden>
+            <div class="card-icon card-icon--blue">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <h2 class="card-title" id="lbl-admission">Toelatingseisen</h2>
+            <p class="card-body" id="admission-val">—</p>
+          </div>
+
+          <!-- Career Options -->
+          <div class="detail-card" id="card-careers" hidden>
+            <div class="card-icon card-icon--amber">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <h2 class="card-title" id="lbl-careers">Carrièremogelijkheden</h2>
+            <div class="career-pills" id="careers-val"></div>
+          </div>
+
+          <!-- Duration & Schedule -->
+          <div class="detail-card" id="card-schedule" hidden>
+            <div class="card-icon card-icon--purple">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h2 class="card-title" id="lbl-schedule">Duur & Rooster</h2>
+            <div class="schedule-list" id="schedule-val"></div>
+          </div>
+
+          <!-- Tuition -->
+          <div class="detail-card" id="card-tuition" hidden>
+            <div class="card-icon card-icon--green">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h2 class="card-title" id="lbl-tuition">Collegegeld</h2>
+            <p class="tuition-amount" id="tuition-val">—</p>
+            <p class="tuition-note" id="lbl-tuition-note">Per academisch jaar. Bedragen kunnen wijzigen.</p>
+          </div>
+
+          <!-- School Info -->
+          <div class="detail-card detail-card--school" id="card-school">
+            <div class="card-icon card-icon--gray">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <h2 class="card-title" id="lbl-school-info">Schoolinformatie</h2>
+            <div class="school-info-list" id="school-info-val"></div>
+            <a class="btn-website-card" id="btn-website-card" href="#" target="_blank" rel="noopener noreferrer" hidden>
+              <span id="btn-website-card-label">Bezoek website</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+  </footer>
+
+  <script src="js/program-detail.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 // ── State ──────────────────────────────────────────────────────
 let allSchools   = [];   // raw data from backend
-let favorites    = JSON.parse(localStorage.getItem('school_favorites') || '[]');
+let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = [];   // max 3 school IDs
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
@@ -234,6 +234,27 @@ function renderGrid() {
   }).join('');
 }
 
+// ── Toast ─────────────────────────────────────────────────────
+let _toastTimer;
+function showFavToast(added) {
+  let el = document.getElementById('fav-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fav-toast';
+    el.className = 'fav-toast';
+    document.body.appendChild(el);
+  }
+  const msg = added
+    ? (language === 'nl' ? 'Toegevoegd aan favorieten' : 'Added to favourites')
+    : (language === 'nl' ? 'Verwijderd uit favorieten' : 'Removed from favourites');
+  el.innerHTML = added
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${language === 'nl' ? 'Bekijk favorieten →' : 'View favourites →'}</a>`
+    : msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
 // ── Favorite toggle ───────────────────────────────────────────
 function toggleFavorite(id, btn) {
   const idx = favorites.indexOf(id);
@@ -242,9 +263,10 @@ function toggleFavorite(id, btn) {
   } else {
     favorites.splice(idx, 1);
   }
-  localStorage.setItem('school_favorites', JSON.stringify(favorites));
+  localStorage.setItem('fav_schools', JSON.stringify(favorites));
 
   const isFav = favorites.includes(id);
+  showFavToast(isFav);
   btn.classList.toggle('active', isFav);
   const path = btn.querySelector('path');
   if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
