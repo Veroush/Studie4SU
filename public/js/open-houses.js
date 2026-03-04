@@ -477,5 +477,53 @@ function setLanguage(lang) {
   render();
 }
 
+// ── Hamburger ────────────────────────────────────────────────
+document.getElementById('hamburger-btn').addEventListener('click', () => {
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+
+// ── Auth / Profile ────────────────────────────────────────────
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+
+  document.getElementById('login-btn').style.display      = 'none';
+  document.getElementById('profile-btn').style.display    = 'flex';
+  document.getElementById('mobile-login').style.display   = 'none';
+  document.getElementById('mobile-profile').style.display = 'block';
+
+  document.getElementById('profile-name-label').textContent = payload.name  || 'Profiel';
+  document.getElementById('popup-name').textContent          = payload.name  || 'Student';
+  document.getElementById('popup-email').textContent         = payload.email || '';
+  document.getElementById('popup-role').textContent          = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+}
+
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+
+document.addEventListener('click', () => {
+  const popup = document.getElementById('profile-popup');
+  if (popup) popup.classList.remove('open');
+});
+
 // Init
 setLanguage(currentLang);
+initAuth();

@@ -581,7 +581,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -591,7 +591,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `nschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -601,7 +601,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -611,7 +611,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -621,7 +621,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-EN	€ 50,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -631,7 +631,7 @@ async function main() {
       cluster:       `LAW`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -641,7 +641,7 @@ async function main() {
       cluster:       `LAW`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -651,7 +651,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -661,7 +661,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
@@ -681,7 +681,7 @@ async function main() {
       cluster:       `BUS`,
       description:   `Vakkenpakket: Wiskunde/Statistiek Economie 1/Algemene Economie/Economische Oriëntatie Economie 2/(Elementaire) Bedrijfseconomie/Bedrijfsadministratie/Rekenvaardigheden. | Niveau: bachelor`,
       tuitionCost:   `Inschrijfgeld	SRD 250,- Collegegeld	€ 1750,- per jaar Studiemateriaal (E-Books)	€ 100,- per jaar Hogeschool taalprogramma BBA-NL	€ 75,- (eenmalig)`,
-      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven v...`,
+      levelRequired: `Een havo-, vwo-, mbo-4-diploma of daaraan gelijkgesteld. Degenen met een havo-, vwo-, mbo-4- (IMEAO, NATIN, Pedagogisch Instituut) diploma of daaraan gelijkgesteld kunnen zich inschrijven voor de reguliere opleidingen van de FHR. Studenten die niet aan de toelatingseisen voldoen kunnen in aanmerking komen via een toelatingstoets.`,
       duration:      `4 jaar`,
     },
     {
