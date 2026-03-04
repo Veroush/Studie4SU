@@ -322,8 +322,14 @@ function render() {
   main.innerHTML = `
     <div class="page-wrap">
       <div class="page-title-section">
-        <h1>${tx.title}</h1>
-        <p>${tx.subtitle}</p>
+        <div class="page-title-row">
+          <img src="img/school_compare_face1.png" alt="" class="compare-face compare-face-left" aria-hidden="true">
+          <div class="page-title-copy">
+            <h1>${tx.title}</h1>
+            <p>${tx.subtitle}</p>
+          </div>
+          <img src="img/school_compare_face2.png" alt="" class="compare-face compare-face-right" aria-hidden="true">
+        </div>
       </div>
 
       <div class="desktop-table">
