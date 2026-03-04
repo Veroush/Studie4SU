@@ -97,6 +97,14 @@ function toggleMode() {
   isLoginMode ? dom.emailInput.focus() : dom.nameInput.focus();
 }
 
+function animateQuotes() {
+  [dom.quoteText, dom.quoteBook, dom.quoteAuthor].forEach((el) => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  });
+}
+
 function updateFormUI() {
   const tx = t[currentLang];
   dom.heading.textContent = isLoginMode ? tx.heading : tx.headingRegister;
@@ -117,6 +125,7 @@ function updateFormUI() {
   dom.quoteText.textContent = isLoginMode ? tx.quoteTextLogin : tx.quoteTextRegister;
   dom.quoteBook.textContent = isLoginMode ? tx.quoteBookLogin : tx.quoteBookRegister;
   dom.quoteAuthor.textContent = isLoginMode ? tx.quoteAuthorLogin : tx.quoteAuthorRegister;
+  animateQuotes();
 }
 
 function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
