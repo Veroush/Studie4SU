@@ -6,6 +6,7 @@ let favorites    = JSON.parse(localStorage.getItem('school_favorites') || '[]');
 let compareItems = [];   // max 3 school IDs
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
+let searchTerm = '';
 let language = localStorage.getItem('language') || 'nl';
 
 // ── Translations ───────────────────────────────────────────────
@@ -14,6 +15,7 @@ const t = {
     pageTitle:       'Alle Scholen',
     pageSubtitle:    'Ontdek en vergelijk scholen in Suriname',
     filterHeading:   'Filters',
+    searchLabel: 'Zoek school',
     labelType:       'Schooltype',
     labelLocation:   'Locatie',
     labelLevel:      'Niveau',
@@ -37,6 +39,7 @@ const t = {
     pageTitle:       'All Schools',
     pageSubtitle:    'Discover and compare schools in Suriname',
     filterHeading:   'Filters',
+    searchLabel: 'Search school',
     labelType:       'School Type',
     labelLocation:   'Location',
     labelLevel:      'Level',
@@ -142,7 +145,8 @@ function getFiltered() {
     const { type, location, level } = currentFilters;
     if (type     !== 'all' && school.type     !== type)     return false;
     if (location !== 'all' && school.location !== location) return false;
-    if (level    !== 'all' && school.type     !== level)    return false; // level mirrors type in our schema
+    if (level !== 'all' && school.type !== level) return false;
+    if (searchTerm && !school.name.toLowerCase().includes(searchTerm)) return false;
     return true;
   });
 }
@@ -308,6 +312,10 @@ document.getElementById('filter-type').addEventListener('change', e => {
   currentFilters.type = e.target.value;
   renderGrid();
 });
+document.getElementById('school-search').addEventListener('input', e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  renderGrid();
+});
 document.getElementById('filter-location').addEventListener('change', e => {
   currentFilters.location = e.target.value;
   renderGrid();
@@ -327,6 +335,7 @@ function applyLanguage(lang) {
   // Page title & subtitle
   document.getElementById('page-title').textContent    = tx.pageTitle;
   document.getElementById('page-subtitle').textContent = tx.pageSubtitle;
+  document.getElementById('search-label').textContent = tx.searchLabel;
   document.getElementById('filter-heading').textContent = tx.filterHeading;
   document.getElementById('label-type').textContent    = tx.labelType;
   document.getElementById('label-location').textContent = tx.labelLocation;
@@ -336,6 +345,12 @@ function applyLanguage(lang) {
   document.querySelectorAll('[data-nl]').forEach(el => {
     el.textContent = el.dataset[lang] || el.textContent;
   });
+
+  const searchInput = document.getElementById('school-search');
+  searchInput.placeholder =
+    lang === 'nl'
+      ? searchInput.dataset.nlPlaceholder
+      : searchInput.dataset.enPlaceholder;
 
   // Active state on lang buttons
   document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
