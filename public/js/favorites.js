@@ -403,6 +403,43 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function initPainterAnimation() {
+  const stickman = document.getElementById('stickman');
+  const paintingParts = document.querySelectorAll('.paint');
+  if (!stickman || paintingParts.length === 0) return;
+
+  const stickmanFrames = [
+    'img/painter-1.svg',
+    'img/painter-2.svg',
+    'img/painter-3.svg',
+    'img/painter-4.svg',
+  ];
+
+  paintingParts.forEach(part => {
+    part.style.opacity = 0;
+  });
+
+  let frameIndex = 0;
+  let partIndex = 0;
+
+  const stickmanAnimation = setInterval(() => {
+    stickman.src = stickmanFrames[frameIndex];
+    frameIndex = (frameIndex + 1) % stickmanFrames.length;
+  }, 200);
+
+  const revealPainting = setInterval(() => {
+    if (partIndex < paintingParts.length) {
+      paintingParts[partIndex].style.opacity = 1;
+      partIndex++;
+      return;
+    }
+
+    clearInterval(revealPainting);
+    clearInterval(stickmanAnimation);
+    stickman.src = stickmanFrames[0];
+  }, 1500);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Language buttons
@@ -416,5 +453,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   applyLanguage();
   updateCounts();
+  initPainterAnimation();
   renderAll();
 });

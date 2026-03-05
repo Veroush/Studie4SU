@@ -147,8 +147,15 @@ body {
 
 /* --- Page Header ----------------------------- */
 .page-header {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
   margin-bottom: 2rem;
+}
+.page-header-copy {
+  flex: 1;
+  text-align: left;
 }
 .saved-badge {
   display: inline-flex;
@@ -176,6 +183,90 @@ body {
 .page-subtitle {
   font-size: 1.125rem;
   color: var(--gray-600);
+}
+
+.scene {
+  position: relative;
+  width: 320px;
+  height: 220px;
+  flex-shrink: 0;
+}
+
+.painting {
+  position: absolute;
+  top: 10px;
+  left: 120px;
+  width: 220px;
+  height: 220px;
+}
+
+.paint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.painting .paint1 {
+  top: -95px;
+  left: -18px;
+  width: 190px;
+  height: 190px;
+}
+
+.painting .paint2 {
+  top: 8px;
+  left: -18px;
+  width: 190px;
+  height: 190px;
+}
+
+.painting .paint3 {
+  top: 12px;
+  left: -4px;
+  width: 150px;
+  height: 150px;
+}
+
+.painting .paint4 {
+  top: 65px;
+  left: -2px;
+  width: 165px;
+  height: 165px;
+}
+
+#stickman {
+  position: absolute;
+  bottom: 0;
+  left: -30px;
+}
+
+@media (max-width: 960px) {
+  .page-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+  }
+
+  .page-header-copy {
+    text-align: center;
+  }
+
+  .scene {
+    width: 260px;
+    height: 170px;
+  }
+
+  .painting {
+    left: 90px;
+    width: 170px;
+    height: 170px;
+  }
+
+  #stickman {
+    width: 135px;
+  }
 }
 
 /* --- Tab Navigation ------------------------- */
