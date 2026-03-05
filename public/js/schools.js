@@ -2,7 +2,7 @@
 
 // ── State ──────────────────────────────────────────────────────
 let allSchools   = [];   // raw data from backend
-let favorites    = JSON.parse(localStorage.getItem('school_favorites') || '[]');
+let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = [];   // max 3 school IDs
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
@@ -238,6 +238,27 @@ function renderGrid() {
   }).join('');
 }
 
+// ── Toast ─────────────────────────────────────────────────────
+let _toastTimer;
+function showFavToast(added) {
+  let el = document.getElementById('fav-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fav-toast';
+    el.className = 'fav-toast';
+    document.body.appendChild(el);
+  }
+  const msg = added
+    ? (language === 'nl' ? 'Toegevoegd aan favorieten' : 'Added to favourites')
+    : (language === 'nl' ? 'Verwijderd uit favorieten' : 'Removed from favourites');
+  el.innerHTML = added
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${language === 'nl' ? 'Bekijk favorieten →' : 'View favourites →'}</a>`
+    : msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
 // ── Favorite toggle ───────────────────────────────────────────
 function toggleFavorite(id, btn) {
   const idx = favorites.indexOf(id);
@@ -246,9 +267,10 @@ function toggleFavorite(id, btn) {
   } else {
     favorites.splice(idx, 1);
   }
-  localStorage.setItem('school_favorites', JSON.stringify(favorites));
+  localStorage.setItem('fav_schools', JSON.stringify(favorites));
 
   const isFav = favorites.includes(id);
+  showFavToast(isFav);
   btn.classList.toggle('active', isFav);
   const path = btn.querySelector('path');
   if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
@@ -364,11 +386,56 @@ function applyLanguage(lang) {
 document.getElementById('btn-nl').addEventListener('click', () => applyLanguage('nl'));
 document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
 
+// ── Auth / Profile ────────────────────────────────────────────
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+
+  document.getElementById('login-btn').style.display     = 'none';
+  document.getElementById('profile-btn').style.display   = 'flex';
+  document.getElementById('mobile-login').style.display  = 'none';
+  document.getElementById('mobile-profile').style.display = 'block';
+
+  document.getElementById('profile-name-label').textContent = payload.name || 'Profiel';
+  document.getElementById('popup-name').textContent  = payload.name  || 'Student';
+  document.getElementById('popup-email').textContent = payload.email || '';
+  document.getElementById('popup-role').textContent  = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+}
+
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+
+document.addEventListener('click', () => {
+  const popup = document.getElementById('profile-popup');
+  if (popup) popup.classList.remove('open');
+});
+
 // ── Hamburger menu ────────────────────────────────────────────
 document.getElementById('hamburger-btn').addEventListener('click', () => {
   document.getElementById('mobile-nav').classList.toggle('open');
 });
 
 // ── Boot ──────────────────────────────────────────────────────
-applyLanguage(language);   // set initial language state
-fetchSchools();            // load schools from backend (or fallback)
+document.addEventListener('DOMContentLoaded', () => {
+  applyLanguage(language);  // set initial language state
+  fetchSchools();           // load schools from backend (or fallback)
+  initAuth();               // show profile button if logged in
+});

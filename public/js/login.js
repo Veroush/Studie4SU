@@ -4,6 +4,10 @@
 let isLoginMode = true;
 let currentLang = localStorage.getItem('language') || 'nl';
 
+// Read ?redirect= param from URL (e.g. login.html?redirect=quiz-results)
+const urlParams    = new URLSearchParams(window.location.search);
+const redirectParam = urlParams.get('redirect');
+
 /* ────────────────────────────────────────────────────────────
    TRANSLATIONS
 ──────────────────────────────────────────────────────────── */
@@ -11,6 +15,8 @@ const t = {
   nl: {
     heading: 'Welkom terug', headingRegister: 'Maak je account',
     subtitle: 'Log in om verder te gaan met je studiekeuze', subtitleRegister: 'Begin je reis naar de perfecte studie',
+    // When arriving from the quiz, show a more relevant subtitle
+    subtitleQuiz: 'Log in of registreer om jouw resultaten te bekijken',
     nameLabel: 'Naam', namePlaceholder: 'Naam', emailLabel: 'Email', emailPlaceholder: 'Email',
     passwordLabel: 'Wachtwoord', passwordPlaceholder: 'Wachtwoord',
     submitLogin: 'Inloggen', submitRegister: 'Registreren',
@@ -34,6 +40,8 @@ const t = {
   en: {
     heading: 'Welcome back', headingRegister: 'Create your account',
     subtitle: 'Login to continue with your study choice', subtitleRegister: 'Start your journey to the perfect study',
+    // When arriving from the quiz, show a more relevant subtitle
+    subtitleQuiz: 'Login or register to view your results',
     nameLabel: 'Name', namePlaceholder: 'Name', emailLabel: 'Email', emailPlaceholder: 'Email',
     passwordLabel: 'Password', passwordPlaceholder: 'Password',
     submitLogin: 'Login', submitRegister: 'Register',
@@ -108,7 +116,14 @@ function animateQuotes() {
 function updateFormUI() {
   const tx = t[currentLang];
   dom.heading.textContent = isLoginMode ? tx.heading : tx.headingRegister;
-  dom.subtitle.textContent = isLoginMode ? tx.subtitle : tx.subtitleRegister;
+
+  // If the user was redirected from the quiz, show a more relevant subtitle
+  if (redirectParam === 'quiz-results') {
+    dom.subtitle.textContent = tx.subtitleQuiz;
+  } else {
+    dom.subtitle.textContent = isLoginMode ? tx.subtitle : tx.subtitleRegister;
+  }
+
   dom.nameLabel.textContent = tx.nameLabel;
   dom.nameInput.placeholder = tx.namePlaceholder;
   dom.emailLabel.textContent = tx.emailLabel;
@@ -190,6 +205,22 @@ function announceToSR(message) {
 }
 
 /* ────────────────────────────────────────────────────────────
+   REDIRECT AFTER LOGIN
+   Determines where to send the user after a successful login
+   or registration.
+──────────────────────────────────────────────────────────── */
+function getRedirectUrl(role) {
+  // If user came from the quiz, always send them back to results
+  // regardless of their role
+  if (redirectParam === 'quiz-results') {
+    return 'quiz.html?showResults=true';
+  }
+
+  // Default redirect based on role
+  return role === 'admin' ? 'admin-dashboard.html' : 'index.html';
+}
+
+/* ────────────────────────────────────────────────────────────
    EVENTS
 ──────────────────────────────────────────────────────────── */
 document.getElementById('auth-form').addEventListener('submit', async function(e) {
@@ -213,8 +244,8 @@ document.getElementById('auth-form').addEventListener('submit', async function(e
 
     if (data.token) {
       localStorage.setItem('auth_token', data.token);
-      const payload = JSON.parse(atob(data.token.split('.')[1]));
-      const redirect = payload.role === 'admin' ? 'admin-dashboard.html' : 'index.html';
+      const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
+      const redirect = getRedirectUrl(tokenPayload.role);
       setTimeout(() => { window.location.href = redirect; }, 1500);
     } else {
       setLoading(false);

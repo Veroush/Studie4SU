@@ -103,29 +103,130 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--gray-600);
 }
 
-/* Language switcher pills (top-right) */
-.lang-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-  gap: .5rem;
+/* ============================================================
+   SITE HEADER (matches schools.html)
+   ============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #0d2b1f;
+  border-bottom: 1px solid rgba(232,184,75,.2);
 }
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #e8b84b;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.logo span { color: #fff; }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: rgba(255,255,255,.75);
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: color .2s, background .2s;
+}
+.nav-links a:hover,
+.nav-links a.active { color: #fff; background: rgba(255,255,255,.08); }
+.nav-links a.active { color: #e8b84b; }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Lang pills inside the dark header */
 .lang-pill {
-  padding: .25rem .75rem;
-  border-radius: var(--radius-full);
+  background: none;
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.75);
+  border-radius: 8px;
+  padding: 5px 10px;
   font-size: .8rem;
   font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
   cursor: pointer;
-  border: 1.5px solid var(--gray-300);
-  background: var(--white);
-  color: var(--gray-600);
-  transition: var(--transition-fast);
+  transition: all .2s;
 }
 .lang-pill.active, .lang-pill:hover {
-  background: var(--green-600);
-  color: var(--white);
-  border-color: var(--green-600);
+  border-color: #e8b84b;
+  color: #e8b84b;
 }
+.btn-login {
+  background: #e8b84b;
+  color: #0d2b1f;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: .875rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity .2s;
+}
+.btn-login:hover { opacity: .85; }
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #fff;
+}
+.hamburger svg { display: block; }
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  background: #0d2b1f;
+  padding: 12px 24px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.mobile-nav a {
+  padding: 10px 0;
+  color: rgba(255,255,255,.8);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.mobile-nav a:last-child { border-bottom: none; }
+.mobile-nav.open { display: flex; }
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+}
+
+/* ============================================================
+   SITE FOOTER (matches schools.html)
+   ============================================================ */
+.site-footer {
+  background: #0d2b1f;
+  color: rgba(255,255,255,.55);
+  text-align: center;
+  padding: 28px 24px;
+  font-size: .85rem;
+  margin-top: 64px;
+}
+.site-footer a { color: #e8b84b; text-decoration: none; }
 
 /* ============================================================
    FILTER & VIEW TOGGLE BAR
@@ -480,3 +581,101 @@ button { font-family: inherit; cursor: pointer; }
   margin: 0 auto 1rem;
 }
 .empty-msg { color: var(--gray-500); font-size: 1.125rem; }
+
+/* Self-creating toast used by schools.js and program-detail.js */
+.fav-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  background: #1a1a2e;
+  color: #fff;
+  padding: .75rem 1.25rem;
+  border-radius: .75rem;
+  font-size: .9rem;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  opacity: 0;
+  transform: translateY(.75rem);
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  max-width: calc(100vw - 3rem);
+}
+
+.fav-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Link inside any toast (works for both .fav-toast and open-houses .toast) */
+.toast-fav-link {
+  color: #4ade80;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(74, 222, 128, .35);
+  transition: border-color .15s ease;
+}
+
+.toast-fav-link:hover {
+  border-color: #4ade80;
+}
+
+/* Patch for open-houses existing .toast — add the link colour */
+.toast .toast-fav-link {
+  color: #4ade80;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* ── PROFILE BUTTON & POPUP ─────────────────────────────────── */
+.profile-wrap {
+  position: relative;
+}
+.profile-popup {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14);
+  padding: 20px;
+  min-width: 220px;
+  z-index: 9999;
+  text-align: center;
+  animation: fadeInDown .18s ease;
+}
+.profile-popup.open { display: block; }
+.popup-avatar { font-size: 2.2rem; margin-bottom: 8px; }
+.popup-name {
+  font-weight: 700; font-size: 1rem;
+  color: #0d2b1f; font-family: 'DM Sans', sans-serif;
+}
+.popup-email {
+  font-size: .8rem; color: #6b7280; margin-top: 2px;
+  font-family: 'DM Sans', sans-serif; word-break: break-all;
+}
+.popup-role {
+  margin-top: 6px; font-size: .78rem; font-weight: 600;
+  color: #15803d; font-family: 'DM Sans', sans-serif;
+}
+.popup-divider { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+.popup-logout {
+  background: #fef2f2; color: #dc2626;
+  border: 1px solid #fecaca; border-radius: 8px;
+  padding: 8px 18px; font-size: .85rem; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer; width: 100%; transition: background .15s;
+}
+.popup-logout:hover { background: #fee2e2; }
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

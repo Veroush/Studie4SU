@@ -34,7 +34,7 @@ model StudyProgram {
   description   String?      @db.Text
   cluster       String
   duration      String?
-  levelRequired String?
+  levelRequired String?      @db.Text
   tuitionCost   String?
   careers       String?      @db.Text
   createdAt     DateTime     @default(now())

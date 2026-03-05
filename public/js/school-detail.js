@@ -320,27 +320,51 @@ function renderPage() {
       </div>
     </div>`;
 
-  // ── PROGRAMS ─────────────────────────────────────────────
+  // ── PROGRAMS CAROUSEL ────────────────────────────────────
   const programs = school.programs || [];
   const programsHTML = programs.length === 0
     ? `<p style="color:var(--gray-500);font-size:.9rem;">${tx.noPrograms}</p>`
-    : programs.map(p => `
-      <div class="program-card">
-        <div class="program-header">
-          <h3 class="program-name">${p.name}</h3>
-          <div class="program-badges">
-            ${p.duration   ? `<span class="badge-duration">${p.duration}</span>` : ''}
-            ${p.tuitionCost ? `<span class="badge-tuition">${p.tuitionCost === '0' || p.tuitionCost === 'free' ? tx.free : p.tuitionCost}</span>` : `<span class="badge-tuition">${tx.free}</span>`}
-            ${p.levelRequired ? `<span class="badge-level-req">${p.levelRequired}</span>` : ''}
-          </div>
+    : `<div class="carousel" id="prog-carousel">
+        <div class="carousel-track" id="carousel-track">
+          ${programs.map((p, i) => `
+          <div class="carousel-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+            <div class="program-card">
+              <div class="program-header">
+                <h3 class="program-name">${p.name}</h3>
+                <div class="program-badges">
+                  ${p.duration    ? `<span class="badge-duration">${p.duration}</span>` : ''}
+                  ${p.tuitionCost ? `<span class="badge-tuition">${p.tuitionCost === '0' || p.tuitionCost === 'free' ? tx.free : p.tuitionCost}</span>` : `<span class="badge-tuition">${tx.free}</span>`}
+                  ${p.levelRequired ? `<span class="badge-level-req">${p.levelRequired}</span>` : ''}
+                </div>
+              </div>
+              ${p.description ? `<p class="program-desc">${p.description}</p>` : ''}
+              ${p.careers ? `
+              <div class="program-careers">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+                <span><strong>${tx.careers}</strong> ${p.careers}</span>
+              </div>` : ''}
+              <div style="margin-top:14px;">
+                <a href="program-detail.html?id=${p.id}" class="prog-detail-link">
+                  ${language === 'nl' ? 'Bekijk opleiding' : 'View program'} →
+                </a>
+              </div>
+            </div>
+          </div>`).join('')}
         </div>
-        ${p.description ? `<p class="program-desc">${p.description}</p>` : ''}
-        ${p.careers ? `
-          <div class="program-careers">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
-            <span><strong>${tx.careers}</strong> ${p.careers}</span>
-          </div>` : ''}
-      </div>`).join('');
+
+        ${programs.length > 1 ? `
+        <button class="carousel-btn carousel-prev" id="carousel-prev" aria-label="Vorige">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="carousel-btn carousel-next" id="carousel-next" aria-label="Volgende">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="carousel-dots" id="carousel-dots">
+          ${programs.map((_, i) => `<button class="carousel-dot${i === 0 ? ' active' : ''}" data-dot="${i}" aria-label="Opleiding ${i+1}"></button>`).join('')}
+        </div>
+        <div class="carousel-counter" id="carousel-counter">1 / ${programs.length}</div>
+        ` : ''}
+      </div>`;
 
   // ── FACILITIES / SERVICES ────────────────────────────────
   const facs = local.facilities?.[language] || local.facilities?.nl || [];
@@ -387,28 +411,29 @@ function renderPage() {
 
   // ── ASSEMBLE CONTENT ──────────────────────────────────────
   document.getElementById('content-section').innerHTML = `
+
     <div class="content-wrapper">
       <div class="content-grid">
 
         <!-- ── MAIN COLUMN ── -->
         <div class="main-col">
 
-          <!-- About -->
+          <!-- Open Houses (moved to top of main col) -->
           <div class="card" style="animation-delay:.05s">
+            <h2 class="section-heading">
+              ${icons.calendar}
+              ${tx.openHouses}
+            </h2>
+            ${openHousesHTML}
+          </div>
+
+          <!-- About -->
+          <div class="card" style="animation-delay:.1s">
             <h2 class="section-heading">
               ${icons.building}
               ${tx.about}
             </h2>
             <p class="about-text">${description || school.name}</p>
-          </div>
-
-          <!-- Programs -->
-          <div class="card" style="animation-delay:.1s">
-            <h2 class="section-heading">
-              ${icons.graduation}
-              ${tx.programs}
-            </h2>
-            <div class="programs-list">${programsHTML}</div>
           </div>
 
           ${facs.length > 0 ? `
@@ -523,18 +548,130 @@ function renderPage() {
             </div>
           </div>` : ''}
 
-          <!-- Open Houses -->
-          <div class="open-houses-card" style="animation:fadeInUp .4s ease .2s both;">
-            <div class="open-houses-heading">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              ${tx.openHouses}
-            </div>
-            ${openHousesHTML}
-          </div>
-
         </div><!-- /side col -->
       </div>
-    </div>`;
+    </div>
+
+    <!-- FULL-BLEED PROGRAMS SLIDER (bottom of page) -->
+    <section class="programs-section">
+      <div class="programs-section-header">
+        <h2 class="programs-section-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          ${tx.programs}
+        </h2>
+        ${programs.length > 1 ? `<span class="programs-count">${programs.length} ${language === 'nl' ? 'opleidingen' : 'programs'}</span>` : ''}
+      </div>
+
+      ${programs.length === 0
+        ? `<p class="no-programs-msg">${tx.noPrograms}</p>`
+        : `<div class="slider-viewport" id="slider-viewport">
+            <div class="slider-track" id="slider-track">
+              ${[...programs, ...programs].map((p) => {
+                const tuition = p.tuitionCost && p.tuitionCost !== '0' && p.tuitionCost !== 'free'
+                  ? p.tuitionCost : null;
+                const tuitionShort = tuition && tuition.length > 30
+                  ? tuition.slice(0, 30).trimEnd() + '…'
+                  : tuition;
+                const tuitionOverflows = tuition && tuition.length > 30;
+                return `
+                <div class="slider-card">
+                  <div class="slider-card-inner">
+                    <div class="slider-cluster-tag">${p.cluster || ''}</div>
+                    <h3 class="slider-program-name">${p.name}</h3>
+                    <div class="slider-badges">
+                      ${p.duration ? `<span class="badge-duration">${p.duration}</span>` : ''}
+                      ${tuition
+                        ? `<span class="badge-tuition badge-tuition--compact" title="${tuition}">${tuitionShort}${tuitionOverflows ? ` <a href="program-detail.html?id=${p.id}" class="badge-more-link">${language === 'nl' ? 'meer' : 'more'} →</a>` : ''}</span>`
+                        : `<span class="badge-tuition">${tx.free}</span>`}
+                    </div>
+                    ${p.description ? `<p class="slider-desc">${p.description.replace(/\s*\|\s*Niveau:[^|]*/i,'').replace(/^Vakkenpakket:\s*/i,'').trim().slice(0, 110)}${p.description.length > 110 ? '…' : ''}</p>` : ''}
+                    <a href="program-detail.html?id=${p.id}" class="slider-link">
+                      ${language === 'nl' ? 'Bekijk opleiding' : 'View program'} →
+                    </a>
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>
+            ${programs.length > 1 ? `
+            <button class="slider-arrow slider-arrow-left"  id="slider-prev" aria-label="Vorige">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="slider-arrow slider-arrow-right" id="slider-next" aria-label="Volgende">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>` : ''}
+          </div>`
+      }
+    </section>`;
+
+  // Reveal hero now that content is ready (removes the initial hidden state)
+  const heroEl = document.getElementById('hero-section');
+  if (heroEl) { heroEl.style.visibility = 'visible'; heroEl.style.animation = 'fadeIn .3s ease'; }
+
+  // Init slider after DOM is painted
+  if ((school.programs || []).length > 1) {
+    requestAnimationFrame(initSlider);
+  }
+}
+
+// ── Full-bleed slider ─────────────────────────────────────────
+let _sliderTimer   = null;
+let _sliderIndex   = 0;
+let _sliderTotal   = 0;
+let _cardWidth     = 0;
+let _visibleCards  = 3;
+
+function initSlider() {
+  const track    = document.getElementById('slider-track');
+  const viewport = document.getElementById('slider-viewport');
+  const prevBtn  = document.getElementById('slider-prev');
+  const nextBtn  = document.getElementById('slider-next');
+  if (!track || !viewport) return;
+
+  const cards = track.querySelectorAll('.slider-card');
+  _sliderTotal = Math.floor(cards.length / 2); // real count (we doubled for loop)
+  if (_sliderTotal < 2) return;
+
+  function getVisibleCount() {
+    const w = viewport.offsetWidth;
+    if (w >= 1024) return 3;
+    if (w >= 640)  return 2;
+    return 1;
+  }
+
+  function layout() {
+    _visibleCards = getVisibleCount();
+    _cardWidth    = viewport.offsetWidth / _visibleCards;
+    cards.forEach(c => { c.style.width = _cardWidth + 'px'; });
+    track.style.width = (cards.length * _cardWidth) + 'px';
+    jumpTo(_sliderIndex, false);
+  }
+
+  function jumpTo(idx, animate = true) {
+    _sliderIndex = ((idx % _sliderTotal) + _sliderTotal) % _sliderTotal;
+    track.style.transition = animate ? 'transform .5s cubic-bezier(.4,0,.2,1)' : 'none';
+    track.style.transform  = `translateX(${-_sliderIndex * _cardWidth}px)`;
+  }
+
+  function next() { jumpTo(_sliderIndex + 1); }
+  function prev() { jumpTo(_sliderIndex - 1); }
+
+  function startAuto() {
+    stopAuto();
+    _sliderTimer = setInterval(next, 3500);
+  }
+
+  function stopAuto() { clearInterval(_sliderTimer); }
+
+  nextBtn?.addEventListener('click', () => { next(); startAuto(); });
+  prevBtn?.addEventListener('click', () => { prev(); startAuto(); });
+
+  viewport.addEventListener('mouseenter', stopAuto);
+  viewport.addEventListener('mouseleave', startAuto);
+
+  window.addEventListener('resize', () => { stopAuto(); layout(); startAuto(); });
+
+  layout();
+  startAuto();
 }
 
 // ── Favorite toggle ───────────────────────────────────────────
@@ -615,6 +752,46 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
   document.getElementById('mobile-nav').classList.toggle('open');
 });
 
+// ── Auth / Profile ────────────────────────────────────────────
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+  document.getElementById('login-btn').style.display      = 'none';
+  document.getElementById('profile-btn').style.display    = 'flex';
+  document.getElementById('mobile-login').style.display   = 'none';
+  document.getElementById('mobile-profile').style.display = 'block';
+  document.getElementById('profile-name-label').textContent = payload.name  || 'Profiel';
+  document.getElementById('popup-name').textContent          = payload.name  || 'Student';
+  document.getElementById('popup-email').textContent         = payload.email || '';
+  document.getElementById('popup-role').textContent          = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+}
+
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+
+document.addEventListener('click', () => {
+  const popup = document.getElementById('profile-popup');
+  if (popup) popup.classList.remove('open');
+});
+
 // ── Boot ──────────────────────────────────────────────────────
 applyLanguage(language);
+initAuth();
 loadSchool();

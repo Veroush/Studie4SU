@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Open Dagen | Studie4SU</title>
-  
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="css/open-houses.css">
 </head>
 <body>
@@ -12,12 +16,59 @@
   <div id="sr-announcements" class="sr-only" role="status" aria-live="polite"></div>
   <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
 
-  <div class="page-wrapper">
+  <!-- ========== SITE HEADER ========== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Studie<span>4SU</span></a>
 
-    <div class="lang-row">
-      <button class="lang-pill active" id="btn-nl" onclick="setLanguage('nl')" aria-pressed="true">NL</button>
-      <button class="lang-pill"        id="btn-en" onclick="setLanguage('en')" aria-pressed="false">EN</button>
+      <ul class="nav-links">
+        <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
+        <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a></li>
+        <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+        <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days" class="active">Open Dagen</a></li>
+      </ul>
+
+      <div class="header-right">
+        <button class="lang-pill" id="btn-nl" onclick="setLanguage('nl')" aria-pressed="true">NL</button>
+        <button class="lang-pill" id="btn-en" onclick="setLanguage('en')" aria-pressed="false">EN</button>
+
+        <!-- Login button (shown when logged out) -->
+        <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+        <!-- Profile button (shown when logged in) -->
+        <div class="profile-wrap" id="profile-btn" style="display:none">
+          <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+          <div class="profile-popup" id="profile-popup">
+            <div class="popup-avatar">👤</div>
+            <div class="popup-name"  id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+            <div class="popup-role"  id="popup-role"></div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+          </div>
+        </div>
+
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
     </div>
+
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+      <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+      <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+      <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a>
+      <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+      <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+    </nav>
+  </header>
+
+  <div class="page-wrapper">
 
     <header class="page-header">
       <h1 class="page-title" id="page-title">Open Dagen</h1>
@@ -58,6 +109,11 @@
     </div>
 
   </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer">
+    <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+  </footer>
 
   <script src="js/open-houses.js"></script>
 </body>

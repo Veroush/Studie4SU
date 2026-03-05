@@ -15,6 +15,8 @@ const authRoutes      = require("../routes/authRoutes.js");
 const quizRoutes      = require("../routes/quizRoutes.js");
 const adminRoutes     = require("../routes/adminRoutes.js");
 const openHouseRoutes = require("../routes/openHouseRoutes.js");
+const schoolRoutes    = require("../routes/schoolRoutes.js");
+const programRoutes   = require("../routes/programRoutes.js");
 
 app.use("/auth",               authRoutes);
 app.use("/api/quiz",           quizRoutes);
@@ -24,5 +26,9 @@ app.use("/admin",              adminRoutes);
 //              admin write routes at /admin/openhouses
 app.use("/openhouses",         openHouseRoutes);
 app.use("/admin/openhouses",   openHouseRoutes);
+
+// Public routes
+app.use("/schools",            schoolRoutes);
+app.use("/programs",           programRoutes);
 
 module.exports = app;

@@ -118,8 +118,18 @@ const EVENTS = [
 let currentFilter  = 'all';
 let currentView    = 'list';
 let currentLang    = localStorage.getItem('language') || 'nl';
-let favorites      = JSON.parse(localStorage.getItem('oh_favorites') || '[]');
+let favorites      = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
 let registered     = JSON.parse(localStorage.getItem('oh_registered') || '[]');
+
+function saveFavData() {
+  // Store the full event objects so favorites.html can display them without an API call
+  const data = {};
+  favorites.forEach(id => {
+    const ev = EVENTS.find(e => e.id === id);
+    if (ev) data[id] = ev;
+  });
+  localStorage.setItem('fav_openhouses_data', JSON.stringify(data));
+}
 
 /* ================================================================
    HELPERS
@@ -151,15 +161,59 @@ function getFilteredEvents() {
 }
 
 /* ================================================================
+   GOOGLE CALENDAR
+================================================================ */
+function addToGoogleCalendar(ev) {
+  // Parse "09:00 – 14:00" or "10:00 – 16:00" into start/end
+  const timeMatch = ev.time && ev.time.match(/(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})/);
+  const dateClean = ev.date.replace(/-/g, ''); // "20260314"
+
+  let startDT, endDT;
+  if (timeMatch) {
+    const toGCal = (d, t) => d + 'T' + t.replace(':', '') + '00';
+    startDT = toGCal(dateClean, timeMatch[1]);
+    endDT   = toGCal(dateClean, timeMatch[2]);
+  } else {
+    // No parseable time — all-day event
+    startDT = dateClean;
+    const d = new Date(ev.date + 'T00:00:00');
+    d.setDate(d.getDate() + 1);
+    endDT = d.toISOString().slice(0, 10).replace(/-/g, '');
+  }
+
+  const details = [
+    ev.description,
+    'Toegevoegd via Studie4SU — studie4su.sr'
+  ].filter(Boolean).join('\n\n');
+
+  const calUrl = 'https://calendar.google.com/calendar/render'
+    + '?action=TEMPLATE'
+    + '&text='     + encodeURIComponent('Open Dag – ' + ev.school)
+    + '&dates='    + encodeURIComponent(startDT + '/' + endDT)
+    + '&details='  + encodeURIComponent(details)
+    + '&location=' + encodeURIComponent(ev.location || '')
+    + '&add='      + encodeURIComponent('POPUP:1440')   // 1-day reminder
+    + '&sf=true&output=xml';
+
+  window.open(calUrl, '_blank', 'noopener,noreferrer');
+}
+
+/* ================================================================
    TOAST
 ================================================================ */
 let toastTimer;
-function showToast(msg, type = '') {
+function showToast(msg, type = '', showFavLink = false) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className   = 'toast show' + (type ? ' ' + type : '');
+  el.innerHTML = showFavLink
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">Bekijk favorieten →</a>`
+    : msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  el.style.pointerEvents = showFavLink ? 'auto' : '';
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = 'toast'; }, 2400);
+  toastTimer = setTimeout(() => {
+    el.className = 'toast';
+    el.style.pointerEvents = '';
+  }, showFavLink ? 5000 : 3000);
 }
 
 function announce(msg) {
@@ -353,7 +407,8 @@ function setViewMode(mode) {
 }
 
 function toggleFavorite(id) {
-  const idx = favorites.indexOf(id);
+  const idx      = favorites.indexOf(id);
+  const justAdded = idx === -1;
   let msg;
   if (idx > -1) {
     favorites.splice(idx, 1);
@@ -362,8 +417,9 @@ function toggleFavorite(id) {
     favorites.push(id);
     msg = t('addedFav');
   }
-  localStorage.setItem('oh_favorites', JSON.stringify(favorites));
-  showToast(msg, 'success');
+  localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
+  saveFavData();
+  showToast(msg, 'success', justAdded);
   announce(msg);
 
   if (currentFilter === 'saved') {
@@ -379,29 +435,30 @@ function toggleFavorite(id) {
 }
 
 function registerEvent(id) {
-  if (registered.includes(id)) return;
-  document.querySelectorAll(`[data-register="${id}"]`).forEach(btn => {
-    btn.disabled     = true;
-    btn.textContent  = t('registering');
-  });
-  setTimeout(() => {
+  const ev = EVENTS.find(e => e.id === id);
+  if (!ev) return;
+  addToGoogleCalendar(ev);
+  // Mark as registered locally so the button updates
+  if (!registered.includes(id)) {
     registered.push(id);
     localStorage.setItem('oh_registered', JSON.stringify(registered));
     document.querySelectorAll(`[data-register="${id}"]`).forEach(btn => {
       btn.textContent = t('registered');
       btn.classList.add('registered');
-      if (!favorites.includes(id)) {
-        favorites.push(id);
-        localStorage.setItem('oh_favorites', JSON.stringify(favorites));
-      }
+      btn.disabled = true;
     });
-    document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
-      btn.classList.add('active');
-      btn.setAttribute('aria-pressed', 'true');
-    });
+    if (!favorites.includes(id)) {
+      favorites.push(id);
+      localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
+      saveFavData();
+      document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+      });
+    }
     showToast(t('regSuccess'), 'success');
     announce(t('regSuccess'));
-  }, 900);
+  }
 }
 
 function setLanguage(lang) {
@@ -420,5 +477,53 @@ function setLanguage(lang) {
   render();
 }
 
+// ── Hamburger ────────────────────────────────────────────────
+document.getElementById('hamburger-btn').addEventListener('click', () => {
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+
+// ── Auth / Profile ────────────────────────────────────────────
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+
+  document.getElementById('login-btn').style.display      = 'none';
+  document.getElementById('profile-btn').style.display    = 'flex';
+  document.getElementById('mobile-login').style.display   = 'none';
+  document.getElementById('mobile-profile').style.display = 'block';
+
+  document.getElementById('profile-name-label').textContent = payload.name  || 'Profiel';
+  document.getElementById('popup-name').textContent          = payload.name  || 'Student';
+  document.getElementById('popup-email').textContent         = payload.email || '';
+  document.getElementById('popup-role').textContent          = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+}
+
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+
+document.addEventListener('click', () => {
+  const popup = document.getElementById('profile-popup');
+  if (popup) popup.classList.remove('open');
+});
+
 // Init
 setLanguage(currentLang);
+initAuth();
