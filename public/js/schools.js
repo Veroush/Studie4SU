@@ -111,7 +111,14 @@ const SCHOOL_ICON = `
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
 
-// ── Fetch schools from backend ─────────────────────────────────
+// ── Picking mode (coming from compare page) ───────────────────
+const urlParams  = new URLSearchParams(window.location.search);
+const pickingMode = urlParams.get('picking') === 'true';
+
+function pickSchool(id) {
+  localStorage.setItem('compare_school_b', id);
+  window.location.href = 'school-compare.html';
+}
 async function fetchSchools() {
   try {
     const res = await fetch('/admin/schools');
@@ -157,6 +164,10 @@ function renderGrid() {
   const countEl  = document.getElementById('results-count');
   const tx       = t[language];
   const filtered = getFiltered();
+
+  // Picking mode: show banner at top
+  const bannerEl = document.getElementById('picking-banner');
+  if (bannerEl) bannerEl.style.display = pickingMode ? 'flex' : 'none';
 
   // Results count
   countEl.innerHTML = tx.results(filtered.length);
@@ -220,18 +231,23 @@ function renderGrid() {
           <p class="card-description">${desc}</p>
 
           <div class="card-actions">
-            <a href="school-detail.html?id=${school.id}" class="btn-details">${tx.viewDetails}</a>
-            <button
-              class="btn-compare ${isCmp ? 'active' : ''}"
-              data-id="${school.id}"
-              aria-label="${tx.compare}"
-              title="${tx.compare}"
-              onclick="toggleCompare('${school.id}', this)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
-                <path d="M13 6h3a2 2 0 012 2v7"/><path d="M11 18H8a2 2 0 01-2-2V9"/>
-              </svg>
-            </button>
+            ${pickingMode
+              ? `<button class="btn-details btn-select-school" onclick="pickSchool('${school.id}')">
+                   ${language === 'nl' ? '✓ Selecteer deze school' : '✓ Select this school'}
+                 </button>`
+              : `<a href="school-detail.html?id=${school.id}" class="btn-details">${tx.viewDetails}</a>
+                 <button
+                   class="btn-compare ${isCmp ? 'active' : ''}"
+                   data-id="${school.id}"
+                   aria-label="${tx.compare}"
+                   title="${tx.compare}"
+                   onclick="toggleCompare('${school.id}', this)">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                     <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+                     <path d="M13 6h3a2 2 0 012 2v7"/><path d="M11 18H8a2 2 0 01-2-2V9"/>
+                   </svg>
+                 </button>`
+            }
           </div>
         </div>
       </div>`;

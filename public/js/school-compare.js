@@ -1,367 +1,432 @@
 'use strict';
 
-// ── State ─────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════
+   school-compare.js
+   Reads compare_school_a and compare_school_b from localStorage,
+   loads both schools, renders side-by-side columns + comparison table.
+════════════════════════════════════════════════════════════ */
+
 let language = localStorage.getItem('language') || 'nl';
-
-// Read IDs from URL: school-compare.html?ids=school_adekus,school_natin
-const params   = new URLSearchParams(window.location.search);
-const urlIds   = params.get('ids') ? params.get('ids').split(',').filter(Boolean) : [];
-
-// Also read from localStorage (set by schools.html compare bar)
-const storedIds = JSON.parse(localStorage.getItem('school_compare') || '[]');
-
-// Prefer URL ids, fall back to localStorage
-let compareIds = urlIds.length > 0 ? urlIds : storedIds;
-
-// Loaded school objects
-let schools = [];
 
 // ── Translations ──────────────────────────────────────────────
 const T = {
   nl: {
-    title:       'Vergelijk Scholen',
-    subtitle:    'Bekijk de verschillen tussen jouw geselecteerde scholen',
-    comparison:  'Vergelijking',
-    remove:      'Verwijder',
-    viewDetails: 'Bekijk school',
-    browseSchools: 'Bekijk alle scholen',
-    emptyTitle:  'Niets te vergelijken',
-    emptyDesc:   'Selecteer scholen op de overzichtspagina om ze hier te vergelijken.',
-    type:        'Type',
-    location:    'Locatie',
-    programs:    'Opleidingen',
-    duration:    'Gemiddelde duur',
-    tuition:     'Collegegeld',
-    deadline:    'Aanmelddeadline',
-    pros:        'Voordelen',
-    cons:        'Nadelen',
-    free:        'Gratis',
-    public:      'Publiek',
-    private:     'Privaat',
-    years:       n => `${n} jaar`,
-    programCount: n => `${n} opleiding${n === 1 ? '' : 'en'}`,
-    loading:     'Laden...',
-    prosItems: {
-      school_adekus: ['Enige universiteit in Suriname','Breed aanbod van opleidingen','Internationaal erkende diploma\'s','Actief onderzoeksinstituut'],
-      school_natin:  ['Sterk technisch onderwijs','Moderne laboratoria','Hoge werkgelegenheid na afstuderen','Kleine klassen'],
-      school_iol:    ['Gespecialiseerd in lerarenopleiding','Erkend voor onderwijsbevoegdheid','Betaalbaar collegegeld','Goede stageplekken'],
-      school_covab:  ['Unieke agrarische focus','Praktijkgericht onderwijs','Kleine groepen','Nauwe samenwerking met bedrijfsleven'],
-      school_imeao:  ['Praktijkgericht MBO','Vlotte doorstroom naar arbeidsmarkt','Gevarieerd cursusaanbod'],
-      school_ptc:    ['Technisch MBO','Goed uitgeruste werkplaatsen','Directe arbeidsmarktaansluiting'],
-      school_igsr:   ['Gespecialiseerd in zorg','Erkend door Ministerie van Volksgezondheid','Moderne ziekenhuissimulaties'],
-    },
-    consItems: {
-      school_adekus: ['Hoge toelatingsdrempel geneeskunde','Grote klassen bij populaire studies','Parkeren moeilijk'],
-      school_natin:  ['Beperkt aanbod buiten techniek','Geen avondonderwijs voor alle vakken'],
-      school_iol:    ['Alleen lerarenopleiding','Beperkt aantal studierichtingen'],
-      school_covab:  ['Beperkt tot agrarische richtingen','Kleine campus'],
-      school_imeao:  ['Alleen MBO-niveau','Beperkt in wetenschappelijke vakken'],
-      school_ptc:    ['Alleen MBO-niveau','Beperkt aanbod buiten techniek'],
-      school_igsr:   ['Beperkt tot zorgsector','Kleinere campus'],
-    },
+    pageTitle:    'Scholen <span>Vergelijken</span>',
+    pageSub:      'Vergelijk twee scholen naast elkaar',
+    back:         'Terug naar scholen',
+    emptyTitle:   'Voeg een school toe',
+    emptySub:     'Kies een school om te vergelijken',
+    btnPick:      'Kies een school',
+    btnDetail:    'Bekijk school',
+    btnSwap:      'Andere school',
+    btnReset:     'Opnieuw vergelijken',
+    // Table row labels
+    rowType:      'Type',
+    rowLocation:  'Locatie',
+    rowPrograms:  'Opleidingen',
+    rowContact:   'Contactpersoon',
+    rowWebsite:   'Website',
+    rowDeadline:  'Aanmelding',
+    rowFacilities:'Faciliteiten',
+    rowServices:  'Diensten',
+    rowAccred:    'Accreditatie',
+    tableSchoolA: 'School A',
+    tableSchoolB: 'School B',
+    na:           '—',
+    programs:     n => `${n} opleiding${n === 1 ? '' : 'en'}`,
   },
   en: {
-    title:       'Compare Schools',
-    subtitle:    'View the differences between your selected schools',
-    comparison:  'Comparison',
-    remove:      'Remove',
-    viewDetails: 'View school',
-    browseSchools: 'Browse all schools',
-    emptyTitle:  'Nothing to compare',
-    emptyDesc:   'Select schools on the browse page to compare them here.',
-    type:        'Type',
-    location:    'Location',
-    programs:    'Programs',
-    duration:    'Avg. duration',
-    tuition:     'Tuition',
-    deadline:    'Registration deadline',
-    pros:        'Pros',
-    cons:        'Cons',
-    free:        'Free',
-    public:      'Public',
-    private:     'Private',
-    years:       n => `${n} year${n === 1 ? '' : 's'}`,
-    programCount: n => `${n} program${n === 1 ? '' : 's'}`,
-    loading:     'Loading...',
-    prosItems: {
-      school_adekus: ['Only university in Suriname','Wide range of programs','Internationally recognized degrees','Active research institute'],
-      school_natin:  ['Strong technical education','Modern laboratories','High employment after graduation','Small class sizes'],
-      school_iol:    ['Specialized teacher training','Recognized for teaching certification','Affordable tuition','Good internship placements'],
-      school_covab:  ['Unique agricultural focus','Practice-oriented education','Small groups','Close industry ties'],
-      school_imeao:  ['Practice-oriented MBO','Fast track to job market','Varied course offering'],
-      school_ptc:    ['Technical MBO','Well-equipped workshops','Direct job market connection'],
-      school_igsr:   ['Healthcare specialization','Accredited by Ministry of Health','Modern hospital simulations'],
-    },
-    consItems: {
-      school_adekus: ['High admission threshold for medicine','Large classes for popular programs','Parking difficult'],
-      school_natin:  ['Limited programs outside technology','No evening classes for all subjects'],
-      school_iol:    ['Teacher training only','Limited number of study directions'],
-      school_covab:  ['Limited to agricultural directions','Small campus'],
-      school_imeao:  ['MBO level only','Limited in scientific subjects'],
-      school_ptc:    ['MBO level only','Limited programs outside technology'],
-      school_igsr:   ['Limited to healthcare sector','Smaller campus'],
-    },
+    pageTitle:    'Compare <span>Schools</span>',
+    pageSub:      'Compare two schools side by side',
+    back:         'Back to schools',
+    emptyTitle:   'Add a school',
+    emptySub:     'Choose a school to compare',
+    btnPick:      'Choose a school',
+    btnDetail:    'View school',
+    btnSwap:      'Change school',
+    btnReset:     'Start over',
+    rowType:      'Type',
+    rowLocation:  'Location',
+    rowPrograms:  'Programs',
+    rowContact:   'Contact',
+    rowWebsite:   'Website',
+    rowDeadline:  'Registration',
+    rowFacilities:'Facilities',
+    rowServices:  'Services',
+    rowAccred:    'Accreditation',
+    tableSchoolA: 'School A',
+    tableSchoolB: 'School B',
+    na:           '—',
+    programs:     n => `${n} program${n === 1 ? '' : 's'}`,
   },
 };
 
-// ── Enrichment: durations, deadlines, tuition ────────────────
-const EXTRA = {
-  school_adekus: { avgDuration: 4, tuitionFree: true, deadline: { nl: '1 juni 2026',    en: 'June 1, 2026'    } },
-  school_natin:  { avgDuration: 4, tuitionFree: true, deadline: { nl: '1 mei 2026',     en: 'May 1, 2026'     } },
-  school_iol:    { avgDuration: 4, tuitionFree: true, deadline: { nl: '15 mei 2026',    en: 'May 15, 2026'    } },
-  school_covab:  { avgDuration: 4, tuitionFree: true, deadline: { nl: '1 juni 2026',    en: 'June 1, 2026'    } },
-  school_imeao:  { avgDuration: 2, tuitionFree: true, deadline: { nl: '1 juni 2026',    en: 'June 1, 2026'    } },
-  school_ptc:    { avgDuration: 2, tuitionFree: true, deadline: { nl: '15 juni 2026',   en: 'June 15, 2026'   } },
-  school_igsr:   { avgDuration: 4, tuitionFree: true, deadline: { nl: '1 mei 2026',     en: 'May 1, 2026'     } },
+// ── Enrichment data (mirrors school-detail.js SCHOOL_DATA) ────
+const SCHOOL_DATA = {
+  school_adekus: {
+    type: 'University',
+    description: { nl: 'De enige universiteit van Suriname, met opleidingen in geneeskunde, rechten, technologie en meer.', en: 'The only university in Suriname, offering programs in medicine, law, technology and more.' },
+    contact: { address: 'Leysweg 86, Paramaribo', phone: '+597 465 558', email: 'info@adekus.edu.sr', website: 'adekus.edu.sr' },
+    facilities: { nl: ['Medisch Laboratorium','Bibliotheek','Sportfaciliteiten','Computercentra','WiFi campus'], en: ['Medical Laboratory','Library','Sports Facilities','Computer Centers','WiFi campus'] },
+    services:   { nl: ['Studiebegeleiding','Beurzen & financiering','Internationale uitwisseling','Loopbaandiensten'], en: ['Academic Guidance','Scholarships & Funding','International Exchange','Career Services'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Onderwijs van Suriname.', en: 'Accredited by the Surinamese Ministry of Education.' },
+    deadlines: { nl: '1 april 2026', en: 'April 1, 2026' },
+  },
+  school_natin: {
+    type: 'HBO',
+    description: { nl: 'Technisch HBO-instituut met sterke focus op ICT, engineering en natuurwetenschappen.', en: 'Technical HBO institute with a strong focus on ICT, engineering and natural sciences.' },
+    contact: { address: 'Dr. Sophie Redmondstraat 118, Paramaribo', phone: '+597 490 420', email: 'info@natin.edu.sr', website: 'natin.edu.sr' },
+    facilities: { nl: ['ICT-laboratoria','Technische werkplaatsen','Bibliotheek','WiFi campus'], en: ['ICT Labs','Technical Workshops','Library','WiFi campus'] },
+    services:   { nl: ['Technische studiebegeleiding','Stageplaatsing','Beurzen'], en: ['Technical Academic Support','Internship Placement','Scholarships'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Onderwijs.', en: 'Accredited by the Ministry of Education.' },
+    deadlines: { nl: '1 mei 2026', en: 'May 1, 2026' },
+  },
+  school_iol: {
+    type: 'HBO',
+    description: { nl: 'Lerarenopleidingsinstituut dat toekomstige docenten voorbereidt voor het Surinaamse onderwijs.', en: 'Teacher training institute preparing future educators for the Surinamese education system.' },
+    contact: { address: 'Heerenstraat 14, Paramaribo', phone: '+597 472 241', email: 'info@iol.edu.sr', website: 'iol.edu.sr' },
+    facilities: { nl: ['Onderwijslaboratoria','Bibliotheek','Oefenklassen','WiFi campus'], en: ['Teaching Labs','Library','Practice Classrooms','WiFi campus'] },
+    services:   { nl: ['Mentorprogramma','Stageplaatsing','Studiebegeleiding'], en: ['Mentor Program','Internship Placement','Academic Guidance'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Onderwijs van Suriname.', en: 'Accredited by the Surinamese Ministry of Education.' },
+    deadlines: { nl: '15 mei 2026', en: 'May 15, 2026' },
+  },
+  school_covab: {
+    type: 'HBO',
+    description: { nl: 'Agrarisch HBO-college voor opleidingen in landbouw, biologie en milieuwetenschappen.', en: 'Agricultural HBO college offering programs in agriculture, biology and environmental sciences.' },
+    contact: { address: 'Leysweg 86, Paramaribo', phone: '+597 465 558', email: 'info@covab.edu.sr', website: 'covab.edu.sr' },
+    facilities: { nl: ['Biologische laboratoria','Proefvelden','Bibliotheek'], en: ['Biology Labs','Experimental Fields','Library'] },
+    services:   { nl: ['Onderzoeksbegeleiding','Stageplaatsing','Beurzen'], en: ['Research Guidance','Internship Placement','Scholarships'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Onderwijs.', en: 'Accredited by the Ministry of Education.' },
+    deadlines: { nl: '1 juni 2026', en: 'June 1, 2026' },
+  },
+  school_imeao: {
+    type: 'MBO',
+    description: { nl: 'MBO-instelling met praktijkgerichte opleidingen in economie, administratie en handel.', en: 'MBO institution with practice-oriented programs in economics, administration and commerce.' },
+    contact: { address: 'Heerenstraat 26, Paramaribo', phone: '+597 472 356', email: 'info@imeao.edu.sr', website: 'imeao.edu.sr' },
+    facilities: { nl: ['Kantoorsimulatie','Computerruimten','Bibliotheek'], en: ['Office Simulation','Computer Rooms','Library'] },
+    services:   { nl: ['Stageplaatsing','Loopbaanbegeleiding','Studiebegeleiding'], en: ['Internship Placement','Career Guidance','Academic Support'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Onderwijs van Suriname.', en: 'Accredited by the Surinamese Ministry of Education.' },
+    deadlines: { nl: '1 juni 2026', en: 'June 1, 2026' },
+  },
+  school_ptc: {
+    type: 'MBO',
+    description: { nl: 'Polytechnisch college dat studenten opleidt in technische vakken op MBO-niveau.', en: 'Polytechnic college training students in technical disciplines at MBO level.' },
+    contact: { address: 'Jagernath Lachmonstraat 92, Paramaribo', phone: '+597 432 100', email: 'info@ptc.edu.sr', website: 'ptc.edu.sr' },
+    facilities: { nl: ['Technische werkplaatsen','Elektrische labo\'s','Computerruimten'], en: ['Technical Workshops','Electrical Labs','Computer Rooms'] },
+    services:   { nl: ['Stageplaatsing','Praktijkbegeleiding','Loopbaandiensten'], en: ['Internship Placement','Practical Guidance','Career Services'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Onderwijs.', en: 'Accredited by the Ministry of Education.' },
+    deadlines: { nl: '15 juni 2026', en: 'June 15, 2026' },
+  },
+  school_igsr: {
+    type: 'HBO',
+    description: { nl: 'HBO-instituut voor gezondheidszorg met verpleegkunde, paramedische en zorgopleidingen.', en: 'HBO health sciences institute offering nursing, paramedical and care programs.' },
+    contact: { address: 'Tourtonnelaan 4, Paramaribo', phone: '+597 471 200', email: 'info@igsr.edu.sr', website: 'igsr.edu.sr' },
+    facilities: { nl: ['Ziekenhuissimulaties','Medische laboratoria','Bibliotheek'], en: ['Hospital Simulations','Medical Labs','Library'] },
+    services:   { nl: ['Zorgstages','Studiebegeleiding','Loopbaandiensten'], en: ['Healthcare Internships','Academic Support','Career Services'] },
+    accreditation: { nl: 'Erkend door het Ministerie van Volksgezondheid.', en: 'Accredited by the Ministry of Public Health.' },
+    deadlines: { nl: '1 mei 2026', en: 'May 1, 2026' },
+  },
 };
 
-// ── SVG icons ─────────────────────────────────────────────────
-const SVG = {
-  school:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-  compare:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 012 2v7"/><path d="M11 18H8a2 2 0 01-2-2V9"/></svg>`,
-  x:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  mapPin:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
-  clock:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-  dollar:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`,
-  calendar:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-  book:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`,
-  checkFill: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
-  xCircle:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
-  arrow:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+const SCHOOL_NAMES = {
+  school_adekus: 'Anton de Kom Universiteit van Suriname',
+  school_natin:  'Natuurtechnisch Instituut',
+  school_iol:    'Instituut voor de Opleiding van Leraren',
+  school_covab:  'College voor Agrarische en Biologische Wetenschappen',
+  school_imeao:  'IMEAO',
+  school_ptc:    'Polytechnical College Suriname',
+  school_igsr:   'IGSR',
 };
 
-// ── Fetch schools from backend ────────────────────────────────
-async function loadSchools() {
-  if (compareIds.length === 0) { render(); return; }
-
-  const results = [];
-  for (const id of compareIds) {
-    try {
-      const res = await fetch(`/admin/schools/${id}`);
-      if (res.ok) results.push(await res.json());
-      else throw new Error('not found');
-    } catch {
-      // Fallback: build minimal object from local data
-      const names = {
-        school_adekus: 'Anton de Kom Universiteit van Suriname',
-        school_natin:  'Natuurtechnisch Instituut',
-        school_iol:    'Instituut voor de Opleiding van Leraren',
-        school_covab:  'College voor Agrarische en Biologische Wetenschappen',
-        school_imeao:  'IMEAO',
-        school_ptc:    'Polytechnical College Suriname',
-        school_igsr:   'IGSR',
-      };
-      const types = { school_adekus:'University', school_natin:'HBO', school_iol:'HBO', school_covab:'HBO', school_imeao:'MBO', school_ptc:'MBO', school_igsr:'HBO' };
-      results.push({ id, name: names[id] || id, type: types[id] || 'HBO', location: 'Paramaribo', programs: [], _count: { programs: 1 } });
-    }
+/* ════════════════════════════════════════════════════════════
+   DATA LOADING
+════════════════════════════════════════════════════════════ */
+async function fetchSchool(id) {
+  try {
+    const res = await fetch(`/schools/${id}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch {
+    // Build from local enrichment data
+    const local = SCHOOL_DATA[id];
+    if (!local) return null;
+    return {
+      id,
+      name:     SCHOOL_NAMES[id] || id,
+      type:     local.type,
+      location: 'Paramaribo',
+      programs: [],
+      _local:   true,
+    };
   }
-  schools = results;
-  render();
 }
 
-// ── Remove a school from comparison ──────────────────────────
-function removeSchool(id) {
-  compareIds = compareIds.filter(i => i !== id);
-  schools    = schools.filter(s => s.id !== id);
-  // Update localStorage
-  localStorage.setItem('school_compare', JSON.stringify(compareIds));
-  render();
-}
+/* ════════════════════════════════════════════════════════════
+   RENDER SCHOOL COLUMN
+════════════════════════════════════════════════════════════ */
+function renderCol(school, slot, tx) {
+  if (!school) return;
+  const local = SCHOOL_DATA[school.id] || {};
+  const progCount = Array.isArray(school.programs)
+    ? school.programs.length
+    : (school._count?.programs ?? 0);
 
-// ── Main render ───────────────────────────────────────────────
-function render() {
-  const tx   = T[language];
-  const main = document.getElementById('main-content');
+  const colEl = document.getElementById(`col-${slot}`);
+  if (!colEl) return;
 
-  // ── EMPTY STATE ───────────────────────────────────────────
-  if (schools.length === 0) {
-    main.innerHTML = `
-      <div class="page-wrap">
-        <div class="empty-state">
-          <div class="empty-inner">
-            <div class="empty-icon">${SVG.compare}</div>
-            <h2>${tx.emptyTitle}</h2>
-            <p>${tx.emptyDesc}</p>
-            <a href="schools.html" class="btn-primary">
-              ${SVG.arrow}
-              ${tx.browseSchools}
-            </a>
-          </div>
-        </div>
-      </div>`;
-    return;
-  }
+  // Remove empty styling if still present
+  colEl.classList.remove('compare-col--empty');
 
-  // ── BUILD TABLE HEADER CELLS ──────────────────────────────
-  const headerCells = schools.map(s => `
-    <th class="px-6 py-4 text-white" style="min-width:210px">
-      <div class="th-content">
-        <div class="th-icon">${SVG.school}</div>
-        <div>
-          <div class="th-name">${s.name}</div>
-          <div class="th-sub">${s.location || 'Suriname'}</div>
-        </div>
-        <button class="btn-remove-th" onclick="removeSchool('${s.id}')">
-          ${SVG.x} ${tx.remove}
-        </button>
+  const schoolIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>`;
+
+  const swapUrl = `schools.html?picking=true&slot=${slot}`;
+
+  colEl.innerHTML = `
+    <div class="col-header">
+      <div class="col-header-icon">${schoolIcon}</div>
+      <div class="col-school-name">${school.name}</div>
+      <div class="col-school-meta">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          ${school.location || 'Suriname'}
+        </span>
+        <span class="col-type-badge">${school.type || local.type || 'HBO'}</span>
       </div>
-    </th>`).join('');
-
-  // ── BUILD TABLE ROWS ──────────────────────────────────────
-  function dataRow(label, iconSvg, valuesFn, tinted) {
-    const cls = tinted ? 'row-tinted' : 'row-white';
-    const cells = schools.map(s => `<td class="px-6 py-4 text-center" style="vertical-align:middle">${valuesFn(s)}</td>`).join('');
-    return `
-      <tr class="border-b border-gray-200 ${cls}">
-        <td class="px-6 py-4" style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--gray-700);white-space:nowrap;vertical-align:middle">
-          <span style="color:var(--gray-500);flex-shrink:0;display:flex">${iconSvg}</span>
-          ${label}
-        </td>
-        ${cells}
-      </tr>`;
-  }
-
-  const rows = [
-    dataRow(tx.type, SVG.school, s => s.type || '—', true),
-    dataRow(tx.location, SVG.mapPin, s => s.location || 'Suriname', false),
-    dataRow(tx.programs, SVG.book, s => tx.programCount(s._count?.programs || s.programs?.length || 0), true),
-    dataRow(tx.duration, SVG.clock, s => { const e = EXTRA[s.id]; return e ? tx.years(e.avgDuration) : '—'; }, false),
-    dataRow(tx.tuition, SVG.dollar, s => { const e = EXTRA[s.id]; return e?.tuitionFree ? `<span style="color:var(--green-600);font-weight:600">${tx.free}</span>` : 'SRD —'; }, true),
-    dataRow(tx.deadline, SVG.calendar, s => { const e = EXTRA[s.id]; return e ? e.deadline[language] : '—'; }, false),
-    // Pros row
-    `<tr class="border-b border-gray-200 row-white">
-      <td class="px-6 py-4" style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--gray-700);vertical-align:top;white-space:nowrap">
-        <span style="color:var(--green-600);flex-shrink:0;display:flex">${SVG.checkFill}</span>${tx.pros}
-      </td>
-      ${schools.map(s => {
-        const items = (tx.prosItems[s.id] || []).map(p => `<li>${SVG.checkFill}<span>${p}</span></li>`).join('');
-        return `<td class="px-6 py-4" style="vertical-align:top"><ul class="pros-list">${items}</ul></td>`;
-      }).join('')}
-    </tr>`,
-    // Cons row
-    `<tr class="border-b border-gray-200 row-tinted">
-      <td class="px-6 py-4" style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--gray-700);vertical-align:top;white-space:nowrap">
-        <span style="color:var(--red-500);flex-shrink:0;display:flex">${SVG.xCircle}</span>${tx.cons}
-      </td>
-      ${schools.map(s => {
-        const items = (tx.consItems[s.id] || []).map(c => `<li>${SVG.xCircle}<span>${c}</span></li>`).join('');
-        return `<td class="px-6 py-4" style="vertical-align:top"><ul class="cons-list">${items}</ul></td>`;
-      }).join('')}
-    </tr>`,
-  ].join('');
-
-  // Footer buttons
-  const footerBtns = schools.map(s =>
-    `<a href="school-detail.html?id=${s.id}" class="btn-view-details">${tx.viewDetails}: ${s.name.split(' ').slice(0,3).join(' ')}</a>`
-  ).join('');
-
-  // ── BUILD MOBILE CARDS ────────────────────────────────────
-  const mobileCards = schools.map(s => {
-    const ex    = EXTRA[s.id] || {};
-    const pros  = (tx.prosItems[s.id] || []).map(p => `<li class="flex gap-2" style="align-items:flex-start;font-size:.85rem;color:var(--gray-700)"><span style="color:var(--green-600);flex-shrink:0;display:flex;margin-top:2px">${SVG.checkFill}</span>${p}</li>`).join('');
-    const cons  = (tx.consItems[s.id] || []).map(c => `<li class="flex gap-2" style="align-items:flex-start;font-size:.85rem;color:var(--gray-700)"><span style="color:var(--red-500);flex-shrink:0;display:flex;margin-top:2px">${SVG.xCircle}</span>${c}</li>`).join('');
-
-    return `
-      <div class="mobile-card">
-        <div class="mobile-card-header">
-          <div class="mobile-card-header-inner">
-            <div class="mobile-card-left">
-              <div class="mobile-th-icon">${SVG.school}</div>
-              <div>
-                <div class="mobile-card-name">${s.name}</div>
-                <div class="mobile-card-sub">${s.location || 'Suriname'} · ${s.type}</div>
-              </div>
-            </div>
-            <button class="btn-remove-mobile" onclick="removeSchool('${s.id}')" aria-label="${tx.remove}">
-              ${SVG.x}
-            </button>
-          </div>
-        </div>
-        <div class="mobile-card-body">
-          <div class="info-grid">
-            <div>
-              <div class="info-item-label">${tx.programs}</div>
-              <div class="info-item-value">${tx.programCount(s._count?.programs || s.programs?.length || 0)}</div>
-            </div>
-            <div>
-              <div class="info-item-label">${tx.duration}</div>
-              <div class="info-item-value">${ex.avgDuration ? tx.years(ex.avgDuration) : '—'}</div>
-            </div>
-            <div>
-              <div class="info-item-label">${tx.tuition}</div>
-              <div class="info-item-value" style="color:var(--green-600)">${ex.tuitionFree ? tx.free : 'SRD —'}</div>
-            </div>
-            <div>
-              <div class="info-item-label">${tx.deadline}</div>
-              <div class="info-item-value">${ex.deadline ? ex.deadline[language] : '—'}</div>
-            </div>
-          </div>
-
-          ${pros ? `
-          <div class="pros-cons-section">
-            <div class="pros-cons-heading" style="color:var(--green-700)">
-              <span style="display:flex">${SVG.checkFill}</span> ${tx.pros}
-            </div>
-            <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">${pros}</ul>
-          </div>` : ''}
-
-          ${cons ? `
-          <div class="pros-cons-section">
-            <div class="pros-cons-heading" style="color:var(--red-500)">
-              <span style="display:flex">${SVG.xCircle}</span> ${tx.cons}
-            </div>
-            <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">${cons}</ul>
-          </div>` : ''}
-
-          <a href="school-detail.html?id=${s.id}" class="btn-view-full">${tx.viewDetails}</a>
-        </div>
-      </div>`;
-  }).join('');
-
-  // ── ASSEMBLE PAGE ─────────────────────────────────────────
-  main.innerHTML = `
-    <div class="page-wrap">
-      <div class="page-title-section">
-        <h1>${tx.title}</h1>
-        <p>${tx.subtitle}</p>
-      </div>
-
-      <div class="desktop-table">
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th class="px-6 py-4 text-left text-white" style="font-family:'Playfair Display',serif;font-size:1.05rem;vertical-align:middle;">${tx.comparison}</th>
-                ${headerCells}
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-        <div class="table-footer">${footerBtns}</div>
-      </div>
-
-      <div class="mobile-cards">${mobileCards}</div>
+    </div>
+    <div class="col-body">
+      <ul class="col-stat-list">
+        <li class="col-stat-item">
+          <span class="col-stat-label">${tx.rowPrograms}</span>
+          <span class="col-stat-value">${tx.programs(progCount)}</span>
+        </li>
+        <li class="col-stat-item">
+          <span class="col-stat-label">${tx.rowLocation}</span>
+          <span class="col-stat-value">${school.location || 'Paramaribo'}</span>
+        </li>
+        <li class="col-stat-item">
+          <span class="col-stat-label">${tx.rowDeadline}</span>
+          <span class="col-stat-value">${local.deadlines?.[language] || tx.na}</span>
+        </li>
+        <li class="col-stat-item">
+          <span class="col-stat-label">${tx.rowWebsite}</span>
+          <span class="col-stat-value">
+            ${local.contact?.website
+              ? `<a href="https://${local.contact.website}" target="_blank" rel="noopener"
+                    style="color:var(--green-700);text-decoration:none;">${local.contact.website}</a>`
+              : tx.na}
+          </span>
+        </li>
+      </ul>
+    </div>
+    <div class="col-cta">
+      <a href="school-detail.html?id=${school.id}" class="btn-col-detail">${tx.btnDetail}</a>
+      <a href="${swapUrl}" class="btn-col-swap">${tx.btnSwap}</a>
     </div>`;
 }
 
-// ── Language toggle ───────────────────────────────────────────
-function applyLanguage(lang) {
-  language = lang;
-  localStorage.setItem('language', lang);
-  document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  render();
+/* ════════════════════════════════════════════════════════════
+   RENDER COMPARISON TABLE
+════════════════════════════════════════════════════════════ */
+function renderTable(schoolA, schoolB, tx) {
+  const tableWrap = document.getElementById('compare-table-wrap');
+  const table     = document.getElementById('compare-table');
+  const resetEl   = document.getElementById('compare-reset');
+  if (!tableWrap || !table) return;
+
+  const localA = SCHOOL_DATA[schoolA.id] || {};
+  const localB = SCHOOL_DATA[schoolB.id] || {};
+
+  const progA = Array.isArray(schoolA.programs) ? schoolA.programs.length : (schoolA._count?.programs ?? 0);
+  const progB = Array.isArray(schoolB.programs) ? schoolB.programs.length : (schoolB._count?.programs ?? 0);
+
+  function tagList(arr) {
+    if (!arr || arr.length === 0) return '<span style="color:var(--gray-400)">—</span>';
+    return `<div class="tag-list">${arr.slice(0, 4).map(t => `<span class="tag">${t}</span>`).join('')}${arr.length > 4 ? `<span class="tag" style="background:var(--gray-100);color:var(--gray-500)">+${arr.length - 4}</span>` : ''}</div>`;
+  }
+
+  // A row: [ label, valueA, valueB, compare? ]
+  const rows = [
+    [ tx.rowType,      schoolA.type || localA.type || '—', schoolB.type || localB.type || '—', true  ],
+    [ tx.rowLocation,  schoolA.location || 'Paramaribo',   schoolB.location || 'Paramaribo',   true  ],
+    [ tx.rowPrograms,  tx.programs(progA),                  tx.programs(progB),                  true  ],
+    [ tx.rowDeadline,  localA.deadlines?.[language] || '—', localB.deadlines?.[language] || '—', true  ],
+    [ tx.rowWebsite,
+      localA.contact?.website ? `<a href="https://${localA.contact.website}" target="_blank" rel="noopener" style="color:var(--green-700)">${localA.contact.website}</a>` : '—',
+      localB.contact?.website ? `<a href="https://${localB.contact.website}" target="_blank" rel="noopener" style="color:var(--green-700)">${localB.contact.website}</a>` : '—',
+      false
+    ],
+    [ tx.rowFacilities, tagList(localA.facilities?.[language]), tagList(localB.facilities?.[language]), false ],
+    [ tx.rowServices,   tagList(localA.services?.[language]),   tagList(localB.services?.[language]),   false ],
+    [ tx.rowAccred,
+      `<span style="font-size:.8rem;color:var(--gray-600)">${localA.accreditation?.[language] || '—'}</span>`,
+      `<span style="font-size:.8rem;color:var(--gray-600)">${localB.accreditation?.[language] || '—'}</span>`,
+      false
+    ],
+  ];
+
+  table.innerHTML = `
+    <thead>
+      <tr class="thead-row">
+        <th></th>
+        <th>${schoolA.name}</th>
+        <th>${schoolB.name}</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(([label, valA, valB, compare]) => {
+        const differs = compare && valA !== valB;
+        return `<tr${differs ? ' class="differs"' : ''}>
+          <th>${label}</th>
+          <td>${valA}</td>
+          <td>${valB}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>`;
+
+  tableWrap.style.display = 'block';
+  if (resetEl) resetEl.style.display = 'block';
 }
 
-document.getElementById('btn-nl').addEventListener('click', () => applyLanguage('nl'));
-document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
+/* ════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════ */
+async function init() {
+  applyLang(language);
 
-// ── Hamburger ─────────────────────────────────────────────────
+  const idA = localStorage.getItem('compare_school_a');
+  const idB = localStorage.getItem('compare_school_b');
+
+  // ── Load school A ────────────────────────────────────────
+  if (idA) {
+    const schoolA = await fetchSchool(idA);
+    const tx = T[language];
+    if (schoolA) {
+      renderCol(schoolA, 'a', tx);
+      // If school B also loaded, render table
+      if (idB) {
+        const schoolB = await fetchSchool(idB);
+        if (schoolB) {
+          renderCol(schoolB, 'b', tx);
+          renderTable(schoolA, schoolB, tx);
+        }
+      }
+    }
+  } else {
+    // No school A — redirect back to schools
+    window.location.href = 'schools.html';
+  }
+
+  // ── Empty slot B: update link with slot param ────────────
+  const btnPick = document.getElementById('btn-pick');
+  if (btnPick && !idB) {
+    btnPick.href = 'schools.html?picking=true';
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   LANGUAGE
+════════════════════════════════════════════════════════════ */
+function applyLang(lang) {
+  language = lang;
+  localStorage.setItem('language', lang);
+  const tx = T[lang];
+
+  document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+  document.getElementById('page-subtitle').textContent = tx.pageSub;
+
+  // Back link
+  const backSpan = document.querySelector('.back-link span');
+  if (backSpan) backSpan.textContent = tx.back;
+
+  // Empty slot text
+  const emptyTitle = document.getElementById('empty-title');
+  const emptySub   = document.getElementById('empty-sub');
+  const btnPickText = document.getElementById('btn-pick-text');
+  if (emptyTitle)  emptyTitle.textContent  = tx.emptyTitle;
+  if (emptySub)    emptySub.textContent    = tx.emptySub;
+  if (btnPickText) btnPickText.textContent = tx.btnPick;
+
+  // Reset button
+  const resetText = document.getElementById('btn-reset-text');
+  if (resetText) resetText.textContent = tx.btnReset;
+
+  // data-nl / data-en nav links
+  document.querySelectorAll('[data-nl]').forEach(el => {
+    el.textContent = lang === 'nl' ? el.dataset.nl : el.dataset.en;
+  });
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESET
+════════════════════════════════════════════════════════════ */
+document.getElementById('btn-reset')?.addEventListener('click', () => {
+  localStorage.removeItem('compare_school_a');
+  localStorage.removeItem('compare_school_b');
+  window.location.href = 'schools.html';
+});
+
+/* ════════════════════════════════════════════════════════════
+   LANGUAGE BUTTONS
+════════════════════════════════════════════════════════════ */
+document.getElementById('btn-nl').addEventListener('click', () => applyLang('nl'));
+document.getElementById('btn-en').addEventListener('click', () => applyLang('en'));
+
+/* ════════════════════════════════════════════════════════════
+   HAMBURGER
+════════════════════════════════════════════════════════════ */
 document.getElementById('hamburger-btn').addEventListener('click', () => {
   document.getElementById('mobile-nav').classList.toggle('open');
 });
 
-// ── Boot ──────────────────────────────────────────────────────
-applyLanguage(language);
-loadSchools();
+/* ════════════════════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════════════════════ */
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+  document.getElementById('login-btn').style.display     = 'none';
+  document.getElementById('profile-btn').style.display   = 'flex';
+  document.getElementById('mobile-login').style.display  = 'none';
+  document.getElementById('mobile-profile').style.display = 'block';
+  document.getElementById('profile-name-label').textContent = payload.name  || 'Profiel';
+  document.getElementById('popup-name').textContent          = payload.name  || 'Student';
+  document.getElementById('popup-email').textContent         = payload.email || '';
+  document.getElementById('popup-role').textContent          = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+}
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+document.addEventListener('click', () => {
+  const popup = document.getElementById('profile-popup');
+  if (popup) popup.classList.remove('open');
+});
+
+/* ════════════════════════════════════════════════════════════
+   BOOT
+════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  initAuth();
+  init();
+});

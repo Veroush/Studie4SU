@@ -3,56 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vergelijk Scholen – Studie4SU</title>
-  
+  <title>Scholen vergelijken – Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  
-  <link rel="stylesheet" href="css/school-compare.css">
+  <link rel="stylesheet" href="css/school-compare.css" />
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="index.html" class="logo">Studie<span>4SU</span></a>
-      <ul class="nav-links">
-        <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
-        <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a></li>
-        <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
-        <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
-      </ul>
-      <div class="header-right">
-        <button class="lang-btn" id="btn-nl">NL</button>
-        <button class="lang-btn" id="btn-en">EN</button>
-        <a href="login.html" class="btn-login">Inloggen</a>
-        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
+<!-- ── HEADER ─────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">Studie<span>4SU</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
+      <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools" class="active">Scholen</a></li>
+      <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+      <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
+    </ul>
+    <div class="header-right">
+      <button class="lang-btn" id="btn-nl">NL</button>
+      <button class="lang-btn" id="btn-en">EN</button>
+      <a href="login.html" class="btn-login" id="login-btn">Inloggen</a>
+      <div class="profile-wrap" id="profile-btn" style="display:none">
+        <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+        <div class="profile-popup" id="profile-popup">
+          <div class="popup-avatar">👤</div>
+          <div class="popup-name"  id="popup-name"></div>
+          <div class="popup-email" id="popup-email"></div>
+          <div class="popup-role"  id="popup-role"></div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+        </div>
       </div>
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
     </div>
-    <nav class="mobile-nav" id="mobile-nav">
-      <a href="index.html">Home</a>
-      <a href="schools.html">Scholen</a>
-      <a href="quiz.html">Quiz</a>
-      <a href="open-houses.html">Open Dagen</a>
-      <a href="login.html">Inloggen</a>
-    </nav>
-  </header>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="schools.html">Scholen</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="open-houses.html">Open Dagen</a>
+    <a href="login.html" id="mobile-login">Inloggen</a>
+    <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+  </nav>
+</header>
 
-  <main id="main-content">
-    <div class="page-wrap">
-      <div class="loading-state" id="loading-state">
+<!-- ── PAGE ───────────────────────────────────────────────────── -->
+<main class="page-container">
+
+  <div class="page-title-section">
+    <a href="schools.html" class="back-link">← <span data-nl="Terug naar scholen" data-en="Back to schools">Terug naar scholen</span></a>
+    <h1 id="page-title">Scholen <span>Vergelijken</span></h1>
+    <p id="page-subtitle">Vergelijk twee scholen naast elkaar</p>
+  </div>
+
+  <!-- ── COMPARE COLUMNS ──────────────────────────────────────── -->
+  <div class="compare-grid" id="compare-grid">
+
+    <!-- School A — always present (came from school-detail) -->
+    <div class="compare-col" id="col-a">
+      <div class="col-loading">
         <div class="spinner"></div>
-        <p style="color:var(--gray-500)" id="loading-text">Laden...</p>
       </div>
     </div>
-  </main>
 
-  <footer class="site-footer">
-    <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
-  </footer>
+    <!-- Divider -->
+    <div class="compare-vs">
+      <span>VS</span>
+    </div>
 
-  <script src="js/school-compare.js"></script>
+    <!-- School B — empty until user picks -->
+    <div class="compare-col compare-col--empty" id="col-b">
+      <div class="empty-slot" id="empty-slot">
+        <div class="empty-icon">🏫</div>
+        <p class="empty-title" id="empty-title">Voeg een school toe</p>
+        <p class="empty-sub"   id="empty-sub">Kies een school om te vergelijken</p>
+        <a href="schools.html?picking=true" class="btn-pick" id="btn-pick">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span id="btn-pick-text">Kies een school</span>
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /compare-grid -->
+
+  <!-- ── COMPARISON TABLE (shown when both schools loaded) ─────── -->
+  <div class="compare-table-wrap" id="compare-table-wrap" style="display:none">
+    <table class="compare-table" id="compare-table">
+      <!-- built by JS -->
+    </table>
+  </div>
+
+  <!-- ── RESET BUTTON ─────────────────────────────────────────── -->
+  <div class="compare-reset" id="compare-reset" style="display:none">
+    <button class="btn-reset" id="btn-reset">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.85"/>
+      </svg>
+      <span id="btn-reset-text">Opnieuw vergelijken</span>
+    </button>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+</footer>
+
+<script src="js/school-compare.js"></script>
 </body>
 </html>

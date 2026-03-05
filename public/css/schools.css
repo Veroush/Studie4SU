@@ -629,6 +629,47 @@ body {
   white-space: nowrap;
 }
 
+/* ─── PICKING MODE ─────────────────────────────────────────── */
+/* Banner shown when user arrives from compare page to pick school B */
+.picking-banner {
+  position: sticky;
+  top: 68px; /* below header */
+  z-index: 90;
+  background: linear-gradient(to right, var(--bg-dark), #1a4a32);
+  border-bottom: 2px solid var(--gold);
+  animation: slideDown .3s ease both;
+}
+.picking-banner-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 12px;
+  color: #fff; font-size: .9rem; font-weight: 500;
+}
+.picking-banner-inner svg { color: var(--gold); flex-shrink: 0; }
+.picking-banner-inner span { flex: 1; }
+.picking-cancel {
+  padding: 6px 14px; border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.8);
+  text-decoration: none; font-size: .8rem; font-weight: 500;
+  transition: border-color .2s, color .2s; white-space: nowrap;
+}
+.picking-cancel:hover { border-color: #fff; color: #fff; }
+
+/* Select button used in picking mode instead of "View Details" */
+.btn-select-school {
+  background: var(--gold) !important;
+  color: var(--bg-dark) !important;
+  font-weight: 600 !important;
+}
+.btn-select-school:hover {
+  background: #d4a43d !important;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
 /* ─── FOOTER ───────────────────────────────────────────────── */
 .site-footer {
   background: var(--bg-dark);
@@ -744,4 +785,3 @@ body {
     transform: translateX(0) rotate(0deg) scale(1);
   }
 }
->>>>>>> 80ac501573efeb48f2d1349e857e2807754ff728

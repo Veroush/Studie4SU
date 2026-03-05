@@ -690,25 +690,12 @@ function toggleFavorite() {
   }
 }
 
-// ── Compare toggle ────────────────────────────────────────────
+// ── Compare: save school A and go to compare page ────────────
 function toggleCompare() {
   if (!currentSchool) return;
-  const id  = currentSchool.id;
-  const idx = compareItems.indexOf(id);
-  if (idx === -1) {
-    if (compareItems.length >= 3) { alert(language === 'nl' ? 'Je kunt max. 3 scholen vergelijken.' : 'Max 3 schools can be compared.'); return; }
-    compareItems.push(id);
-  } else {
-    compareItems.splice(idx, 1);
-  }
-  localStorage.setItem('school_compare', JSON.stringify(compareItems));
-  const isCmp = compareItems.includes(id);
-  const btn   = document.getElementById('btn-cmp');
-  const tx    = T[language];
-  if (btn) {
-    btn.classList.toggle('cmp-active', isCmp);
-    btn.innerHTML = `${icons.compare}<span>${isCmp ? tx.removeCompare : tx.addCompare}</span>`;
-  }
+  // Save this school as "school A" and navigate to compare page
+  localStorage.setItem('compare_school_a', currentSchool.id);
+  window.location.href = 'school-compare.html';
 }
 
 // ── Open House registration ───────────────────────────────────
