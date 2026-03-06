@@ -11,7 +11,7 @@
 
   <main class="auth-page">
     <section class="quote-section fade-in" aria-live="polite">
-      <p class="quote-text" id="quote-text">“Every failure is a step to success”</p>
+      <p class="quote-text" id="quote-text">"Every failure is a step to success"</p>
       <p class="quote-book" id="quote-book">Lectures on the History of Moral Philosophy in England</p>
       <p class="quote-author" id="quote-author">by William Whewell</p>
     </section>
@@ -39,6 +39,7 @@
           <div class="api-banner" id="api-banner" role="alert"></div>
 
           <form id="auth-form" novalidate>
+            <!-- Name (register only) -->
             <div class="field" id="name-field" style="display:none;">
               <label for="name" id="name-label">Naam</label>
               <div class="input-wrap">
@@ -51,6 +52,7 @@
               <span class="error-msg" id="name-error" role="alert"></span>
             </div>
 
+            <!-- Email -->
             <div class="field">
               <label for="email" id="email-label">Email</label>
               <div class="input-wrap">
@@ -63,6 +65,20 @@
               <span class="error-msg" id="email-error" role="alert"></span>
             </div>
 
+            <!-- Phone (register only) -->
+            <div class="field" id="phone-field" style="display:none;">
+              <label for="phone" id="phone-label">WhatsApp-nummer <span id="phone-optional" style="font-weight:400;opacity:0.6;">(optioneel)</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.05 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17z"/>
+                </svg>
+                <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="+597 8xxxxxxx" aria-describedby="phone-error phone-hint" />
+              </div>
+              <span class="field-hint" id="phone-hint" style="font-size:0.78rem;color:#888;margin-top:4px;display:block;" data-nl="Met landcode, bijv. +597 voor Suriname" data-en="With country code, e.g. +597 for Suriname">Met landcode, bijv. +597 voor Suriname</span>
+              <span class="error-msg" id="phone-error" role="alert"></span>
+            </div>
+
+            <!-- Password -->
             <div class="field">
               <label for="password" id="password-label">Wachtwoord</label>
               <div class="input-wrap">
@@ -75,6 +91,10 @@
               <span class="error-msg" id="password-error" role="alert"></span>
             </div>
 
+            <div class="forgot-pw-wrap" id="forgot-pw-wrap">
+              <a href="forgot-password.html" class="forgot-pw-link" id="forgot-pw-link">Wachtwoord vergeten?</a>
+            </div>
+
             <button type="submit" class="submit-btn" id="submit-btn" aria-label="Formulier indienen">
               <div class="spinner" id="spinner" aria-hidden="true"></div>
               <span id="submit-label">Inloggen</span>
@@ -83,6 +103,7 @@
               </svg>
             </button>
           </form>
+
           <div class="toggle-section">
             <p id="toggle-text">Nog geen account?</p>
             <button class="toggle-link" id="toggle-link" type="button" onclick="toggleMode()" aria-label="Wisselen naar registratie formulier">Maak er één aan</button>

@@ -12,8 +12,10 @@ model User {
   email     String   @unique
   password  String
   name      String
+  phone     String?  @unique   
   role      String   @default("student")
   createdAt DateTime @default(now())
+  passwordResetTokens PasswordResetToken[] 
 }
 
 model School {
@@ -115,3 +117,14 @@ model QuizAnswer {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+

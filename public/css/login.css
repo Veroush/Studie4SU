@@ -284,3 +284,25 @@ input.has-error::placeholder { color: #f18a8a; }
     transform: none;
   }
 }
+
+.forgot-pw-wrap {
+  text-align: right;
+  margin: -0.25rem 0 0.75rem;
+}
+
+.forgot-pw-link {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-pw-link:hover {
+  color: var(--green-600);
+}
+
+/* Hide forgot link when in register mode (login.js adds .register-mode to body or card) */
+body.register-mode .forgot-pw-wrap,
+.card.register-mode .forgot-pw-wrap {
+  display: none;
+}
