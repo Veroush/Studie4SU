@@ -2,7 +2,7 @@
 
 // ── State ─────────────────────────────────────────────────────
 let language     = localStorage.getItem('language') || 'nl';
-let favorites    = JSON.parse(localStorage.getItem('school_favorites') || '[]');
+let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = JSON.parse(localStorage.getItem('school_compare')   || '[]');
 let currentSchool = null;
 let currentOpenHouses = [];
@@ -674,13 +674,34 @@ function initSlider() {
   startAuto();
 }
 
+// ── Fav toast ────────────────────────────────────────────────
+let _toastTimer;
+function showFavToast(added) {
+  let el = document.getElementById('fav-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fav-toast';
+    el.className = 'fav-toast';
+    document.body.appendChild(el);
+  }
+  const msg = added
+    ? (language === 'nl' ? 'Toegevoegd aan favorieten' : 'Added to favourites')
+    : (language === 'nl' ? 'Verwijderd uit favorieten' : 'Removed from favourites');
+  el.innerHTML = added
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${language === 'nl' ? 'Bekijk favorieten \u2192' : 'View favourites \u2192'}</a>`
+    : msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
 // ── Favorite toggle ───────────────────────────────────────────
 function toggleFavorite() {
   if (!currentSchool) return;
   const id  = currentSchool.id;
   const idx = favorites.indexOf(id);
   if (idx === -1) favorites.push(id); else favorites.splice(idx, 1);
-  localStorage.setItem('school_favorites', JSON.stringify(favorites));
+  localStorage.setItem('fav_schools', JSON.stringify(favorites));
   const isFav = favorites.includes(id);
   const btn   = document.getElementById('btn-fav');
   const tx    = T[language];
@@ -688,27 +709,15 @@ function toggleFavorite() {
     btn.classList.toggle('fav-active', isFav);
     btn.innerHTML = `${isFav ? icons.heartFill : icons.heart}<span>${isFav ? tx.removeFav : tx.addFav}</span>`;
   }
+  showFavToast(isFav);
 }
 
-// ── Compare toggle ────────────────────────────────────────────
+// ── Compare: save school A and go to compare page ────────────
 function toggleCompare() {
   if (!currentSchool) return;
-  const id  = currentSchool.id;
-  const idx = compareItems.indexOf(id);
-  if (idx === -1) {
-    if (compareItems.length >= 3) { alert(language === 'nl' ? 'Je kunt max. 3 scholen vergelijken.' : 'Max 3 schools can be compared.'); return; }
-    compareItems.push(id);
-  } else {
-    compareItems.splice(idx, 1);
-  }
-  localStorage.setItem('school_compare', JSON.stringify(compareItems));
-  const isCmp = compareItems.includes(id);
-  const btn   = document.getElementById('btn-cmp');
-  const tx    = T[language];
-  if (btn) {
-    btn.classList.toggle('cmp-active', isCmp);
-    btn.innerHTML = `${icons.compare}<span>${isCmp ? tx.removeCompare : tx.addCompare}</span>`;
-  }
+  // Save this school as "school A" and navigate to compare page
+  localStorage.setItem('compare_school_a', currentSchool.id);
+  window.location.href = 'school-compare.html';
 }
 
 // ── Open House registration ───────────────────────────────────

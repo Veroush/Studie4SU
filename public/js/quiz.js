@@ -347,6 +347,21 @@ const PROGRAM_SCHOOL_MAP = {
 };
 
 /* ============================================================
+   PROGRAM ID MAP
+   Maps quiz program IDs to real seeded DB program IDs.
+   Used to link "Bekijk Programma" button to program-detail.html
+============================================================ */
+const PROGRAM_ID_MAP = {
+  program_technology:  'prog_aa6',   // Electrotechniek — AdekUS
+  program_medical:     'prog_aa8',   // Geneeskunde — AdekUS
+  program_business:    'prog_aa2',   // Bedrijfskunde — AdekUS
+  program_social_work: 'prog_aa17',  // Psychologie — AdekUS
+  program_education:   'prog_aa16',  // Onderwijs- en Pedagogische Wetenschappen — AdekUS
+  program_science:     'prog_aa3',   // Biologie — AdekUS
+  program_law:         'prog_aa20',  // Rechtswetenschappen — AdekUS
+};
+
+/* ============================================================
    QUIZ STATE
 ============================================================ */
 const quizState = {
@@ -741,7 +756,8 @@ function renderResults() {
   }
 
   list.innerHTML = recs.map((rec, i) => {
-    const schoolId = PROGRAM_SCHOOL_MAP[rec.id] || '';
+    const schoolId  = PROGRAM_SCHOOL_MAP[rec.id] || '';
+    const programId = PROGRAM_ID_MAP[rec.id] || '';
     return `
     <div class="rec-card">
       <div class="rec-layout">
@@ -777,7 +793,7 @@ function renderResults() {
 
           <div class="action-row">
             <button class="btn-primary" onclick="window.location.href='school-detail.html?id=${schoolId}'">${t.viewSchool}</button>
-            <button class="btn-secondary" onclick="window.location.href='schools.html'">${t.viewProgram}</button>
+            <button class="btn-secondary" onclick="window.location.href='program-detail.html?id=${programId}'" ${!programId ? 'disabled' : ''}>${t.viewProgram}</button>
           </div>
         </div>
       </div>

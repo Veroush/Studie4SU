@@ -11,6 +11,7 @@ const T = {
     noEvents: 'Geen open dagen gevonden',
     addedFav: 'Toegevoegd aan favorieten',
     removedFav: 'Verwijderd uit favorieten',
+    viewFavourites: 'Bekijk favorieten \u2192',
     regSuccess: 'Succesvol aangemeld!',
     ariaFavAdd: 'Toevoegen aan favorieten',
     ariaFavRemove: 'Verwijderen uit favorieten',
@@ -26,6 +27,7 @@ const T = {
     noEvents: 'No open houses found',
     addedFav: 'Added to favorites',
     removedFav: 'Removed from favorites',
+    viewFavourites: 'View favourites \u2192',
     regSuccess: 'Successfully registered!',
     ariaFavAdd: 'Add to favorites',
     ariaFavRemove: 'Remove from favorites',
@@ -205,7 +207,7 @@ let toastTimer;
 function showToast(msg, type = '', showFavLink = false) {
   const el = document.getElementById('toast');
   el.innerHTML = showFavLink
-    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">Bekijk favorieten →</a>`
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${t('viewFavourites')}</a>`
     : msg;
   el.className = 'toast show' + (type ? ' ' + type : '');
   el.style.pointerEvents = showFavLink ? 'auto' : '';
