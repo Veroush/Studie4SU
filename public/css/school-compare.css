@@ -82,6 +82,46 @@ body {
   min-height: 60vh;
 }
 .empty-inner { max-width: 28rem; text-align: center; }
+.empty-animation {
+  position: relative;
+  width: min(100%, 380px);
+  height: 160px;
+  margin: 0 auto 20px;
+  overflow: hidden;
+}
+
+.empty-animation::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(22,163,74,.08), rgba(22,163,74,.22), rgba(22,163,74,.08));
+}
+
+.empty-runner,
+.empty-chaser {
+  position: absolute;
+  bottom: 18px;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.empty-chaser { left: 30px; }
+.empty-runner { left: 170px; }
+
+@media (max-width: 480px) {
+  .empty-animation { height: 140px; }
+  .empty-runner,
+  .empty-chaser { width: 76px; height: 76px; }
+  .empty-chaser { left: 24px; }
+  .empty-runner { left: 140px; }
+}
+
 .empty-icon {
   width: 80px; height: 80px; border-radius: 16px;
   background: linear-gradient(135deg, var(--green-600), var(--green-700));
