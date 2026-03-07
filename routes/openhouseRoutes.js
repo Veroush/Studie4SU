@@ -19,6 +19,8 @@ const express = require('express');
 const router  = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma  = new PrismaClient();
+const { requireAuth, optionalAuth } = require('../middleware/auth');
+const ctrl = require('../controllers/openHousesController');
 
 
 // ================================================================
@@ -28,25 +30,41 @@ const prisma  = new PrismaClient();
 // GET /openhouses
 // Returns all active open houses, soonest first.
 // Optional query param: ?schoolId=school_natin  → filter by school
-router.get('/', async (req, res) => {
+// optionalAuth: if logged in, response includes registered:true/false per event
+router.get('/', optionalAuth, async (req, res) => {
   try {
     const { schoolId } = req.query;
 
     const openHouses = await prisma.openHouse.findMany({
       where: {
         isActive: true,
-        // If schoolId was passed as a query param, filter by it
         ...(schoolId && { schoolId })
       },
-      orderBy: { date: 'asc' },   // soonest first
+      orderBy: { date: 'asc' },
       include: {
         school: {
           select: { id: true, name: true, shortName: true, type: true }
-        }
+        },
+        registrations: { select: { userId: true } },
       }
     });
 
-    res.json(openHouses);
+    const userId = req.userId || null;
+
+    const data = openHouses.map(oh => ({
+      id:                oh.id,
+      title:             oh.title,
+      description:       oh.description,
+      date:              oh.date,
+      location:          oh.location,
+      isOnline:          oh.isOnline,
+      registrationUrl:   oh.registrationUrl,
+      school:            oh.school?.shortName || oh.school?.name || oh.title,
+      registered:        userId ? oh.registrations.some(r => r.userId === userId) : false,
+      registrationCount: oh.registrations.length,
+    }));
+
+    res.json(data);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch open houses' });
@@ -221,6 +239,17 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete open house' });
   }
 });
+
+
+// ================================================================
+//  REGISTRATION ROUTES  (auth required)
+// ================================================================
+
+// POST /openhouses/:id/register   → register the logged-in user
+router.post('/:id/register', requireAuth, ctrl.register);
+
+// DELETE /openhouses/:id/register → unregister the logged-in user
+router.delete('/:id/register', requireAuth, ctrl.unregister);
 
 
 module.exports = router;

@@ -746,6 +746,71 @@ async function main() {
   }
 
   console.log('\n🎉 Done! 3 schools + 69 programs seeded.');
+
+  // ── Open Houses ──────────────────────────────────────────────
+  const openHouses = [
+    {
+      id:          'oh_adekus_1',
+      title:       'Open Dag AdeKUS – Maart',
+      description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.',
+      date:        new Date('2026-03-14T10:00:00'),
+      location:    'Leysweg 86, Paramaribo',
+      isOnline:    false,
+      isActive:    true,
+      schoolId:    'school_adekus',
+    },
+    {
+      id:          'oh_ptc_1',
+      title:       'Open Dag PTC – April',
+      description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.',
+      date:        new Date('2026-04-25T09:00:00'),
+      location:    'Meerzorgweg, Paramaribo',
+      isOnline:    false,
+      isActive:    true,
+      schoolId:    'school_ptc',
+    },
+    {
+      id:          'oh_fhr_1',
+      title:       'Open Dag FHR – April',
+      description: 'Informeer je over de HBO-opleidingen van FHR in business en management. Praat met studenten en begeleiders.',
+      date:        new Date('2026-04-18T10:00:00'),
+      location:    'Paramaribo',
+      isOnline:    false,
+      isActive:    true,
+      schoolId:    'school_fhr',
+    },
+    {
+      id:          'oh_adekus_2',
+      title:       'Open Dag AdeKUS – Mei',
+      description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.',
+      date:        new Date('2026-05-23T09:00:00'),
+      location:    'Leysweg 86, Paramaribo',
+      isOnline:    false,
+      isActive:    true,
+      schoolId:    'school_adekus',
+    },
+    {
+      id:          'oh_ptc_2',
+      title:       'Open Dag PTC – Mei',
+      description: 'Open dag van PTC. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.',
+      date:        new Date('2026-05-09T10:00:00'),
+      location:    'Meerzorgweg, Paramaribo',
+      isOnline:    false,
+      isActive:    true,
+      schoolId:    'school_ptc',
+    },
+  ];
+
+  for (const oh of openHouses) {
+    await prisma.openHouse.upsert({
+      where:  { id: oh.id },
+      update: oh,
+      create: oh,
+    });
+    console.log(`  ✅ Open House: ${oh.title}`);
+  }
+
+  console.log('\n🎉 Seeding complete! 3 schools + 69 programs + 5 open houses.');
 }
 
 main()

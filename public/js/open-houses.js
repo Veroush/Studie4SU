@@ -7,10 +7,15 @@ const T = {
     subtitle: 'Bezoek scholen en maak kennis met de opleidingen',
     all: 'Alle', upcoming: 'Aankomend', saved: 'Opgeslagen',
     listView: 'Lijst', calendarView: 'Kalender',
-    register: 'Aanmelden', registered: 'Aangemeld', registering: 'Bezig...',
+    register: 'Aanmelden', registered: 'Aangemeld ✓', registering: 'Bezig...',
+    unregister: 'Afmelden',
+    unregSuccess: 'Afgemeld van deze open dag.',
+    calendarHint: 'Verwijder het evenement in Google Agenda →',
+    loginRequired: 'Log in om je aan te melden',
     noEvents: 'Geen open dagen gevonden',
     addedFav: 'Toegevoegd aan favorieten',
     removedFav: 'Verwijderd uit favorieten',
+    viewFavourites: 'Bekijk favorieten \u2192',
     regSuccess: 'Succesvol aangemeld!',
     ariaFavAdd: 'Toevoegen aan favorieten',
     ariaFavRemove: 'Verwijderen uit favorieten',
@@ -22,10 +27,15 @@ const T = {
     subtitle: 'Visit schools and get to know the programs',
     all: 'All', upcoming: 'Upcoming', saved: 'Saved',
     listView: 'List', calendarView: 'Calendar',
-    register: 'Register', registered: 'Registered', registering: 'Registering...',
+    register: 'Register', registered: 'Registered ✓', registering: 'Registering...',
+    unregister: 'Unregister',
+    unregSuccess: 'Unregistered from this open house.',
+    calendarHint: 'Delete event in Google Calendar →',
+    loginRequired: 'Log in to register',
     noEvents: 'No open houses found',
     addedFav: 'Added to favorites',
     removedFav: 'Removed from favorites',
+    viewFavourites: 'View favourites \u2192',
     regSuccess: 'Successfully registered!',
     ariaFavAdd: 'Add to favorites',
     ariaFavRemove: 'Remove from favorites',
@@ -35,94 +45,45 @@ const T = {
 };
 
 /* ================================================================
-   EVENT DATA  — 8 events across 3 months
+   FALLBACK EVENT DATA — used when backend is unavailable
 ================================================================ */
-const EVENTS = [
-  {
-    id: '1',
-    school: 'Anton de Kom Universiteit (AdeKUS)',
-    date: '2026-03-14',
-    time: '10:00 – 16:00',
-    location: 'Leysweg 86, Paramaribo',
-    description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.',
-    registered: false,
-  },
-  {
-    id: '2',
-    school: 'Natuurtechnisch Instituut (NATIN)',
-    date: '2026-03-21',
-    time: '09:00 – 14:00',
-    location: 'Zwartenhovenbrugstraat, Paramaribo',
-    description: 'Bezoek onze workshops en labs en ervaar technisch onderwijs. Bekijk de ICT- en ingenieursafdelingen van dichtbij.',
-    registered: false,
-  },
-  {
-    id: '3',
-    school: 'Instituut voor de Opleiding van Leraren (IOL)',
-    date: '2026-03-28',
-    time: '10:00 – 15:00',
-    location: 'Dr. Sophie Redmondstraat, Paramaribo',
-    description: 'Leer alles over de lerarenopleiding. Spreek met studenten en docenten over het vak en de toekomstmogelijkheden.',
-    registered: false,
-  },
-  {
-    id: '4',
-    school: 'COVAB',
-    date: '2026-04-11',
-    time: '09:00 – 13:00',
-    location: 'Leysweg, Paramaribo',
-    description: 'Ontdek de agrarische en biologische wetenschappen. Bezoek onze onderzoekstuinen en laboratoria.',
-    registered: false,
-  },
-  {
-    id: '5',
-    school: 'IMEAO',
-    date: '2026-04-18',
-    time: '10:00 – 15:00',
-    location: 'Paramaribo',
-    description: 'Informeer je over de MBO-opleidingen van IMEAO in economie en bedrijfskunde. Praat met studenten en begeleiders.',
-    registered: false,
-  },
-  {
-    id: '6',
-    school: 'Polytechnical College Suriname (PTC)',
-    date: '2026-04-25',
-    time: '09:00 – 14:00',
-    location: 'Meerzorgweg, Paramaribo',
-    description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.',
-    registered: false,
-  },
-  {
-    id: '7',
-    school: 'IGSR',
-    date: '2026-05-09',
-    time: '10:00 – 16:00',
-    location: 'Paramaribo',
-    description: 'Open dag van IGSR. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.',
-    registered: false,
-  },
-  {
-    id: '8',
-    school: 'Anton de Kom Universiteit (AdeKUS)',
-    date: '2026-05-23',
-    time: '09:00 – 17:00',
-    location: 'Leysweg 86, Paramaribo',
-    description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.',
-    registered: false,
-  },
+const FALLBACK_EVENTS = [
+  { id: '1', school: 'Anton de Kom Universiteit (AdeKUS)', date: '2026-03-14', time: '10:00 – 16:00', location: 'Leysweg 86, Paramaribo', description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.', registered: false },
+  { id: '2', school: 'Natuurtechnisch Instituut (NATIN)', date: '2026-03-21', time: '09:00 – 14:00', location: 'Zwartenhovenbrugstraat, Paramaribo', description: 'Bezoek onze workshops en labs en ervaar technisch onderwijs. Bekijk de ICT- en ingenieursafdelingen van dichtbij.', registered: false },
+  { id: '3', school: 'Instituut voor de Opleiding van Leraren (IOL)', date: '2026-03-28', time: '10:00 – 15:00', location: 'Dr. Sophie Redmondstraat, Paramaribo', description: 'Leer alles over de lerarenopleiding. Spreek met studenten en docenten over het vak en de toekomstmogelijkheden.', registered: false },
+  { id: '4', school: 'COVAB', date: '2026-04-11', time: '09:00 – 13:00', location: 'Leysweg, Paramaribo', description: 'Ontdek de agrarische en biologische wetenschappen. Bezoek onze onderzoekstuinen en laboratoria.', registered: false },
+  { id: '5', school: 'IMEAO', date: '2026-04-18', time: '10:00 – 15:00', location: 'Paramaribo', description: 'Informeer je over de MBO-opleidingen van IMEAO in economie en bedrijfskunde. Praat met studenten en begeleiders.', registered: false },
+  { id: '6', school: 'Polytechnical College Suriname (PTC)', date: '2026-04-25', time: '09:00 – 14:00', location: 'Meerzorgweg, Paramaribo', description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.', registered: false },
+  { id: '7', school: 'IGSR', date: '2026-05-09', time: '10:00 – 16:00', location: 'Paramaribo', description: 'Open dag van IGSR. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.', registered: false },
+  { id: '8', school: 'Anton de Kom Universiteit (AdeKUS)', date: '2026-05-23', time: '09:00 – 17:00', location: 'Leysweg 86, Paramaribo', description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.', registered: false },
 ];
 
 /* ================================================================
    STATE
 ================================================================ */
+let EVENTS         = [];          // populated from API (or fallback)
 let currentFilter  = 'all';
 let currentView    = 'list';
 let currentLang    = localStorage.getItem('language') || 'nl';
 let favorites      = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
-let registered     = JSON.parse(localStorage.getItem('oh_registered') || '[]');
+
+// registered is now authoritative from the API.
+// We keep a local Set for instant UI updates between fetches.
+let registeredSet  = new Set();
+
+function getAuthToken() {
+  return localStorage.getItem('auth_token') || null;
+}
+
+function getAuthHeader() {
+  const token = getAuthToken();
+  return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+
+
 
 function saveFavData() {
-  // Store the full event objects so favorites.html can display them without an API call
+  // Store full event objects so favorites.html can display them without an API call
   const data = {};
   favorites.forEach(id => {
     const ev = EVENTS.find(e => e.id === id);
@@ -130,6 +91,40 @@ function saveFavData() {
   });
   localStorage.setItem('fav_openhouses_data', JSON.stringify(data));
 }
+
+/* ================================================================
+   API — FETCH OPEN HOUSES
+================================================================ */
+async function fetchEvents() {
+  try {
+    const res = await fetch('/openhouses', {
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Normalise API shape to match what the renderers expect
+    EVENTS = data.map(oh => ({
+      id:          oh.id,
+      school:      oh.school,
+      date:        oh.date ? oh.date.slice(0, 10) : '',   // ISO → YYYY-MM-DD
+      time:        oh.time || '',
+      location:    oh.location || '',
+      description: oh.description || '',
+      registered:  oh.registered || false,
+    }));
+
+    // Sync registeredSet from API response (source of truth)
+    registeredSet = new Set(EVENTS.filter(e => e.registered).map(e => e.id));
+
+  } catch (err) {
+    console.warn('[Studie4SU] Backend unavailable, using fallback:', err.message);
+    EVENTS = FALLBACK_EVENTS.map(e => ({ ...e }));
+    registeredSet = new Set();
+  }
+}
+
+
 
 /* ================================================================
    HELPERS
@@ -170,11 +165,12 @@ function addToGoogleCalendar(ev) {
 
   let startDT, endDT;
   if (timeMatch) {
+    // Build local datetime strings — Google Calendar interprets these as local time
     const toGCal = (d, t) => d + 'T' + t.replace(':', '') + '00';
     startDT = toGCal(dateClean, timeMatch[1]);
     endDT   = toGCal(dateClean, timeMatch[2]);
   } else {
-    // No parseable time — all-day event
+    // No parseable time — all-day event (date-only, no T suffix)
     startDT = dateClean;
     const d = new Date(ev.date + 'T00:00:00');
     d.setDate(d.getDate() + 1);
@@ -186,14 +182,15 @@ function addToGoogleCalendar(ev) {
     'Toegevoegd via Studie4SU — studie4su.sr'
   ].filter(Boolean).join('\n\n');
 
+  // NOTE: dates= must NOT be encodeURIComponent'd — the '/' separator must stay literal.
+  // The invalid &add=POPUP:1440 and &output=xml params caused "We kunnen deze afspraak niet maken."
   const calUrl = 'https://calendar.google.com/calendar/render'
     + '?action=TEMPLATE'
     + '&text='     + encodeURIComponent('Open Dag – ' + ev.school)
-    + '&dates='    + encodeURIComponent(startDT + '/' + endDT)
+    + '&dates='    + startDT + '%2F' + endDT
     + '&details='  + encodeURIComponent(details)
     + '&location=' + encodeURIComponent(ev.location || '')
-    + '&add='      + encodeURIComponent('POPUP:1440')   // 1-day reminder
-    + '&sf=true&output=xml';
+    + '&sf=true';
 
   window.open(calUrl, '_blank', 'noopener,noreferrer');
 }
@@ -205,7 +202,7 @@ let toastTimer;
 function showToast(msg, type = '', showFavLink = false) {
   const el = document.getElementById('toast');
   el.innerHTML = showFavLink
-    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">Bekijk favorieten →</a>`
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${t('viewFavourites')}</a>`
     : msg;
   el.className = 'toast show' + (type ? ' ' + type : '');
   el.style.pointerEvents = showFavLink ? 'auto' : '';
@@ -242,7 +239,7 @@ function renderListView(events) {
   const container = document.getElementById('list-view');
   container.innerHTML = events.map(ev => {
     const isFav = favorites.includes(ev.id);
-    const isReg = registered.includes(ev.id);
+    const isReg = registeredSet.has(ev.id);
     return `
     <article class="event-card" role="listitem">
       <div class="event-card-header">
@@ -271,13 +268,20 @@ function renderListView(events) {
 
       <div class="event-card-body">
         <p class="event-description">${ev.description}</p>
-        <button class="register-btn ${isReg ? 'registered' : ''}"
-                data-register="${ev.id}"
-                ${isReg ? 'disabled' : ''}
-                aria-label="${isReg ? t('registered') : t('register') + ' – ' + ev.school}"
-                onclick="registerEvent('${ev.id}')">
-          ${isReg ? t('registered') : t('register')}
-        </button>
+        ${isReg
+          ? `<button class="register-btn unregister-btn"
+                     data-register="${ev.id}"
+                     aria-label="${t('unregister')} – ${ev.school}"
+                     onclick="unregisterEvent('${ev.id}')">
+               ${t('unregister')}
+             </button>`
+          : `<button class="register-btn"
+                     data-register="${ev.id}"
+                     aria-label="${t('register')} – ${ev.school}"
+                     onclick="registerEvent('${ev.id}')">
+               ${t('register')}
+             </button>`
+        }
       </div>
     </article>`;
   }).join('');
@@ -301,7 +305,7 @@ function renderCalendarView(events) {
 
     const rows = monthEvents.map(ev => {
       const isFav = favorites.includes(ev.id);
-      const isReg = registered.includes(ev.id);
+      const isReg = registeredSet.has(ev.id);
       return `
       <div class="cal-event-row" role="listitem">
         <div class="date-badge-cal" aria-hidden="true">
@@ -329,13 +333,20 @@ function renderCalendarView(events) {
 
           <p class="cal-description">${ev.description}</p>
 
-          <button class="register-btn-sm ${isReg ? 'registered' : ''}"
-                  data-register="${ev.id}"
-                  ${isReg ? 'disabled' : ''}
-                  aria-label="${isReg ? t('registered') : t('register') + ' – ' + ev.school}"
-                  onclick="registerEvent('${ev.id}')">
-            ${isReg ? t('registered') : t('register')}
-          </button>
+          ${isReg
+            ? `<button class="register-btn-sm unregister-btn"
+                       data-register="${ev.id}"
+                       aria-label="${t('unregister')} – ${ev.school}"
+                       onclick="unregisterEvent('${ev.id}')">
+                 ${t('unregister')}
+               </button>`
+            : `<button class="register-btn-sm"
+                       data-register="${ev.id}"
+                       aria-label="${t('register')} – ${ev.school}"
+                       onclick="registerEvent('${ev.id}')">
+                 ${t('register')}
+               </button>`
+          }
         </div>
       </div>`;
     }).join('');
@@ -434,32 +445,87 @@ function toggleFavorite(id) {
   }
 }
 
-function registerEvent(id) {
+async function registerEvent(id) {
+  // Require login
+  if (!getAuthToken()) {
+    showToast(t('loginRequired'), '');
+    setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+    return;
+  }
+
   const ev = EVENTS.find(e => e.id === id);
   if (!ev) return;
-  addToGoogleCalendar(ev);
-  // Mark as registered locally so the button updates
-  if (!registered.includes(id)) {
-    registered.push(id);
-    localStorage.setItem('oh_registered', JSON.stringify(registered));
-    document.querySelectorAll(`[data-register="${id}"]`).forEach(btn => {
-      btn.textContent = t('registered');
-      btn.classList.add('registered');
-      btn.disabled = true;
+
+  // Optimistic UI update
+  registeredSet.add(id);
+  render();
+
+  try {
+    const res = await fetch(`/openhouses/${id}/register`, {
+      method:  'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    // Open Google Calendar for the user to save the event
+    addToGoogleCalendar(ev);
+
+    // Auto-favourite when registering
     if (!favorites.includes(id)) {
       favorites.push(id);
       localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
       saveFavData();
-      document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
-        btn.classList.add('active');
-        btn.setAttribute('aria-pressed', 'true');
-      });
     }
+
     showToast(t('regSuccess'), 'success');
     announce(t('regSuccess'));
+  } catch (err) {
+    console.error('[registerEvent]', err);
+    // Roll back optimistic update
+    registeredSet.delete(id);
+    render();
+    showToast(currentLang === 'nl' ? 'Aanmelden mislukt. Probeer opnieuw.' : 'Registration failed. Please try again.', '');
   }
 }
+
+async function unregisterEvent(id) {
+  const ev = EVENTS.find(e => e.id === id);
+  if (!ev) return;
+
+  // Optimistic UI update
+  registeredSet.delete(id);
+  render();
+
+  try {
+    const res = await fetch(`/openhouses/${id}/register`, {
+      method:  'DELETE',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    // Toast with Google Calendar deep-link so they can delete the event
+    const calLink = `https://calendar.google.com/calendar/r/search?q=${encodeURIComponent('Open Dag – ' + ev.school)}`;
+    const toastEl = document.getElementById('toast');
+    toastEl.innerHTML = `${t('unregSuccess')} &nbsp;<a href="${calLink}" target="_blank" rel="noopener noreferrer" class="toast-fav-link">${t('calendarHint')}</a>`;
+    toastEl.className = 'toast show';
+    toastEl.style.pointerEvents = 'auto';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.className = 'toast';
+      toastEl.style.pointerEvents = '';
+    }, 7000);
+
+    announce(t('unregSuccess'));
+  } catch (err) {
+    console.error('[unregisterEvent]', err);
+    // Roll back optimistic update
+    registeredSet.add(id);
+    render();
+    showToast(currentLang === 'nl' ? 'Afmelden mislukt. Probeer opnieuw.' : 'Unregister failed. Please try again.', '');
+  }
+}
+
+
 
 function setLanguage(lang) {
   currentLang = lang;
@@ -525,5 +591,8 @@ document.addEventListener('click', () => {
 });
 
 // Init
-setLanguage(currentLang);
-initAuth();
+(async () => {
+  initAuth();
+  await fetchEvents();
+  setLanguage(currentLang);
+})();

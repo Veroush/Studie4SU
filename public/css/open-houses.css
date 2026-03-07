@@ -453,6 +453,28 @@ button { font-family: inherit; cursor: pointer; }
 .register-btn:disabled { opacity: .7; cursor: not-allowed; }
 .register-btn.registered { background: var(--green-800); }
 
+/* Unregister button — red outline */
+.register-btn.unregister-btn {
+  background: transparent;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  box-shadow: none;
+}
+.register-btn.unregister-btn:hover {
+  background: #fef2f2;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.register-btn-sm.unregister-btn {
+  background: transparent;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  box-shadow: none;
+}
+.register-btn-sm.unregister-btn:hover {
+  background: #fef2f2;
+}
+
 /* Smaller register btn for calendar view */
 .register-btn-sm {
   padding: .5rem 1.25rem;
