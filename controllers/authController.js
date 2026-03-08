@@ -72,32 +72,10 @@ async function sendResetEmail(toEmail, toName, resetUrl, lang = "nl") {
   });
 }
 
-async function sendResetWhatsApp(phone, resetUrl, lang = "nl") {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken  = process.env.TWILIO_AUTH_TOKEN;
-  const from       = process.env.TWILIO_WHATSAPP_FROM;
-
-  if (!accountSid || !authToken || !from) {
-    throw new Error("Twilio WhatsApp not configured in .env");
-  }
-
-  const client = require("twilio")(accountSid, authToken);
-
-  const body = lang === "nl"
-    ? `Hoi! Je hebt een wachtwoord-reset aangevraagd voor Studie4SU.\n\nKlik hier om je wachtwoord opnieuw in te stellen:\n${resetUrl}\n\nDeze link is 1 uur geldig.`
-    : `Hi! You requested a password reset for Studie4SU.\n\nClick here to reset your password:\n${resetUrl}\n\nThis link is valid for 1 hour.`;
-
-  await client.messages.create({
-    from,
-    to:   `whatsapp:${phone}`,
-    body,
-  });
-}
-
 // ── register ───────────────────────────────────────────────────────────────────
 
 exports.register = async (req, res) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password } = req.body;
   if (!name || !email || !password)
     return res.status(400).json({ error: "All fields required" });
 
@@ -105,20 +83,9 @@ exports.register = async (req, res) => {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(409).json({ error: "Email already in use" });
 
-    // If phone provided, check it's not already taken
-    if (phone) {
-      const phoneExists = await prisma.user.findUnique({ where: { phone } });
-      if (phoneExists) return res.status(409).json({ error: "Phone number already in use" });
-    }
-
     const hashed = await bcrypt.hash(password, 12);
     const user   = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashed,
-        phone: phone || null,
-      },
+      data: { name, email, password: hashed },
     });
 
     const token = jwt.sign(
@@ -161,28 +128,20 @@ exports.login = async (req, res) => {
 
 // ── forgot password ────────────────────────────────────────────────────────────
 // POST /auth/forgot-password
-// Body: { email?, phone?, lang? }
+// Body: { email, lang? }
 
 exports.forgotPassword = async (req, res) => {
-  const { email, phone, lang = "nl" } = req.body;
+  const { email, lang = "nl" } = req.body;
 
-  if (!email && !phone)
-    return res.status(400).json({ error: "Email or phone required" });
+  if (!email)
+    return res.status(400).json({ error: "Email required" });
 
   try {
-    let user = null;
-
-    if (email) {
-      user = await prisma.user.findUnique({ where: { email } });
-    } else if (phone) {
-      // Normalize phone: strip spaces, ensure it starts with +
-      const normalized = phone.replace(/\s/g, "");
-      user = await prisma.user.findUnique({ where: { phone: normalized } });
-    }
+    const user = await prisma.user.findUnique({ where: { email } });
 
     // Always respond with success — never reveal whether the account exists
     if (!user) {
-      console.log(`[forgotPassword] No user found for ${email || phone} — returning silent success`);
+      console.log(`[forgotPassword] No user found for ${email} — returning silent success`);
       return res.json({ success: true });
     }
 
@@ -204,16 +163,9 @@ exports.forgotPassword = async (req, res) => {
     const baseUrl  = process.env.APP_URL || "http://localhost:3000";
     const resetUrl = `${baseUrl}/reset-password.html?token=${rawToken}`;
 
-    if (email) {
-      console.log(`[forgotPassword] Sending reset email to ${user.email}`);
-      await sendResetEmail(user.email, user.name, resetUrl, lang);
-      console.log(`[forgotPassword] Email sent OK`);
-    } else {
-      const normalized = phone.replace(/\s/g, "");
-      console.log(`[forgotPassword] Sending reset WhatsApp to ${normalized}`);
-      await sendResetWhatsApp(normalized, resetUrl, lang);
-      console.log(`[forgotPassword] WhatsApp sent OK`);
-    }
+    console.log(`[forgotPassword] Sending reset email to ${user.email}`);
+    await sendResetEmail(user.email, user.name, resetUrl, lang);
+    console.log(`[forgotPassword] Email sent OK`);
 
     res.json({ success: true });
   } catch (err) {

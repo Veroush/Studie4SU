@@ -17,8 +17,6 @@ const t = {
     subtitleQuiz: 'Log in of registreer om jouw resultaten te bekijken',
     nameLabel: 'Naam', namePlaceholder: 'Naam',
     emailLabel: 'Email', emailPlaceholder: 'Email',
-    phoneLabel: 'WhatsApp-nummer', phonePlaceholder: '+597 8xxxxxxx',
-    phoneOptional: '(optioneel)', phoneHint: 'Met landcode, bijv. +597 voor Suriname',
     passwordLabel: 'Wachtwoord', passwordPlaceholder: 'Wachtwoord',
     submitLogin: 'Inloggen', submitRegister: 'Registreren',
     loadingLogin: 'Inloggen...', loadingRegister: 'Registreren...',
@@ -46,8 +44,6 @@ const t = {
     subtitleQuiz: 'Login or register to view your results',
     nameLabel: 'Name', namePlaceholder: 'Name',
     emailLabel: 'Email', emailPlaceholder: 'Email',
-    phoneLabel: 'WhatsApp number', phonePlaceholder: '+597 8xxxxxxx',
-    phoneOptional: '(optional)', phoneHint: 'With country code, e.g. +597 for Suriname',
     passwordLabel: 'Password', passwordPlaceholder: 'Password',
     submitLogin: 'Login', submitRegister: 'Register',
     loadingLogin: 'Logging in...', loadingRegister: 'Registering...',
@@ -82,12 +78,6 @@ const dom = {
   nameLabel:   document.getElementById('name-label'),
   emailInput:  document.getElementById('email'),
   emailLabel:  document.getElementById('email-label'),
-  phoneField:  document.getElementById('phone-field'),
-  phoneInput:  document.getElementById('phone'),
-  phoneLabel:  document.getElementById('phone-label'),
-  phoneOptional: document.getElementById('phone-optional'),
-  phoneHint:   document.getElementById('phone-hint'),
-  phoneError:  document.getElementById('phone-error'),
   passInput:   document.getElementById('password'),
   passLabel:   document.getElementById('password-label'),
   submitBtn:   document.getElementById('submit-btn'),
@@ -149,16 +139,11 @@ function updateFormUI() {
   dom.nameInput.placeholder    = tx.namePlaceholder;
   dom.emailLabel.textContent   = tx.emailLabel;
   dom.emailInput.placeholder   = tx.emailPlaceholder;
-  dom.phoneLabel.firstChild.textContent = tx.phoneLabel + ' '; // keep the <span> sibling
-  dom.phoneOptional.textContent = tx.phoneOptional;
-  dom.phoneInput.placeholder   = tx.phonePlaceholder;
-  dom.phoneHint.textContent    = tx.phoneHint;
   dom.passLabel.textContent    = tx.passwordLabel;
   dom.passInput.placeholder    = tx.passwordPlaceholder;
 
   // Show/hide register-only fields
   dom.nameField.style.display  = isLoginMode ? 'none' : 'block';
-  dom.phoneField.style.display = isLoginMode ? 'none' : 'block';
   dom.nameInput.required       = !isLoginMode;
   dom.passInput.setAttribute('autocomplete', isLoginMode ? 'current-password' : 'new-password');
 
@@ -173,7 +158,6 @@ function updateFormUI() {
 }
 
 function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-function isValidPhone(phone) { return /^\+\d{7,15}$/.test(phone.replace(/\s/g, '')); }
 
 function showFieldError(inputEl, errorEl, message) {
   inputEl.classList.add('has-error');
@@ -191,7 +175,6 @@ function clearErrors() {
   clearFieldError(dom.nameInput,  dom.nameError);
   clearFieldError(dom.emailInput, dom.emailError);
   clearFieldError(dom.passInput,  dom.passError);
-  clearFieldError(dom.phoneInput, dom.phoneError);
 }
 
 function validateForm() {
@@ -206,10 +189,6 @@ function validateForm() {
     showFieldError(dom.emailInput, dom.emailError, tx.errEmailInvalid); valid = false;
   }
   // Phone is optional — only validate format if something was entered
-  const phoneVal = dom.phoneInput.value.trim();
-  if (!isLoginMode && phoneVal && !isValidPhone(phoneVal)) {
-    showFieldError(dom.phoneInput, dom.phoneError, tx.errPhoneInvalid); valid = false;
-  }
   if (dom.passInput.value.length < 6) {
     showFieldError(dom.passInput, dom.passError, tx.errPasswordShort); valid = false;
   }
@@ -261,8 +240,6 @@ document.getElementById('auth-form').addEventListener('submit', async function(e
 
   if (!isLoginMode) {
     payload.name = dom.nameInput.value.trim();
-    const phoneVal = dom.phoneInput.value.trim().replace(/\s/g, '');
-    if (phoneVal) payload.phone = phoneVal; // only send if provided
   }
 
   const endpoint = isLoginMode ? '/auth/login' : '/auth/register';
@@ -315,13 +292,6 @@ dom.nameInput.addEventListener('blur', () => {
     showFieldError(dom.nameInput, dom.nameError, t[currentLang].errNameRequired);
   else clearFieldError(dom.nameInput, dom.nameError);
 });
-dom.phoneInput.addEventListener('blur', () => {
-  const val = dom.phoneInput.value.trim();
-  if (!isLoginMode && val && !isValidPhone(val))
-    showFieldError(dom.phoneInput, dom.phoneError, t[currentLang].errPhoneInvalid);
-  else clearFieldError(dom.phoneInput, dom.phoneError);
-});
-
 // Init
 setLanguage(currentLang);
 dom.emailInput.focus();
