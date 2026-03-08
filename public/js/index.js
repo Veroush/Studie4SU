@@ -1,9 +1,9 @@
 'use strict';
 
 /* ============================================================
-   DATA
+   DATA — fallback used when API is unreachable
 ============================================================ */
-const featuredSchools = [
+const FALLBACK_SCHOOLS = [
   { id: 'school_adekus', emoji: '🎓', name: 'Anton de Kom Universiteit', type: 'University', location: 'Paramaribo', programs: 7,  color: '#1a4a32' },
   { id: 'school_natin',  emoji: '💻', name: 'NATIN',                      type: 'HBO',        location: 'Paramaribo', programs: 5,  color: '#1a3a4a' },
   { id: 'school_iol',    emoji: '📚', name: 'IOL — Lerarenopleiding',      type: 'HBO',        location: 'Paramaribo', programs: 3,  color: '#2a1a4a' },
@@ -11,6 +11,15 @@ const featuredSchools = [
   { id: 'school_imeao',  emoji: '📊', name: 'IMEAO',                       type: 'MBO',        location: 'Paramaribo', programs: 6,  color: '#4a3a1a' },
   { id: 'school_ptc',    emoji: '🔧', name: 'Polytechnical College',        type: 'MBO',        location: 'Paramaribo', programs: 5,  color: '#1a2a4a' },
 ];
+
+/* Colour palette cycled for DB schools that don't store a display colour */
+const SCHOOL_COLORS = ['#1a4a32','#1a3a4a','#2a1a4a','#1a4a2a','#4a3a1a','#1a2a4a','#3a1a3a','#1a3a3a'];
+
+/* Fallback emoji by school type */
+const TYPE_EMOJI = { University: '🎓', HBO: '📚', MBO: '🔧' };
+
+/* Active school list — starts as fallback, replaced by API response */
+let featuredSchools = FALLBACK_SCHOOLS;
 
 const upcomingEvents = [
   { school: 'Anton de Kom Universiteit', day: '14', month: 'Mar', time: '10:00 – 16:00', location: 'Leysweg 86, Paramaribo' },
@@ -115,12 +124,47 @@ function applyLang(l) {
 }
 
 /* ============================================================
+   FETCH SCHOOLS FROM API
+   Falls back to FALLBACK_SCHOOLS if backend is unreachable.
+============================================================ */
+async function fetchSchools() {
+  try {
+    const res = await fetch('/schools');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) throw new Error('Empty response');
+
+    // Normalise DB documents to the shape renderSchools() expects
+    featuredSchools = data.map((s, i) => ({
+      id:       s._id || s.id,
+      emoji:    s.emoji || TYPE_EMOJI[s.type] || '\u{1F3EB}',
+      name:     s.name,
+      type:     s.type || 'HBO',
+      location: s.location || s.city || 'Suriname',
+      programs: Array.isArray(s.programs) ? s.programs.length : (s.programCount ?? 0),
+      color:    s.color || SCHOOL_COLORS[i % SCHOOL_COLORS.length],
+    }));
+
+  } catch (err) {
+    console.warn('[Studie4SU] Backend unavailable, using fallback school data:', err.message);
+    featuredSchools = FALLBACK_SCHOOLS;
+  }
+  renderSchools();
+}
+
+/* ============================================================
    RENDER SCHOOLS
 ============================================================ */
 function renderSchools() {
   const grid = document.getElementById('schools-grid');
   if (!grid) return;
   const t = T[lang];
+
+  if (featuredSchools.length === 0) {
+    grid.innerHTML = `<p class="schools-empty">${lang === 'nl' ? 'Geen scholen gevonden.' : 'No schools found.'}</p>`;
+    return;
+  }
+
   grid.innerHTML = featuredSchools.map(school => `
     <a class="school-preview-card" href="school-detail.html?id=${school.id}">
       <div class="school-card-img" style="background: linear-gradient(135deg, ${school.color}, #0d2b1f);">
@@ -234,7 +278,10 @@ document.getElementById('btn-en').addEventListener('click', () => applyLang('en'
    INIT
 ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
+  // Apply language first (renders fallback school cards immediately)
   applyLang(lang);
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
   initAuth();
+  // Then fetch live schools from API and re-render the grid
+  fetchSchools();
 });

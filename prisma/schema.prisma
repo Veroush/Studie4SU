@@ -14,7 +14,8 @@ model User {
   name      String
   role      String   @default("student")
   createdAt DateTime @default(now())
-  registrations OpenHouseRegistration[]
+  passwordResetTokens PasswordResetToken[]
+  registrations       OpenHouseRegistration[]
 }
 
 model School {
@@ -94,7 +95,18 @@ model OpenHouse {
   updatedAt       DateTime @updatedAt
   schoolId        String
   school          School   @relation(fields: [schoolId], references: [id])
-  registrations OpenHouseRegistration[]
+  registrations   OpenHouseRegistration[]
+}
+
+model OpenHouseRegistration {
+  id          String    @id @default(cuid())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  openHouseId String
+  openHouse   OpenHouse @relation(fields: [openHouseId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, openHouseId])
 }
 
 model QuizQuestion {
@@ -118,13 +130,13 @@ model QuizAnswer {
   updatedAt   DateTime     @updatedAt
 }
 
-model OpenHouseRegistration {
-  id          String    @id @default(cuid())
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  openHouseId String
-  openHouse   OpenHouse @relation(fields: [openHouseId], references: [id])
-  createdAt   DateTime  @default(now())
-
-  @@unique([userId, openHouseId])
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
+

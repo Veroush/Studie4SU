@@ -163,8 +163,10 @@ body {
 
 /* ─── PAGE TITLE ───────────────────────────────────────────── */
 .page-title-section {
+  position: relative;
   text-align: center;
   margin-bottom: 48px;
+  padding: 0 90px;
   animation: fadeInDown .5s ease both;
 }
 .page-title-section h1 {
@@ -178,6 +180,74 @@ body {
 .page-title-section p {
   font-size: 1.125rem;
   color: var(--gray-600);
+}
+
+.title-stickman {
+  position: absolute;
+  top: 46%;
+  width: 150px;
+  height: auto;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.title-stickman-left {
+  top: -35px;
+  left: 190px;
+  animation: spinInLeft 1.5s ease both;
+}
+.title-stickman-right {
+  width: 200px;
+  height: auto;
+  top: 5px;
+  right: 170px;
+  animation: spinInRight 1.5s ease both;
+}
+
+@media (max-width: 768px) {
+  .page-title-section { padding: 0 58px; }
+  .title-stickman { width: 68px; }
+}
+
+/* ─── SEARCH BAR ────────────────────────────────────────────── */
+.search-section {
+  position: relative;
+  padding: 0;
+  margin-bottom: 28px;
+  animation: fadeInDown .55s ease both;
+}
+.search-label {
+  display: block;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--green-800);
+  margin-bottom: 10px;
+}
+.search-input {
+  width: 100%;
+  border: 2px solid rgba(22,163,74,.28);
+  border-radius: 999px;
+  padding: 14px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: var(--gray-800);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fff9 100%);
+  box-shadow: 0 14px 30px -20px rgba(22,163,74,.85), 0 8px 20px -16px rgba(0,0,0,.55);
+  outline: none;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.search-input:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22,163,74,.45);
+}
+.search-input:focus {
+  transform: translateY(-1px);
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 4px rgba(22,163,74,.16), 0 16px 32px -20px rgba(22,163,74,.95);
+}
+
+@media (max-width: 640px) {
+  .search-section { padding-top: 10px; }
+  .search-input { font-size: .95rem; padding: 12px 15px; }
 }
 
 /* ─── FILTER PANEL ─────────────────────────────────────────── */
@@ -589,6 +659,7 @@ body {
   from { opacity: 0; transform: translateX(-50%) translateY(20px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+
 /* ─── PROFILE BUTTON & POPUP ───────────────────────────────── */
 .profile-wrap {
   position: relative;
@@ -652,3 +723,24 @@ body {
   transition: background .15s;
 }
 .popup-logout:hover { background: #fee2e2; }
+
+@keyframes spinInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-80px) rotate(-60deg) scale(.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+}
+@keyframes spinInRight {
+  from {
+    opacity: 0;
+    transform: translateX(80px) rotate(60deg) scale(.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+}

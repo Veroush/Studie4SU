@@ -10,6 +10,19 @@
 <body>
 
 <!-- ═══════════════════════════════════════════════════════
+     CINEMATIC PARALLAX ICON STAGE
+     4 depth layers, populated entirely by floating-icons.js
+     Keep HTML minimal — JS injects all icon nodes
+════════════════════════════════════════════════════════════ -->
+<div class="fi-stage" id="fi-stage" aria-hidden="true">
+  <div class="fi-layer" id="fi-l1" data-layer="1"></div>
+  <div class="fi-layer" id="fi-l2" data-layer="2"></div>
+  <div class="fi-layer" id="fi-l3" data-layer="3"></div>
+  <div class="fi-layer" id="fi-l4" data-layer="4"></div>
+  <div class="fi-text-shield" aria-hidden="true"></div>
+</div><!-- /fi-stage -->
+
+<!-- ═══════════════════════════════════════════════════════
      HEADER — matches schools.html exactly
 ════════════════════════════════════════════════════════════ -->
 <header class="site-header">
@@ -197,5 +210,6 @@
 </footer>
 
 <script src="js/index.js"></script>
+<script src="js/floating-icons.js"></script>
 </body>
 </html>

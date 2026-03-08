@@ -4,109 +4,105 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inloggen | Studie4SU</title>
-
   <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
-
   <div id="sr-announcements" role="status" aria-live="polite" class="sr-only"></div>
 
-  <div class="page-wrapper">
-    <div class="bg-blobs" aria-hidden="true">
-      <div class="blob blob-green"></div>
-      <div class="blob blob-yellow"></div>
-    </div>
+  <main class="auth-page">
+    <section class="quote-section fade-in" aria-live="polite">
+      <p class="quote-text" id="quote-text">"Every failure is a step to success"</p>
+      <p class="quote-book" id="quote-book">Lectures on the History of Moral Philosophy in England</p>
+      <p class="quote-author" id="quote-author">by William Whewell</p>
+    </section>
 
-    <div class="card" role="main">
-      <div class="card-header">
-        <div class="header-icon-wrap" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-          </svg>
-        </div>
-
-        <h1 class="card-title" id="form-heading">Welkom terug</h1>
-        <p class="card-subtitle" id="form-subtitle">Log in om verder te gaan met je studiekeuze</p>
-
-        <div class="lang-switcher" role="group" aria-label="Taal kiezen / Choose language">
-          <button class="lang-btn active" id="btn-nl" onclick="setLanguage('nl')"
-                  aria-pressed="true">NL</button>
-          <button class="lang-btn" id="btn-en" onclick="setLanguage('en')"
-                  aria-pressed="false">EN</button>
-        </div>
-      </div>
-
-      <div class="card-body">
-        <div class="api-banner" id="api-banner" role="alert"></div>
-
-        <form id="auth-form" novalidate>
-          <div class="field" id="name-field" style="display:none;">
-            <label for="name" id="name-label">Naam</label>
-            <div class="input-wrap">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-              </svg>
-              <input type="text" id="name" name="name" autocomplete="name" placeholder="Naam" aria-describedby="name-error" />
-            </div>
-            <span class="error-msg" id="name-error" role="alert"></span>
-          </div>
-
-          <div class="field">
-            <label for="email" id="email-label">Email</label>
-            <div class="input-wrap">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-              </svg>
-              <input type="email" id="email" name="email" autocomplete="email" placeholder="Email" required aria-required="true" aria-describedby="email-error" />
-            </div>
-            <span class="error-msg" id="email-error" role="alert"></span>
-          </div>
-
-          <div class="field">
-            <label for="password" id="password-label">Wachtwoord</label>
-            <div class="input-wrap">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-              <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Wachtwoord" required aria-required="true" aria-describedby="password-error" />
-            </div>
-            <span class="error-msg" id="password-error" role="alert"></span>
-          </div>
-
-          <button type="submit" class="submit-btn" id="submit-btn" aria-label="Formulier indienen">
-            <div class="spinner" id="spinner" aria-hidden="true"></div>
-            <span id="submit-label">Inloggen</span>
-            <svg id="submit-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+    <section class="login-panel slide-in" role="main">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-icon-wrap" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
-          </button>
-        </form>
+          </div>
 
-        <div class="toggle-section">
-          <p id="toggle-text">Nog geen account?</p>
-          <button class="toggle-link" id="toggle-link" type="button" onclick="toggleMode()" aria-label="Wisselen naar registratie formulier">
-            Maak er één aan
-          </button>
+          <h1 class="card-title" id="form-heading">Welkom terug</h1>
+          <p class="card-subtitle" id="form-subtitle">Log in om verder te gaan met je studiekeuze</p>
+
+          <div class="lang-switcher" role="group" aria-label="Taal kiezen / Choose language">
+            <button class="lang-btn active" id="btn-nl" onclick="setLanguage('nl')" aria-pressed="true">NL</button>
+            <button class="lang-btn" id="btn-en" onclick="setLanguage('en')" aria-pressed="false">EN</button>
+          </div>
         </div>
 
-        <a href="index.html" class="back-link" id="back-link">← Terug naar home</a>
+        <div class="card-body">
+          <div class="api-banner" id="api-banner" role="alert"></div>
+
+          <form id="auth-form" novalidate>
+            <!-- Name (register only) -->
+            <div class="field" id="name-field" style="display:none;">
+              <label for="name" id="name-label">Naam</label>
+              <div class="input-wrap">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
+                <input type="text" id="name" name="name" autocomplete="name" placeholder="Naam" aria-describedby="name-error" />
+              </div>
+              <span class="error-msg" id="name-error" role="alert"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="field">
+              <label for="email" id="email-label">Email</label>
+              <div class="input-wrap">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                <input type="email" id="email" name="email" autocomplete="email" placeholder="Email" required aria-required="true" aria-describedby="email-error" />
+              </div>
+              <span class="error-msg" id="email-error" role="alert"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="field">
+              <label for="password" id="password-label">Wachtwoord</label>
+              <div class="input-wrap">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Wachtwoord" required aria-required="true" aria-describedby="password-error" />
+              </div>
+              <span class="error-msg" id="password-error" role="alert"></span>
+            </div>
+
+            <div class="forgot-pw-wrap" id="forgot-pw-wrap">
+              <a href="forgot-password.html" class="forgot-pw-link" id="forgot-pw-link">Wachtwoord vergeten?</a>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn" aria-label="Formulier indienen">
+              <div class="spinner" id="spinner" aria-hidden="true"></div>
+              <span id="submit-label">Inloggen</span>
+              <svg id="submit-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </button>
+          </form>
+
+          <div class="toggle-section">
+            <p id="toggle-text">Nog geen account?</p>
+            <button class="toggle-link" id="toggle-link" type="button" onclick="toggleMode()" aria-label="Wisselen naar registratie formulier">Maak er één aan</button>
+          </div>
+
+          <a href="index.html" class="back-link" id="back-link">← Terug naar home</a>
+        </div>
       </div>
-    </div>
-  </div>
+
+      <img src="img/login_stickman.png" alt="" class="login-stickman" aria-hidden="true">
+    </section>
+  </main>
 
   <script src="js/login.js" defer></script>
 </body>
