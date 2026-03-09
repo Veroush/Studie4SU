@@ -4,6 +4,8 @@
 let allSchools   = [];   // raw data from backend
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = [];   // max 3 school IDs
+let stateAnimation = null;
+let isLoading = true;
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
 let searchTerm = '';
@@ -111,19 +113,67 @@ const SCHOOL_ICON = `
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
 
+const CHASER_FRAMES = [
+  'img/chasing-1.svg',
+  'img/chasing-2.svg',
+  'img/chasing-3.svg',
+  'img/chasing-4.svg',
+  'img/chasing-5.svg',
+  'img/chasing-6.svg',
+];
+
+const RUNNER_FRAMES = [
+  'img/running-1.svg',
+  'img/running-2.svg',
+  'img/running-3.svg',
+  'img/running-4.svg',
+  'img/running-5.svg',
+  'img/running-6.svg',
+];
+
+function stopStateAnimation() {
+  if (!stateAnimation) return;
+  clearInterval(stateAnimation);
+  stateAnimation = null;
+}
+
+function startStateAnimation() {
+  const chaser = document.getElementById('state-chaser');
+  const runner = document.getElementById('state-runner');
+  if (!chaser || !runner) return;
+
+  stopStateAnimation();
+
+  let chaserFrame = 0;
+  let runnerFrame = 0;
+
+  stateAnimation = window.setInterval(() => {
+    chaser.src = CHASER_FRAMES[chaserFrame];
+    runner.src = RUNNER_FRAMES[runnerFrame];
+
+    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
+    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
+  }, 150);
+}
+
 // ── Fetch schools from backend ─────────────────────────────────
 async function fetchSchools() {
+  isLoading = true;
+  renderGrid();
+
   try {
     const res = await fetch('/admin/schools');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     // /admin/schools returns array with _count.programs
     allSchools = data;
+    isLoading = false;
     renderGrid();
   } catch (err) {
     console.warn('[Studie4SU] Could not load schools from backend:', err.message);
     // Fall back to seeded static data so the page still works during development
     allSchools = FALLBACK_SCHOOLS;
+    isLoading = false;
     renderGrid();
   }
 }
@@ -156,7 +206,24 @@ function renderGrid() {
   const grid     = document.getElementById('schools-grid');
   const countEl  = document.getElementById('results-count');
   const tx       = t[language];
-  const filtered = getFiltered();
+
+  stopStateAnimation();
+
+  if (isLoading) {
+    countEl.innerHTML = '';
+    grid.innerHTML = `
+      <div class="state-center" style="grid-column:1/-1">
+        <div class="state-animation" aria-hidden="true">
+          <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+          <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+        </div>
+        <p>${tx.loading}</p>
+      </div>`;
+    startStateAnimation();
+    return;
+  }
+
+const filtered = getFiltered();
 
   // Results count
   countEl.innerHTML = tx.results(filtered.length);
@@ -164,9 +231,13 @@ function renderGrid() {
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="state-center" style="grid-column:1/-1">
-        <div class="state-icon">🔍</div>
+      <div class="state-animation" aria-hidden="true">
+        <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+        <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+      </div>
         <p>${tx.noResults}</p>
       </div>`;
+      startStateAnimation();
     return;
   }
 
