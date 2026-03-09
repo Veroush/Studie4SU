@@ -20,8 +20,10 @@
   --gray-900:  #111827;
   --blue-100:  #dbeafe;
   --blue-800:  #1e40af;
+  --red-100:   #fee2e2;
   --red-500:   #ef4444;
   --red-600:   #dc2626;
+  --red-800:   #991b1b;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -194,11 +196,11 @@ body {
 @media (min-width: 1024px) { .page-container { padding-left: 32px; padding-right: 32px; } }
 
 /* ═══════════════════════════════════════════════════════════
-   PAGE TITLE — matches schools.css .page-title-section
+   PAGE TITLE — Ver's branch
 ═══════════════════════════════════════════════════════════ */
 .page-title-section {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   animation: fadeInDown .5s ease both;
 }
 .page-title-section h1 {
@@ -213,6 +215,79 @@ body {
 .page-title-section p {
   font-size: 1.125rem;
   color: var(--gray-600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAINTER SCENE — Val's branch
+═══════════════════════════════════════════════════════════ */
+.page-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.saved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  border-radius: 9999px;
+  background: var(--red-100);
+  color: var(--red-600);
+}
+.saved-badge span {
+  font-size: .875rem;
+  color: var(--red-800);
+  font-weight: 500;
+}
+
+.scene {
+  position: relative;
+  width: 320px;
+  height: 220px;
+  flex-shrink: 0;
+}
+.painting {
+  position: absolute;
+  top: 10px;
+  left: 120px;
+  width: 220px;
+  height: 220px;
+}
+.paint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 1s;
+}
+.painting .paint1 { top: -95px; left: -18px; width: 190px; height: 190px; }
+.painting .paint2 { top: 8px;   left: -18px; width: 190px; height: 190px; }
+.painting .paint3 { top: 12px;  left: -4px;  width: 150px; height: 150px; }
+.painting .paint4 { top: 65px;  left: -2px;  width: 165px; height: 165px; }
+
+#stickman {
+  position: absolute;
+  bottom: 0;
+  left: -30px;
+}
+
+@media (max-width: 960px) {
+  .page-header {
+    justify-content: center;
+  }
+  .scene {
+    width: 260px;
+    height: 170px;
+  }
+  .painting {
+    left: 90px;
+    width: 170px;
+    height: 170px;
+  }
+  #stickman { width: 135px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -253,13 +328,9 @@ body {
 }
 .tab-btn svg { flex-shrink: 0; }
 .tab-btn:hover { background: var(--gray-100); color: var(--gray-900); }
-.tab-btn.active {
-  background: var(--green-600);
-  color: #fff;
-}
+.tab-btn.active { background: var(--green-600); color: #fff; }
 .tab-btn.active svg { color: #fff; }
 
-/* Count badge on tab */
 .count-badge {
   min-width: 22px;
   height: 22px;
@@ -276,7 +347,7 @@ body {
 .tab-btn.active .count-badge { background: rgba(255,255,255,.25); color: #fff; }
 
 /* ═══════════════════════════════════════════════════════════
-   FAV GRID — matches schools.css .schools-grid
+   FAV GRID
 ═══════════════════════════════════════════════════════════ */
 .fav-grid {
   display: grid;
@@ -287,14 +358,12 @@ body {
 @media (min-width: 640px)  { .fav-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .fav-grid { grid-template-columns: repeat(3, 1fr); } }
 
-.fav-grid--2col {
-  grid-template-columns: 1fr;
-}
+.fav-grid--2col { grid-template-columns: 1fr; }
 @media (min-width: 640px)  { .fav-grid--2col { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .fav-grid--2col { grid-template-columns: repeat(2, 1fr); } }
 
 /* ═══════════════════════════════════════════════════════════
-   FAV CARD — matches school-card style from schools.css
+   FAV CARD
 ═══════════════════════════════════════════════════════════ */
 .fav-card,
 .fav-card--event {
@@ -313,7 +382,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Card header strip — green gradient like schools page */
 .card-header {
   position: relative;
   background: linear-gradient(135deg, var(--green-600), var(--green-700));
@@ -326,7 +394,6 @@ body {
   background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }
 
-/* School / program icon in header */
 .card-icon {
   width: 44px;
   height: 44px;
@@ -334,7 +401,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Remove (heart) button — top-right of card */
 .btn-fav {
   position: absolute;
   top: 12px;
@@ -359,7 +425,6 @@ body {
 }
 .btn-fav svg { width: 18px; height: 18px; pointer-events: none; }
 
-/* Card body */
 .card-body {
   padding: 20px;
   flex: 1;
@@ -392,7 +457,6 @@ body {
   width: fit-content;
 }
 
-/* View button at bottom of card */
 .btn-view {
   margin-top: auto;
   padding: 9px 16px;
@@ -411,11 +475,8 @@ body {
 .btn-view:hover { background: var(--green-700); }
 
 /* ═══════════════════════════════════════════════════════════
-   EVENT CARD (open houses)
+   EVENT CARD
 ═══════════════════════════════════════════════════════════ */
-.fav-card--event {
-  /* inherits .fav-card base */
-}
 .event-card-top {
   background: linear-gradient(135deg, #0e7490, #0c4a6e);
   padding: 12px 16px;
@@ -505,7 +566,6 @@ body {
 }
 .btn-primary:hover { background: var(--green-700); }
 
-/* Loading text inside grid */
 .loading-msg {
   grid-column: 1 / -1;
   text-align: center;
@@ -515,7 +575,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   FOOTER — copied from schools.css
+   FOOTER
 ═══════════════════════════════════════════════════════════ */
 .site-footer {
   background: var(--bg-dark);
@@ -528,7 +588,7 @@ body {
 .site-footer a { color: var(--gold); text-decoration: none; }
 
 /* ═══════════════════════════════════════════════════════════
-   ANIMATIONS
+   ANIMATIONS — both branches combined
 ═══════════════════════════════════════════════════════════ */
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-16px); }
@@ -541,3 +601,16 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; } to { opacity: 1; }
 }
+@keyframes spinInLeft {
+  from { opacity: 0; transform: translateX(-80px) rotate(-60deg) scale(.6); }
+  to   { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+}
+@keyframes spinInRight {
+  from { opacity: 0; transform: translateX(80px) rotate(60deg) scale(.6); }
+  to   { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROFILE BUTTON & POPUP
+═══════════════════════════════════════════════════════════ */
+.profile-wrap { position: relative; }

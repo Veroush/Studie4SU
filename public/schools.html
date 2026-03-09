@@ -6,6 +6,8 @@
   <title>Scholen – Studie4SU</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="img/chasing-1.svg">
+  <link rel="preload" as="image" href="img/running-1.svg">
   
   <link rel="stylesheet" href="css/schools.css">
 </head>
@@ -126,7 +128,10 @@
 
   <div class="schools-grid" id="schools-grid">
     <div class="state-center" id="loading-state">
-      <div class="spinner"></div>
+      <div class="state-animation" aria-hidden="true">
+        <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+        <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+      </div>
       <p id="loading-text">Scholen laden...</p>
     </div>
   </div>

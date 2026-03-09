@@ -106,6 +106,10 @@ function applyLanguage() {
   document.getElementById('empty-openhouses-msg').textContent     = t.emptyEventMsg;
   document.getElementById('empty-openhouses-btn').textContent     = t.viewOpenHouses;
 
+  // Also update the visual badge in the painter scene
+  const badgeVisual = document.getElementById('badge-text-visual');
+  if (badgeVisual) badgeVisual.textContent = t.savedItems;
+
   // Nav data attributes
   document.querySelectorAll('[data-nl]').forEach(el => {
     el.textContent = lang === 'nl' ? el.dataset.nl : el.dataset.en;
@@ -164,16 +168,12 @@ async function renderSchools() {
   );
 
   grid.innerHTML = '';
-  results.forEach((res, i) => {
+  results.forEach((res) => {
     const school = res.status === 'fulfilled' ? res.value : null;
-    if (!school) {
-      // ID not found — silently skip (could have been deleted from DB)
-      return;
-    }
+    if (!school) return;
     grid.appendChild(buildSchoolCard(school));
   });
 
-  // If all requests failed, show empty state
   if (!grid.hasChildNodes()) empty.hidden = false;
 }
 
@@ -185,7 +185,6 @@ function buildSchoolCard(school) {
   div.dataset.card = `schools-${school.id}`;
   div.innerHTML = `
     <div class="card-header card-header--school">
-      <!-- School icon -->
       <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
       </svg>
@@ -242,7 +241,6 @@ function buildProgramCard(program) {
   div.dataset.card = `programs-${program.id}`;
   div.innerHTML = `
     <div class="card-header card-header--program">
-      <!-- BookOpen icon -->
       <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
       </svg>
@@ -275,8 +273,6 @@ async function renderOpenHouses() {
     return;
   }
 
-  // Open houses are from a static EVENTS array (not yet in the API),
-  // so we read the full objects saved by open-houses.js into fav_openhouses_data
   let dataMap = {};
   try { dataMap = JSON.parse(localStorage.getItem('fav_openhouses_data') || '{}'); }
   catch { dataMap = {}; }
@@ -287,7 +283,7 @@ async function renderOpenHouses() {
   let rendered = 0;
   favorites.openhouses.forEach(id => {
     const ev = dataMap[id];
-    if (!ev) return; // data not found — skip silently
+    if (!ev) return;
     grid.appendChild(buildEventCard(ev));
     rendered++;
   });
@@ -301,8 +297,6 @@ function buildEventCard(ev) {
   div.className = 'fav-card--event';
   div.dataset.card = `openhouses-${ev.id}`;
 
-  // Support both static EVENTS shape {school: string, time: string}
-  // and DB shape {school: {name}, startTime, endTime}
   const schoolName = typeof ev.school === 'string' ? ev.school : (ev.school?.name || ev.title || '');
   const time = ev.time || ((ev.startTime && ev.endTime) ? `${ev.startTime} – ${ev.endTime}` : (ev.startTime || ''));
   const loc  = ev.isOnline ? t.online : (ev.location || '');
@@ -349,19 +343,17 @@ function removeFav(type, id) {
   favorites[type].splice(idx, 1);
   saveFavs(`fav_${type}`, favorites[type]);
 
-  // Remove card from DOM
   const card = document.querySelector(`[data-card="${type}-${id}"]`);
   if (card) card.remove();
 
   updateCounts();
 
-  // Show empty state if nothing left
   if (favorites[type].length === 0) {
     document.getElementById(`${type}-empty`).hidden = false;
   }
 }
 
-// ── Google Calendar (same pattern as open-houses.js) ─────────────────────────
+// ── Google Calendar ───────────────────────────────────────────────────────────
 function addToGoogleCalendar(ev) {
   try {
     const pad  = n => String(n).padStart(2, '0');
@@ -381,7 +373,6 @@ function addToGoogleCalendar(ev) {
       text:     ev.title || 'Open Dag',
       dates:    `${start}/${end}`,
       location: ev.location || '',
-      add:      'popup:1440',
     });
     window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
   } catch (e) {
@@ -403,7 +394,7 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Auth / Profile ────────────────────────────────────────────────────────────
+// ── Auth / Profile — Ver's branch ──────────────────────────────────────────────
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -442,19 +433,53 @@ document.addEventListener('click', () => {
   if (popup) popup.classList.remove('open');
 });
 
+// ── Painter Animation — Val's branch ───────────────────────────────────────
+function initPainterAnimation() {
+  const stickman     = document.getElementById('stickman');
+  const paintingParts = document.querySelectorAll('.paint');
+  if (!stickman || paintingParts.length === 0) return;
+
+  const stickmanFrames = [
+    'img/painter-1.svg',
+    'img/painter-2.svg',
+    'img/painter-3.svg',
+    'img/painter-4.svg',
+  ];
+
+  paintingParts.forEach(part => { part.style.opacity = 0; });
+
+  let frameIndex = 0;
+  let partIndex  = 0;
+
+  const stickmanAnimation = setInterval(() => {
+    stickman.src = stickmanFrames[frameIndex];
+    frameIndex   = (frameIndex + 1) % stickmanFrames.length;
+  }, 200);
+
+  const revealPainting = setInterval(() => {
+    if (partIndex < paintingParts.length) {
+      paintingParts[partIndex].style.opacity = 1;
+      partIndex++;
+      return;
+    }
+    clearInterval(revealPainting);
+    clearInterval(stickmanAnimation);
+    stickman.src = stickmanFrames[0];
+  }, 1500);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Language buttons
   document.getElementById('btn-nl').addEventListener('click', () => setLang('nl'));
   document.getElementById('btn-en').addEventListener('click', () => setLang('en'));
 
-  // Hamburger
   document.getElementById('hamburger-btn').addEventListener('click', () => {
     document.getElementById('mobile-nav').classList.toggle('open');
   });
 
-  initAuth();
+  initAuth();         // Ver's branch — always first
   applyLanguage();
   updateCounts();
+  initPainterAnimation();   // Val's branch
   renderAll();
 });

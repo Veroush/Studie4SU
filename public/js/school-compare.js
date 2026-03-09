@@ -15,6 +15,7 @@ let compareIds = urlIds.length > 0 ? urlIds : storedIds;
 
 // Loaded school objects
 let schools = [];
+let emptyStateAnimation = null;
 
 // ── Translations ──────────────────────────────────────────────
 const T = {
@@ -168,10 +169,55 @@ function removeSchool(id) {
   render();
 }
 
+const CHASER_FRAMES = [
+  'img/chasing-1.svg',
+  'img/chasing-2.svg',
+  'img/chasing-3.svg',
+  'img/chasing-4.svg',
+  'img/chasing-5.svg',
+  'img/chasing-6.svg',
+];
+
+const RUNNER_FRAMES = [
+  'img/running-1.svg',
+  'img/running-2.svg',
+  'img/running-3.svg',
+  'img/running-4.svg',
+  'img/running-5.svg',
+  'img/running-6.svg',
+];
+
+function stopEmptyStateAnimation() {
+  if (emptyStateAnimation) {
+    window.clearInterval(emptyStateAnimation);
+    emptyStateAnimation = null;
+  }
+}
+
+function startEmptyStateAnimation() {
+  const chaser = document.getElementById('empty-chaser');
+  const runner = document.getElementById('empty-runner');
+  if (!chaser || !runner) return;
+
+  stopEmptyStateAnimation();
+
+  let chaserFrame = 0;
+  let runnerFrame = 0;
+
+  emptyStateAnimation = window.setInterval(() => {
+    chaser.src = CHASER_FRAMES[chaserFrame];
+    runner.src = RUNNER_FRAMES[runnerFrame];
+
+    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
+    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
+  }, 150);
+}
+
 // ── Main render ───────────────────────────────────────────────
 function render() {
   const tx   = T[language];
   const main = document.getElementById('main-content');
+  stopEmptyStateAnimation();
 
   // ── EMPTY STATE ───────────────────────────────────────────
   if (schools.length === 0) {
@@ -179,7 +225,10 @@ function render() {
       <div class="page-wrap">
         <div class="empty-state">
           <div class="empty-inner">
-            <div class="empty-icon">${SVG.compare}</div>
+            <div class="empty-animation" aria-hidden="true">
+              <img id="empty-chaser" class="empty-chaser" src="img/chasing-1.svg" alt="">
+              <img id="empty-runner" class="empty-runner" src="img/running-1.svg" alt="">
+            </div>
             <h2>${tx.emptyTitle}</h2>
             <p>${tx.emptyDesc}</p>
             <a href="schools.html" class="btn-primary">
@@ -189,6 +238,7 @@ function render() {
           </div>
         </div>
       </div>`;
+    startEmptyStateAnimation();
     return;
   }
 
@@ -322,8 +372,14 @@ function render() {
   main.innerHTML = `
     <div class="page-wrap">
       <div class="page-title-section">
-        <h1>${tx.title}</h1>
-        <p>${tx.subtitle}</p>
+        <div class="page-title-row">
+          <img src="img/school_compare_face1.png" alt="" class="compare-face compare-face-left" aria-hidden="true">
+          <div class="page-title-copy">
+            <h1>${tx.title}</h1>
+            <p>${tx.subtitle}</p>
+          </div>
+          <img src="img/school_compare_face2.png" alt="" class="compare-face compare-face-right" aria-hidden="true">
+        </div>
       </div>
 
       <div class="desktop-table">
