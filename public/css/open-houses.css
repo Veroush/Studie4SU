@@ -1,0 +1,703 @@
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --green-50:  #f0fdf4;
+  --green-100: #dcfce7;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --white:     #ffffff;
+  --gray-50:   #f9fafb;
+  --gray-100:  #f3f4f6;
+  --gray-200:  #e5e7eb;
+  --gray-300:  #d1d5db;
+  --gray-500:  #6b7280;
+  --gray-600:  #4b5563;
+  --gray-700:  #374151;
+  --gray-900:  #111827;
+  --red-500:   #ef4444;
+
+  --grad-page:    linear-gradient(to bottom right, #f0fdf4, #ffffff, rgba(220,252,231,.3));
+  --grad-card:    linear-gradient(to bottom right, #16a34a, #15803d);
+  --grad-btn:     linear-gradient(to right, #16a34a, #15803d);
+  --grad-btn-hov: linear-gradient(to right, #15803d, #166534);
+  --grad-cal-row: linear-gradient(to bottom right, #f0fdf4, rgba(220,252,231,.5));
+
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04);
+  --shadow-badge: 0 10px 15px -3px rgba(0,0,0,.2);
+
+  --radius-lg:   .5rem;
+  --radius-xl:   .75rem;
+  --radius-2xl:  1rem;
+  --radius-full: 9999px;
+
+  --transition: all .3s ease-in-out;
+  --transition-fast: background-color .2s ease-in-out, color .2s ease-in-out;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--grad-page); min-height: 100vh; color: var(--gray-700); }
+button { font-family: inherit; cursor: pointer; }
+*:focus-visible { outline: 2px solid var(--green-600); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+
+/* ============================================================
+   TOAST NOTIFICATION
+   ============================================================ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  padding: .75rem 1.25rem;
+  border-radius: var(--radius-xl);
+  background: var(--gray-900);
+  color: var(--white);
+  font-size: .9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-xl);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { background: var(--green-700); }
+
+/* ============================================================
+   PAGE WRAPPER
+   ============================================================ */
+.page-wrapper {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+@media (min-width: 640px)  { .page-wrapper { padding: 3rem 1.5rem; } }
+@media (min-width: 1024px) { .page-wrapper { padding: 3rem 2rem; } }
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.page-header { text-align: center; margin-bottom: 2rem; }
+
+.page-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+@media (min-width: 1024px) { .page-title { font-size: 3rem; } }
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: var(--gray-600);
+}
+
+/* ============================================================
+   SITE HEADER (matches schools.html)
+   ============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #0d2b1f;
+  border-bottom: 1px solid rgba(232,184,75,.2);
+}
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #e8b84b;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.logo span { color: #fff; }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: rgba(255,255,255,.75);
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: color .2s, background .2s;
+}
+.nav-links a:hover,
+.nav-links a.active { color: #fff; background: rgba(255,255,255,.08); }
+.nav-links a.active { color: #e8b84b; }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Lang pills inside the dark header */
+.lang-pill {
+  background: none;
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.75);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: .8rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all .2s;
+}
+.lang-pill.active, .lang-pill:hover {
+  border-color: #e8b84b;
+  color: #e8b84b;
+}
+.btn-login {
+  background: #e8b84b;
+  color: #0d2b1f;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: .875rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity .2s;
+}
+.btn-login:hover { opacity: .85; }
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #fff;
+}
+.hamburger svg { display: block; }
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  background: #0d2b1f;
+  padding: 12px 24px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.mobile-nav a {
+  padding: 10px 0;
+  color: rgba(255,255,255,.8);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.mobile-nav a:last-child { border-bottom: none; }
+.mobile-nav.open { display: flex; }
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+}
+
+/* ============================================================
+   SITE FOOTER (matches schools.html)
+   ============================================================ */
+.site-footer {
+  background: #0d2b1f;
+  color: rgba(255,255,255,.55);
+  text-align: center;
+  padding: 28px 24px;
+  font-size: .85rem;
+  margin-top: 64px;
+}
+.site-footer a { color: #e8b84b; text-decoration: none; }
+
+/* ============================================================
+   FILTER & VIEW TOGGLE BAR
+   ============================================================ */
+.filter-bar-wrap {
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .filter-bar-wrap { flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+/* Filter group */
+.filter-group {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: .5rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.filter-btn:hover { background: var(--gray-200); }
+.filter-btn.active {
+  background: var(--grad-btn);
+  color: var(--white);
+  box-shadow: var(--shadow-md);
+}
+.filter-btn:focus-visible { box-shadow: 0 0 0 3px rgba(22,163,74,.3); outline: none; }
+
+/* View toggle group */
+.view-group { display: flex; gap: .5rem; }
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border: none;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.view-btn svg { width: 16px; height: 16px; }
+.view-btn:hover { background: var(--gray-200); }
+.view-btn.active {
+  background: var(--green-100);
+  color: var(--green-800);
+}
+
+/* ============================================================
+   LIST VIEW GRID
+   ============================================================ */
+.events-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .events-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Event Card (List View) ── */
+.event-card {
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow .3s ease-in-out;
+}
+.event-card:hover { box-shadow: var(--shadow-xl); }
+
+/* Green header */
+.event-card-header {
+  background: var(--grad-card);
+  padding: 1.5rem;
+  position: relative;
+  color: var(--white);
+}
+
+/* Favourite button — absolute top-right */
+.fav-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,.2);
+  color: var(--white);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.fav-btn:hover { background: rgba(255,255,255,.35); }
+.fav-btn.active { background: var(--red-500); }
+.fav-btn svg { width: 20px; height: 20px; }
+
+/* Smaller fav btn for calendar view */
+.fav-btn-sm {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--white);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.fav-btn-sm:hover { background: var(--gray-100); }
+.fav-btn-sm.active { background: var(--red-500); color: var(--white); border-color: var(--red-500); }
+.fav-btn-sm svg { width: 16px; height: 16px; }
+
+/* Heart icon filled state */
+.heart-outline { display: block; }
+.heart-filled  { display: none; }
+.fav-btn.active  .heart-outline,
+.fav-btn-sm.active .heart-outline { display: none; }
+.fav-btn.active  .heart-filled,
+.fav-btn-sm.active .heart-filled  { display: block; }
+
+/* Info row inside green header */
+.event-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/* White date badge (list view) */
+.date-badge {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: .75rem;
+  text-align: center;
+  min-width: 60px;
+  box-shadow: var(--shadow-badge);
+  flex-shrink: 0;
+}
+.date-badge .day  { font-size: 1.5rem; font-weight: 700; color: var(--green-700); line-height: 1; }
+.date-badge .mon  { font-size: .75rem; color: var(--gray-600); margin-top: .25rem; line-height: 1; }
+
+/* Green date badge (calendar view) */
+.date-badge-cal {
+  flex-shrink: 0;
+  width: 5rem;
+  height: 5rem;
+  background: var(--grad-card);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  box-shadow: var(--shadow-md);
+}
+.date-badge-cal .day { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.date-badge-cal .mon { font-size: .75rem; margin-top: .25rem; line-height: 1; }
+
+.event-meta { flex: 1; }
+
+.event-card-title {
+  font-size: 1.25rem;
+  color: var(--white);
+  font-weight: 600;
+  margin-bottom: .5rem;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .875rem;
+  color: rgba(255,255,255,.9);
+  margin-bottom: .25rem;
+}
+.meta-row svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Card body */
+.event-card-body { background: var(--white); padding: 1.5rem; }
+
+.event-description {
+  color: var(--gray-600);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.register-btn {
+  width: 100%;
+  padding: .75rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--grad-btn);
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+.register-btn:hover:not(:disabled) { background: var(--grad-btn-hov); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.register-btn:active:not(:disabled) { transform: translateY(0); }
+.register-btn:disabled { opacity: .7; cursor: not-allowed; }
+.register-btn.registered { background: var(--green-800); }
+
+/* Unregister button — red outline */
+.register-btn.unregister-btn {
+  background: transparent;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  box-shadow: none;
+}
+.register-btn.unregister-btn:hover {
+  background: #fef2f2;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.register-btn-sm.unregister-btn {
+  background: transparent;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  box-shadow: none;
+}
+.register-btn-sm.unregister-btn:hover {
+  background: #fef2f2;
+}
+
+/* Smaller register btn for calendar view */
+.register-btn-sm {
+  padding: .5rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--grad-btn);
+  color: var(--white);
+  font-size: .875rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+.register-btn-sm:hover:not(:disabled) { background: var(--grad-btn-hov); }
+.register-btn-sm:disabled { opacity: .7; cursor: not-allowed; }
+.register-btn-sm.registered { background: var(--green-800); }
+
+/* ============================================================
+   CALENDAR VIEW
+   ============================================================ */
+#calendar-view { display: none; }
+
+.month-section {
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.month-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+
+.month-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-xl);
+  background: var(--grad-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  flex-shrink: 0;
+}
+.month-icon svg { width: 24px; height: 24px; color: var(--white); }
+
+.month-title {
+  font-size: 1.5rem;
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.cal-event-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-xl);
+  background: var(--grad-cal-row);
+  transition: box-shadow .3s ease-in-out;
+  margin-bottom: 1rem;
+}
+.cal-event-row:last-child { margin-bottom: 0; }
+.cal-event-row:hover { box-shadow: var(--shadow-md); }
+
+@media (min-width: 640px) {
+  .cal-event-row { flex-direction: row; }
+}
+
+.cal-event-details { flex: 1; }
+
+.cal-event-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .5rem;
+}
+
+.cal-event-title {
+  font-size: 1.125rem;
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.cal-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  font-size: .875rem;
+  color: var(--gray-600);
+  margin-bottom: .75rem;
+}
+.cal-meta-row .meta-item {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.cal-meta-row svg { width: 14px; height: 14px; }
+
+.cal-description {
+  font-size: .875rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  margin-bottom: .75rem;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+#empty-state {
+  display: none;
+  text-align: center;
+  padding: 3rem 1rem;
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+}
+.empty-icon {
+  width: 4rem;
+  height: 4rem;
+  color: var(--gray-300);
+  margin: 0 auto 1rem;
+}
+.empty-msg { color: var(--gray-500); font-size: 1.125rem; }
+
+/* Self-creating toast used by schools.js and program-detail.js */
+.fav-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  background: #1a1a2e;
+  color: #fff;
+  padding: .75rem 1.25rem;
+  border-radius: .75rem;
+  font-size: .9rem;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  opacity: 0;
+  transform: translateY(.75rem);
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  max-width: calc(100vw - 3rem);
+}
+
+.fav-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Link inside any toast (works for both .fav-toast and open-houses .toast) */
+.toast-fav-link {
+  color: #4ade80;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(74, 222, 128, .35);
+  transition: border-color .15s ease;
+}
+
+.toast-fav-link:hover {
+  border-color: #4ade80;
+}
+
+/* Patch for open-houses existing .toast — add the link colour */
+.toast .toast-fav-link {
+  color: #4ade80;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* ── PROFILE BUTTON & POPUP ─────────────────────────────────── */
+.profile-wrap {
+  position: relative;
+}
+.profile-popup {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14);
+  padding: 20px;
+  min-width: 220px;
+  z-index: 9999;
+  text-align: center;
+  animation: fadeInDown .18s ease;
+}
+.profile-popup.open { display: block; }
+.popup-avatar { font-size: 2.2rem; margin-bottom: 8px; }
+.popup-name {
+  font-weight: 700; font-size: 1rem;
+  color: #0d2b1f; font-family: 'DM Sans', sans-serif;
+}
+.popup-email {
+  font-size: .8rem; color: #6b7280; margin-top: 2px;
+  font-family: 'DM Sans', sans-serif; word-break: break-all;
+}
+.popup-role {
+  margin-top: 6px; font-size: .78rem; font-weight: 600;
+  color: #15803d; font-family: 'DM Sans', sans-serif;
+}
+.popup-divider { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+.popup-logout {
+  background: #fef2f2; color: #dc2626;
+  border: 1px solid #fecaca; border-radius: 8px;
+  padding: 8px 18px; font-size: .85rem; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer; width: 100%; transition: background .15s;
+}
+.popup-logout:hover { background: #fee2e2; }
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
