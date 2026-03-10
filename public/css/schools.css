@@ -549,6 +549,21 @@ body {
 }
 .state-chaser { left: 30px; }
 .state-runner { left: 170px; }
+
+.state-animation-stickman {
+  width: min(100%, 100px);
+  height: auto;
+  overflow: visible;
+}
+
+.state-animation-stickman::after {
+  content: none;
+}
+
+.state-stickman {
+  display: block;
+}
+
 @media (max-width: 480px) {
   .state-animation { height: 140px; }
   .state-runner,

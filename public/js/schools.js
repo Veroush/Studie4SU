@@ -113,6 +113,14 @@ const SCHOOL_ICON = `
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
 
+const STICKMAN_CONFUSED_FRAMES = [
+  'img/stickman-confused1.svg',
+  'img/stickman-confused2.svg',
+  'img/stickman-confused3.svg',
+  'img/stickman-confused4.svg',
+];
+
+
 const CHASER_FRAMES = [
   'img/chasing-1.svg',
   'img/chasing-2.svg',
@@ -138,11 +146,23 @@ function stopStateAnimation() {
 }
 
 function startStateAnimation() {
+  const stickman = document.getElementById('state-stickman');
   const chaser = document.getElementById('state-chaser');
   const runner = document.getElementById('state-runner');
-  if (!chaser || !runner) return;
 
   stopStateAnimation();
+
+  if (stickman) {
+    let currentFrame = 0;
+
+    stateAnimation = window.setInterval(() => {
+      currentFrame = (currentFrame + 1) % STICKMAN_CONFUSED_FRAMES.length;
+      stickman.src = STICKMAN_CONFUSED_FRAMES[currentFrame];
+    }, 400);
+    return;
+  }
+
+  if (!chaser || !runner) return;
 
   let chaserFrame = 0;
   let runnerFrame = 0;
@@ -231,9 +251,8 @@ const filtered = getFiltered();
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="state-center" style="grid-column:1/-1">
-      <div class="state-animation" aria-hidden="true">
-        <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
-        <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+      <div class="state-animation state-animation-stickman" aria-hidden="true">
+        <img id="state-stickman" class="state-stickman" src="img/stickman-confused1.svg" alt="">
       </div>
         <p>${tx.noResults}</p>
       </div>`;
