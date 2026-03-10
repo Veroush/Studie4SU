@@ -23,6 +23,11 @@ const T = {
     labelTuition:    'Collegegeld',
     labelSchoolInfo: 'Schoolinformatie',
     tuitionNote:     'Per academisch jaar. Bedragen kunnen wijzigen.',
+    compareAdd:      'Vergelijk opleiding',
+    compareAdded:    'Toegevoegd aan vergelijking',
+    compareMax:      'Je kunt maximaal 3 opleidingen vergelijken.',
+    compareView:     'Bekijk vergelijking →',
+    compareToast:    'Toegevoegd aan vergelijking',
     loading:         'Laden...',
     errorTitle:      'Opleiding niet gevonden',
     errorMsg:        'Deze opleiding bestaat niet of is verwijderd.',
@@ -44,6 +49,11 @@ const T = {
     labelTuition:    'Tuition fee',
     labelSchoolInfo: 'School information',
     tuitionNote:     'Per academic year. Amounts may change.',
+    compareAdd:      'Compare program',
+    compareAdded:    'Added to comparison',
+    compareMax:      'You can compare a maximum of 3 programs.',
+    compareView:     'View comparison →',
+    compareToast:    'Added to comparison',
     loading:         'Loading...',
     errorTitle:      'Program not found',
     errorMsg:        'This program does not exist or has been removed.',
@@ -107,7 +117,73 @@ function updateFavButton(id) {
   if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
 }
 
-// ── Cluster labels ────────────────────────────────────────────
+// ── Compare ───────────────────────────────────────────────────
+function getCompareItems() {
+  try { return JSON.parse(localStorage.getItem('program_compare') || '[]'); }
+  catch { return []; }
+}
+
+function isProgramInCompare(id) {
+  return getCompareItems().includes(id);
+}
+
+function toggleProgramCompare(id) {
+  let items = getCompareItems();
+  const idx = items.indexOf(id);
+  if (idx === -1) {
+    // Adding to compare
+    if (items.length >= 3) {
+      // List is full — go to compare page so user can swap one out
+      window.location.href = `program-compare.html?ids=${items.join(',')}&replace=${encodeURIComponent(id)}`;
+      return;
+    }
+    items.push(id);
+    localStorage.setItem('program_compare', JSON.stringify(items));
+    // Navigate immediately to compare page
+    window.location.href = `program-compare.html?ids=${items.join(',')}`;
+  } else {
+    // Removing from compare — stay on page, just update button
+    items.splice(idx, 1);
+    localStorage.setItem('program_compare', JSON.stringify(items));
+    updateCompareButton(id);
+    showCompareToast(false, items);
+  }
+}
+
+function updateCompareButton(id) {
+  const btn = document.getElementById('btn-compare-program');
+  if (!btn) return;
+  const inCompare = isProgramInCompare(id);
+  btn.classList.toggle('active', inCompare);
+  btn.setAttribute('title', inCompare ? t('compareAdded') : t('compareAdd'));
+  btn.setAttribute('aria-label', inCompare ? t('compareAdded') : t('compareAdd'));
+  const label = btn.querySelector('.compare-btn-label');
+  if (label) label.textContent = inCompare ? t('compareAdded') : t('compareAdd');
+}
+
+let _cmpToastTimer;
+function showCompareToast(added, items) {
+  let el = document.getElementById('compare-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'compare-toast';
+    el.className = 'fav-toast';
+    document.body.appendChild(el);
+  }
+  if (added && items.length >= 2) {
+    const ids = items.join(',');
+    el.innerHTML = `${t('compareToast')} &nbsp;<a href="program-compare.html?ids=${ids}" class="toast-fav-link">${t('compareView')}</a>`;
+  } else if (added) {
+    el.textContent = t('compareToast');
+  } else {
+    el.textContent = currentLang === 'nl' ? 'Verwijderd uit vergelijking' : 'Removed from comparison';
+  }
+  el.classList.add('show');
+  clearTimeout(_cmpToastTimer);
+  _cmpToastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+
 const CLUSTER_LABELS = {
   nl: { TECH: 'Technologie', MED: 'Gezondheidszorg', BUS: 'Economie & Business',
         SOC: 'Sociale Wetenschappen', EDU: 'Onderwijs', SCI: 'Wetenschap', LAW: 'Recht' },
@@ -186,6 +262,11 @@ function renderProgram(program, school) {
   updateFavButton(program.id);
   document.getElementById('btn-fav-program')
     .addEventListener('click', () => toggleProgramFav(program.id));
+
+  // ── Compare button
+  updateCompareButton(program.id);
+  const cmpBtn = document.getElementById('btn-compare-program');
+  if (cmpBtn) cmpBtn.addEventListener('click', () => toggleProgramCompare(program.id));
 
   // Duration pill
   if (program.duration) {

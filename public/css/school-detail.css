@@ -606,3 +606,39 @@ body {
 .toast-fav-link:hover {
   border-color: #4ade80;
 }
+/* ─── COMPARE SELECT BANNER ────────────────────────────────── */
+.cmp-select-banner {
+  background: linear-gradient(to right, var(--green-600, #16a34a), var(--green-700, #15803d));
+  padding: 12px 24px;
+  animation: fadeInDown .3s ease both;
+  position: sticky; top: 68px; z-index: 50;
+}
+.cmp-select-banner-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; gap: 12px;
+  color: #fff; font-size: .9rem; font-weight: 500;
+}
+.cmp-select-banner-inner svg { flex-shrink: 0; color: #fff; opacity: .9; }
+.cmp-select-banner-inner span { flex: 1; }
+.cmp-select-cancel {
+  padding: 6px 14px; border-radius: 8px;
+  background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35);
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: .8rem;
+  font-weight: 600; cursor: pointer; transition: background .15s; white-space: nowrap;
+}
+.cmp-select-cancel:hover { background: rgba(255,255,255,.35); }
+
+/* ─── SELECTABLE PROGRAM CARDS IN COMPARE MODE ─────────────── */
+.slider-card.cmp-selectable {
+  cursor: pointer;
+}
+.slider-card.cmp-selectable .slider-card-inner {
+  border: 2px solid transparent;
+  border-radius: 14px;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.slider-card.cmp-selectable:hover .slider-card-inner {
+  border-color: var(--green-600, #16a34a);
+  box-shadow: 0 0 0 4px rgba(22,163,74,.12);
+  transform: translateY(-2px);
+}

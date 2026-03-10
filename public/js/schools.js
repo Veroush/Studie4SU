@@ -3,7 +3,7 @@
 // ── State ──────────────────────────────────────────────────────
 let allSchools   = [];   // raw data from backend
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
-let compareItems = [];   // max 3 school IDs
+let compareItems = [];   // max 3 program IDs
 let stateAnimation = null;
 let isLoading = true;
 
@@ -27,8 +27,8 @@ const t = {
     noResults:       'Geen scholen gevonden met deze filters',
     programs:        n => `${n} opleiding${n === 1 ? '' : 'en'}`,
     viewDetails:     'Bekijk school',
-    compare:         'Vergelijk',
-    compareCount:    n => `${n} school${n === 1 ? '' : 'en'} geselecteerd`,
+    compare:         'Vergelijk opleiding',
+    compareCount:    n => `${n} opleiding${n === 1 ? '' : 'en'} geselecteerd`,
     viewComparison:  'Vergelijk',
     clearCompare:    'Wis',
     results:         n => `<strong>${n}</strong> school${n === 1 ? '' : 'en'} gevonden`,
@@ -51,8 +51,8 @@ const t = {
     noResults:       'No schools found with these filters',
     programs:        n => `${n} program${n === 1 ? '' : 's'}`,
     viewDetails:     'View Details',
-    compare:         'Compare',
-    compareCount:    n => `${n} school${n === 1 ? '' : 's'} selected`,
+    compare:         'Compare program',
+    compareCount:    n => `${n} program${n === 1 ? '' : 's'} selected`,
     viewComparison:  'Compare',
     clearCompare:    'Clear',
     results:         n => `<strong>${n}</strong> school${n === 1 ? '' : 's'} found`,
@@ -243,7 +243,6 @@ const filtered = getFiltered();
 
   grid.innerHTML = filtered.map((school, i) => {
     const isFav     = favorites.includes(school.id);
-    const isCmp     = compareItems.includes(school.id);
     const progCount = school._count?.programs ?? 0;
     const typeLabel = school.type === 'University'
       ? (language === 'nl' ? 'Universiteit' : 'University')
@@ -292,17 +291,7 @@ const filtered = getFiltered();
 
           <div class="card-actions">
             <a href="school-detail.html?id=${school.id}" class="btn-details">${tx.viewDetails}</a>
-            <button
-              class="btn-compare ${isCmp ? 'active' : ''}"
-              data-id="${school.id}"
-              aria-label="${tx.compare}"
-              title="${tx.compare}"
-              onclick="toggleCompare('${school.id}', this)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
-                <path d="M13 6h3a2 2 0 012 2v7"/><path d="M11 18H8a2 2 0 01-2-2V9"/>
-              </svg>
-            </button>
+            <a href="school-detail.html?id=${school.id}&compare=1" class="btn-compare-school">${tx.compare}</a>
           </div>
         </div>
       </div>`;
@@ -348,14 +337,14 @@ function toggleFavorite(id, btn) {
   btn.setAttribute('aria-label', isFav ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
 }
 
-// ── Compare toggle ────────────────────────────────────────────
+// ── Compare toggle (programs — triggered from program-detail.html) ────────────
 function toggleCompare(id, btn) {
   const idx = compareItems.indexOf(id);
   if (idx === -1) {
     if (compareItems.length >= 3) {
       alert(language === 'nl'
-        ? 'Je kunt maximaal 3 scholen vergelijken.'
-        : 'You can compare a maximum of 3 schools.');
+        ? 'Je kunt maximaal 3 opleidingen vergelijken.'
+        : 'You can compare a maximum of 3 programs.');
       return;
     }
     compareItems.push(id);
@@ -384,7 +373,6 @@ function updateCompareBar() {
 document.getElementById('btn-clear-compare').addEventListener('click', () => {
   compareItems = [];
   updateCompareBar();
-  // reset all compare buttons
   document.querySelectorAll('.btn-compare').forEach(b => b.classList.remove('active'));
 });
 
@@ -392,12 +380,13 @@ document.getElementById('btn-clear-compare').addEventListener('click', () => {
 document.getElementById('btn-view-comparison').addEventListener('click', () => {
   if (compareItems.length < 2) {
     alert(language === 'nl'
-      ? 'Selecteer minimaal 2 scholen om te vergelijken.'
-      : 'Please select at least 2 schools to compare.');
+      ? 'Selecteer minimaal 2 opleidingen om te vergelijken.'
+      : 'Please select at least 2 programs to compare.');
     return;
   }
+  localStorage.setItem('program_compare', JSON.stringify(compareItems));
   const ids = compareItems.join(',');
-  window.location.href = `school-compare.html?ids=${ids}`;
+  window.location.href = `program-compare.html?ids=${ids}`;
 });
 
 // ── Filter listeners ──────────────────────────────────────────

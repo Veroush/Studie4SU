@@ -497,6 +497,23 @@ body {
 }
 .btn-details:hover { background: var(--green-700); }
 
+.btn-compare-school {
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--green-600);
+  background: #fff;
+  color: var(--green-700);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+}
+.btn-compare-school:hover { background: var(--green-50); }
+
 .btn-compare {
   padding: 9px 14px;
   border-radius: var(--radius-sm);

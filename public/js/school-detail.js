@@ -17,8 +17,8 @@ const T = {
     back:            '← Terug naar scholen',
     addFav:          'Favoriet',
     removeFav:       'Verwijder favoriet',
-    addCompare:      'Vergelijk',
-    removeCompare:   'Stop vergelijking',
+    addCompare:      'Vergelijk opleiding',
+    removeCompare:   'Vergelijk opleiding',
     about:           'Over deze school',
     programs:        'Aangeboden opleidingen',
     facilities:      'Faciliteiten',
@@ -45,8 +45,8 @@ const T = {
     back:            '← Back to schools',
     addFav:          'Favorite',
     removeFav:       'Remove favorite',
-    addCompare:      'Compare',
-    removeCompare:   'Stop comparing',
+    addCompare:      'Compare program',
+    removeCompare:   'Compare program',
     about:           'About this school',
     programs:        'Offered Programs',
     facilities:      'Facilities',
@@ -311,9 +311,9 @@ function renderPage() {
               ${isFav ? icons.heartFill : icons.heart}
               <span>${isFav ? tx.removeFav : tx.addFav}</span>
             </button>
-            <button class="btn-hero ${isCmp ? 'cmp-active' : ''}" id="btn-cmp" onclick="toggleCompare()">
+            <button class="btn-hero" id="btn-cmp" onclick="toggleCompare()">
               ${icons.compare}
-              <span>${isCmp ? tx.removeCompare : tx.addCompare}</span>
+              <span>${tx.addCompare}</span>
             </button>
           </div>
         </div>
@@ -712,12 +712,117 @@ function toggleFavorite() {
   showFavToast(isFav);
 }
 
-// ── Compare: save school A and go to compare page ────────────
+// ── Compare: scroll to programs section and enter select mode ─
 function toggleCompare() {
   if (!currentSchool) return;
-  // Save this school as "school A" and navigate to compare page
-  localStorage.setItem('compare_school_a', currentSchool.id);
-  window.location.href = 'school-compare.html';
+  const programs = currentSchool.programs || [];
+  if (programs.length === 0) {
+    alert(language === 'nl'
+      ? 'Deze school heeft nog geen opleidingen om te vergelijken.'
+      : 'This school has no programs to compare yet.');
+    return;
+  }
+
+  // Scroll to programs section
+  const section = document.querySelector('.programs-section') || document.getElementById('content-section');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Activate compare-select mode after scroll settles
+  setTimeout(() => enterCompareProgramSelectMode(programs), 400);
+}
+
+function enterCompareProgramSelectMode(programs) {
+  // Remove any existing banner
+  document.getElementById('compare-select-banner')?.remove();
+
+  const tx = T[language];
+
+  // Inject a sticky banner above the programs slider
+  const programsSection = document.querySelector('.programs-section');
+  if (!programsSection) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'compare-select-banner';
+  banner.className = 'cmp-select-banner';
+  banner.innerHTML = `
+    <div class="cmp-select-banner-inner">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+        <path d="M13 6h3a2 2 0 012 2v7"/><path d="M11 18H8a2 2 0 01-2-2V9"/>
+      </svg>
+      <span>${language === 'nl'
+        ? 'Klik op een opleiding hieronder om te vergelijken'
+        : 'Click a program below to compare it'}</span>
+      <button class="cmp-select-cancel" onclick="exitCompareProgramSelectMode()">
+        ${language === 'nl' ? 'Annuleren' : 'Cancel'}
+      </button>
+    </div>`;
+  programsSection.insertAdjacentElement('beforebegin', banner);
+
+  // Add click listeners to every program slider card
+  document.querySelectorAll('.slider-card').forEach(card => {
+    // Find program ID from the detail link inside the card
+    const link = card.querySelector('a[href*="program-detail.html"]');
+    if (!link) return;
+    const url = new URL(link.href, location.href);
+    const programId = url.searchParams.get('id');
+    if (!programId) return;
+
+    card.classList.add('cmp-selectable');
+    card.dataset.programId = programId;
+    card.addEventListener('click', _onCompareProgramCardClick);
+  });
+}
+
+function _onCompareProgramCardClick(e) {
+  // Don't intercept clicks on the "Bekijk opleiding" link itself
+  if (e.target.closest('a') && !e.target.closest('.slider-card-inner > a.slider-link') === false) return;
+  e.preventDefault();
+
+  const card = e.currentTarget;
+  const programId = card.dataset.programId;
+  if (!programId) return;
+
+  let items;
+  try { items = JSON.parse(localStorage.getItem('program_compare') || '[]'); }
+  catch { items = []; }
+
+  if (items.includes(programId)) {
+    window.location.href = `program-compare.html?ids=${items.join(',')}`;
+    return;
+  }
+  if (items.length >= 3) {
+    // Full — send to compare page so user can swap one out
+    window.location.href = `program-compare.html?ids=${items.join(',')}&replace=${encodeURIComponent(programId)}`;
+    return;
+  }
+
+  items.push(programId);
+  localStorage.setItem('program_compare', JSON.stringify(items));
+  window.location.href = `program-compare.html?ids=${items.join(',')}`;
+}
+
+function exitCompareProgramSelectMode() {
+  document.getElementById('compare-select-banner')?.remove();
+  document.querySelectorAll('.slider-card.cmp-selectable').forEach(card => {
+    card.classList.remove('cmp-selectable');
+    delete card.dataset.programId;
+    card.removeEventListener('click', _onCompareProgramCardClick);
+  });
+}
+
+// Legacy — no longer needed but keep so nothing breaks if called externally
+function showComparePicker() { toggleCompare(); }
+function closeComparePicker() { exitCompareProgramSelectMode(); }
+function pickProgramForCompare(programId) {
+  let items;
+  try { items = JSON.parse(localStorage.getItem('program_compare') || '[]'); }
+  catch { items = []; }
+  if (!items.includes(programId)) items.push(programId);
+  localStorage.setItem('program_compare', JSON.stringify(items));
+  window.location.href = `program-compare.html?ids=${items.join(',')}`;
 }
 
 // ── Open House registration ───────────────────────────────────
@@ -803,4 +908,10 @@ document.addEventListener('click', () => {
 // ── Boot ──────────────────────────────────────────────────────
 applyLanguage(language);
 initAuth();
-loadSchool();
+loadSchool().then(() => {
+  // Auto-enter compare mode if page was opened with ?compare=1
+  if (new URLSearchParams(window.location.search).get('compare') === '1') {
+    // Small delay so the slider has rendered
+    setTimeout(toggleCompare, 600);
+  }
+});

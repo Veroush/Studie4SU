@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vergelijk Scholen – Studie4SU</title>
-  
+  <title>Vergelijk Opleidingen – Studie4SU</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="img/school_compare_face1.png">
   <link rel="preload" as="image" href="img/school_compare_face2.png">
   <link rel="preload" as="image" href="img/chasing-1.svg">
   <link rel="preload" as="image" href="img/running-1.svg">
-  
-  <link rel="stylesheet" href="css/school-compare.css">
+
+  <link rel="stylesheet" href="css/program-compare.css">
 </head>
 <body>
 
@@ -27,7 +27,22 @@
       <div class="header-right">
         <button class="lang-btn" id="btn-nl">NL</button>
         <button class="lang-btn" id="btn-en">EN</button>
-        <a href="login.html" class="btn-login">Inloggen</a>
+
+        <!-- Login button (shown when logged out) -->
+        <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+        <!-- Profile button (shown when logged in) -->
+        <div class="profile-wrap" id="profile-btn" style="display:none">
+          <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+          <div class="profile-popup" id="profile-popup">
+            <div class="popup-avatar">👤</div>
+            <div class="popup-name"  id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+            <div class="popup-role"  id="popup-role"></div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+          </div>
+        </div>
         <button class="hamburger" id="hamburger-btn" aria-label="Menu">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -40,7 +55,8 @@
       <a href="schools.html">Scholen</a>
       <a href="quiz.html">Quiz</a>
       <a href="open-houses.html">Open Dagen</a>
-      <a href="login.html">Inloggen</a>
+      <a href="login.html" id="mobile-login">Inloggen</a>
+      <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
     </nav>
   </header>
 
@@ -57,6 +73,6 @@
     <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
   </footer>
 
-  <script src="js/school-compare.js"></script>
+  <script src="js/program-compare.js"></script>
 </body>
 </html>
