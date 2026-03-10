@@ -202,4 +202,3 @@ model AdminSettings {
   data             Json     @default("{\"retentionPeriod\":\"90\"}")
   updatedAt        DateTime @updatedAt
 }
-
