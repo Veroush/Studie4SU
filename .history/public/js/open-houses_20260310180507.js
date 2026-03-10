@@ -70,16 +70,6 @@ async function loadEvents() {
 }
 
 /* ================================================================
-   STATE
-================================================================ */
-let currentFilter  = 'all';
-let currentView    = 'list';
-let currentLang    = localStorage.getItem('language') || 'nl';
-let favorites      = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
-let registered     = JSON.parse(localStorage.getItem('oh_registered') || '[]');
-
-/* ================================================================
-/* ================================================================
    HELPERS
 ================================================================ */
 function t(key) { return T[currentLang][key] || key; }
@@ -466,10 +456,7 @@ document.addEventListener('click', () => {
 // Init
 setLanguage(currentLang);
 initAuth();
-Promise.all([
-  loadEvents(),
-  window.FavSync.loadFromDB(),
-]).then(() => {
+window.FavSync.loadFromDB().then(() => {
   favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
   render();
 });
