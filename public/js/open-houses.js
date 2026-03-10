@@ -71,6 +71,34 @@ let favorites      = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
 // We keep a local Set for instant UI updates between fetches.
 let registeredSet  = new Set();
 
+let isLoading      = true;
+let stateAnimation = null;
+
+const STICKMAN_CONFUSED_FRAMES = [
+  'img/stickman-confused1.svg',
+  'img/stickman-confused2.svg',
+  'img/stickman-confused3.svg',
+  'img/stickman-confused4.svg',
+];
+
+const CHASER_FRAMES = [
+  'img/chasing-1.svg',
+  'img/chasing-2.svg',
+  'img/chasing-3.svg',
+  'img/chasing-4.svg',
+  'img/chasing-5.svg',
+  'img/chasing-6.svg',
+];
+
+const RUNNER_FRAMES = [
+  'img/running-1.svg',
+  'img/running-2.svg',
+  'img/running-3.svg',
+  'img/running-4.svg',
+  'img/running-5.svg',
+  'img/running-6.svg',
+];
+
 function getAuthToken() {
   return localStorage.getItem('auth_token') || null;
 }
@@ -145,6 +173,43 @@ function isUpcoming(dateStr) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return d >= today;
+}
+
+function stopStateAnimation() {
+  if (!stateAnimation) return;
+  clearInterval(stateAnimation);
+  stateAnimation = null;
+}
+
+function startStateAnimation(kind) {
+  const stickman = document.getElementById('state-stickman');
+  const chaser = document.getElementById('state-chaser');
+  const runner = document.getElementById('state-runner');
+
+  stopStateAnimation();
+
+  if (kind === 'empty' && stickman) {
+    let currentFrame = 0;
+
+    stateAnimation = window.setInterval(() => {
+      currentFrame = (currentFrame + 1) % STICKMAN_CONFUSED_FRAMES.length;
+      stickman.src = STICKMAN_CONFUSED_FRAMES[currentFrame];
+    }, 400);
+    return;
+  }
+
+  if (kind !== 'loading' || !chaser || !runner) return;
+
+  let chaserFrame = 0;
+  let runnerFrame = 0;
+
+  stateAnimation = window.setInterval(() => {
+    chaser.src = CHASER_FRAMES[chaserFrame];
+    runner.src = RUNNER_FRAMES[runnerFrame];
+
+    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
+    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
+  }, 150);
 }
 
 function getFilteredEvents() {
@@ -367,15 +432,31 @@ function renderCalendarView(events) {
 ================================================================ */
 function render() {
   const events = getFilteredEvents();
-  const listEl   = document.getElementById('list-view');
-  const calEl    = document.getElementById('calendar-view');
-  const emptyEl  = document.getElementById('empty-state');
+  const listEl    = document.getElementById('list-view');
+  const calEl     = document.getElementById('calendar-view');
+  const emptyEl   = document.getElementById('empty-state');
+  const loadingEl = document.getElementById('loading-state');
+
+  stopStateAnimation();
+
+  if (isLoading) {
+    listEl.style.display = 'none';
+    calEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+    document.getElementById('loading-msg').textContent = t('loading');
+    startStateAnimation('loading');
+    return;
+  }
+
+  loadingEl.style.display = 'none';
 
   if (events.length === 0) {
     listEl.style.display  = 'none';
     calEl.style.display   = 'none';
     emptyEl.style.display = 'block';
     document.getElementById('empty-msg').textContent = t('noEvents');
+    startStateAnimation('empty');
     return;
   }
 
@@ -593,6 +674,8 @@ document.addEventListener('click', () => {
 // Init
 (async () => {
   initAuth();
+  render();
   await fetchEvents();
+  isLoading = false;
   setLanguage(currentLang);
 })();
