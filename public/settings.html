@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Instellingen — Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/settings.css"/>
 </head>
@@ -129,8 +130,8 @@
             <div class="card-divider"></div>
 
             <div class="card-block">
-              <label class="card-label" for="display-name-input" data-nl="Weergavenaam" data-en="Display Name">Weergavenaam</label>
-              <p class="card-hint" data-nl="Dit is hoe andere studenten je zien" data-en="This is how other students see you">Dit is hoe andere studenten je zien</p>
+              <label class="card-label" for="display-name-input" data-nl="Jouw naam" data-en="Your Name">Jouw naam</label>
+              <p class="card-hint" data-nl="Kies een naam voor je account" data-en="Choose a name for your account">Kies een naam voor je account</p>
               <div class="input-row">
                 <input type="text" id="display-name-input" class="settings-input" placeholder="Jouw naam"/>
                 <button class="btn-save-inline" id="save-name-btn" data-nl="Opslaan" data-en="Save">Opslaan</button>
@@ -143,7 +144,7 @@
         <section class="settings-section" id="section-appearance">
           <div class="settings-section-header">
             <h2 data-nl="Weergave" data-en="Appearance">Weergave</h2>
-            <p data-nl="Pas het thema en accentkleur aan" data-en="Customize the theme and accent color">Pas het thema en accentkleur aan</p>
+            <p data-nl="Pas het thema van de website aan" data-en="Customize the website theme">Pas het thema van de website aan</p>
           </div>
 
           <div class="settings-card">
@@ -177,15 +178,6 @@
               </div>
             </div>
 
-            <div class="card-divider"></div>
-
-            <div class="card-block">
-              <label class="card-label" data-nl="Accentkleur" data-en="Accent Color">Accentkleur</label>
-              <p class="card-hint" data-nl="Wordt toegepast op knoppen, links en actieve staten" data-en="Applied to buttons, links and active states">Wordt toegepast op knoppen, links en actieve staten</p>
-              <div class="accent-grid" id="accent-grid">
-                <!-- Populated by JS -->
-              </div>
-            </div>
           </div>
         </section>
 
@@ -238,16 +230,7 @@
             <div class="card-block">
               <label class="card-label" data-nl="Platformmeldingen" data-en="Platform Notifications">Platformmeldingen</label>
               <div class="toggle-list">
-                <div class="toggle-item">
-                  <div class="toggle-text">
-                    <span class="toggle-name" data-nl="Reacties" data-en="Replies">Reacties</span>
-                    <span class="toggle-desc" data-nl="Wanneer iemand reageert" data-en="When someone replies to you">Wanneer iemand reageert</span>
-                  </div>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="notif-platform-replies" onchange="saveNotifPref('platform_replies', this.checked)"/>
-                    <span class="toggle-track"></span>
-                  </label>
-                </div>
+
                 <div class="toggle-item">
                   <div class="toggle-text">
                     <span class="toggle-name" data-nl="Updates" data-en="Updates">Updates</span>

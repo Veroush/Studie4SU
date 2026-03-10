@@ -120,21 +120,22 @@
 .settings-content {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 50px;
 }
 
 .settings-section {
   scroll-margin-top: 90px;
+  padding: 0; /* override style.css: section { padding: 80px 0 } */
 }
 
 .settings-section-header {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 .settings-section-header h2 {
   font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
   color: #fff;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .settings-section-header p {
   font-size: 0.85rem;
@@ -154,7 +155,7 @@
 }
 
 .card-block {
-  padding: 24px;
+  padding: 16px 24px;
 }
 
 .card-divider {

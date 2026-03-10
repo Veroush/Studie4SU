@@ -3,7 +3,9 @@
 // ── State ──────────────────────────────────────────────────────
 let allSchools   = [];   // raw data from backend
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
-let compareItems = [];   // max 3 school IDs
+let compareItems = [];   // max 3 program IDs
+let stateAnimation = null;
+let isLoading = true;
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
 let searchTerm = '';
@@ -25,8 +27,8 @@ const t = {
     noResults:       'Geen scholen gevonden met deze filters',
     programs:        n => `${n} opleiding${n === 1 ? '' : 'en'}`,
     viewDetails:     'Bekijk school',
-    compare:         'Vergelijk',
-    compareCount:    n => `${n} school${n === 1 ? '' : 'en'} geselecteerd`,
+    compare:         'Vergelijk opleiding',
+    compareCount:    n => `${n} opleiding${n === 1 ? '' : 'en'} geselecteerd`,
     viewComparison:  'Vergelijk',
     clearCompare:    'Wis',
     results:         n => `<strong>${n}</strong> school${n === 1 ? '' : 'en'} gevonden`,
@@ -49,8 +51,8 @@ const t = {
     noResults:       'No schools found with these filters',
     programs:        n => `${n} program${n === 1 ? '' : 's'}`,
     viewDetails:     'View Details',
-    compare:         'Compare',
-    compareCount:    n => `${n} school${n === 1 ? '' : 's'} selected`,
+    compare:         'Compare program',
+    compareCount:    n => `${n} program${n === 1 ? '' : 's'} selected`,
     viewComparison:  'Compare',
     clearCompare:    'Clear',
     results:         n => `<strong>${n}</strong> school${n === 1 ? '' : 's'} found`,
@@ -111,19 +113,67 @@ const SCHOOL_ICON = `
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
 
+const CHASER_FRAMES = [
+  'img/chasing-1.svg',
+  'img/chasing-2.svg',
+  'img/chasing-3.svg',
+  'img/chasing-4.svg',
+  'img/chasing-5.svg',
+  'img/chasing-6.svg',
+];
+
+const RUNNER_FRAMES = [
+  'img/running-1.svg',
+  'img/running-2.svg',
+  'img/running-3.svg',
+  'img/running-4.svg',
+  'img/running-5.svg',
+  'img/running-6.svg',
+];
+
+function stopStateAnimation() {
+  if (!stateAnimation) return;
+  clearInterval(stateAnimation);
+  stateAnimation = null;
+}
+
+function startStateAnimation() {
+  const chaser = document.getElementById('state-chaser');
+  const runner = document.getElementById('state-runner');
+  if (!chaser || !runner) return;
+
+  stopStateAnimation();
+
+  let chaserFrame = 0;
+  let runnerFrame = 0;
+
+  stateAnimation = window.setInterval(() => {
+    chaser.src = CHASER_FRAMES[chaserFrame];
+    runner.src = RUNNER_FRAMES[runnerFrame];
+
+    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
+    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
+  }, 150);
+}
+
 // ── Fetch schools from backend ─────────────────────────────────
 async function fetchSchools() {
+  isLoading = true;
+  renderGrid();
+
   try {
-    const res = await fetch('/admin/schools');
+    const res = await fetch('/schools');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     // /admin/schools returns array with _count.programs
     allSchools = data;
+    isLoading = false;
     renderGrid();
   } catch (err) {
     console.warn('[Studie4SU] Could not load schools from backend:', err.message);
     // Fall back to seeded static data so the page still works during development
     allSchools = FALLBACK_SCHOOLS;
+    isLoading = false;
     renderGrid();
   }
 }
@@ -156,7 +206,24 @@ function renderGrid() {
   const grid     = document.getElementById('schools-grid');
   const countEl  = document.getElementById('results-count');
   const tx       = t[language];
-  const filtered = getFiltered();
+
+  stopStateAnimation();
+
+  if (isLoading) {
+    countEl.innerHTML = '';
+    grid.innerHTML = `
+      <div class="state-center" style="grid-column:1/-1">
+        <div class="state-animation" aria-hidden="true">
+          <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+          <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+        </div>
+        <p>${tx.loading}</p>
+      </div>`;
+    startStateAnimation();
+    return;
+  }
+
+const filtered = getFiltered();
 
   // Results count
   countEl.innerHTML = tx.results(filtered.length);
@@ -164,15 +231,18 @@ function renderGrid() {
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="state-center" style="grid-column:1/-1">
-        <div class="state-icon">🔍</div>
+      <div class="state-animation" aria-hidden="true">
+        <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+        <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+      </div>
         <p>${tx.noResults}</p>
       </div>`;
+      startStateAnimation();
     return;
   }
 
   grid.innerHTML = filtered.map((school, i) => {
     const isFav     = favorites.includes(school.id);
-    const isCmp     = compareItems.includes(school.id);
     const progCount = school._count?.programs ?? 0;
     const typeLabel = school.type === 'University'
       ? (language === 'nl' ? 'Universiteit' : 'University')
@@ -221,17 +291,7 @@ function renderGrid() {
 
           <div class="card-actions">
             <a href="school-detail.html?id=${school.id}" class="btn-details">${tx.viewDetails}</a>
-            <button
-              class="btn-compare ${isCmp ? 'active' : ''}"
-              data-id="${school.id}"
-              aria-label="${tx.compare}"
-              title="${tx.compare}"
-              onclick="toggleCompare('${school.id}', this)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
-                <path d="M13 6h3a2 2 0 012 2v7"/><path d="M11 18H8a2 2 0 01-2-2V9"/>
-              </svg>
-            </button>
+            <a href="school-detail.html?id=${school.id}&compare=1" class="btn-compare-school">${tx.compare}</a>
           </div>
         </div>
       </div>`;
@@ -277,14 +337,14 @@ function toggleFavorite(id, btn) {
   btn.setAttribute('aria-label', isFav ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
 }
 
-// ── Compare toggle ────────────────────────────────────────────
+// ── Compare toggle (programs — triggered from program-detail.html) ────────────
 function toggleCompare(id, btn) {
   const idx = compareItems.indexOf(id);
   if (idx === -1) {
     if (compareItems.length >= 3) {
       alert(language === 'nl'
-        ? 'Je kunt maximaal 3 scholen vergelijken.'
-        : 'You can compare a maximum of 3 schools.');
+        ? 'Je kunt maximaal 3 opleidingen vergelijken.'
+        : 'You can compare a maximum of 3 programs.');
       return;
     }
     compareItems.push(id);
@@ -313,7 +373,6 @@ function updateCompareBar() {
 document.getElementById('btn-clear-compare').addEventListener('click', () => {
   compareItems = [];
   updateCompareBar();
-  // reset all compare buttons
   document.querySelectorAll('.btn-compare').forEach(b => b.classList.remove('active'));
 });
 
@@ -321,12 +380,13 @@ document.getElementById('btn-clear-compare').addEventListener('click', () => {
 document.getElementById('btn-view-comparison').addEventListener('click', () => {
   if (compareItems.length < 2) {
     alert(language === 'nl'
-      ? 'Selecteer minimaal 2 scholen om te vergelijken.'
-      : 'Please select at least 2 schools to compare.');
+      ? 'Selecteer minimaal 2 opleidingen om te vergelijken.'
+      : 'Please select at least 2 programs to compare.');
     return;
   }
+  localStorage.setItem('program_compare', JSON.stringify(compareItems));
   const ids = compareItems.join(',');
-  window.location.href = `school-compare.html?ids=${ids}`;
+  window.location.href = `program-compare.html?ids=${ids}`;
 });
 
 // ── Filter listeners ──────────────────────────────────────────
@@ -386,7 +446,27 @@ function applyLanguage(lang) {
 document.getElementById('btn-nl').addEventListener('click', () => applyLanguage('nl'));
 document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
 
+// ── Stickman image swap (JS-driven, not OS media query) ───────
+const STICKMAN_IMGS = {
+  light: { left: 'img/scholen_stickman1.5.png',      right: 'img/scholen_stickman2.5.png' },
+  dark:  { left: 'img/scholen_stickman2.5-dark.png', right: 'img/scholen_stickman1.5-dark.png' },
+};
+
+function applyStickmanTheme(isDark) {
+  const imgs = isDark ? STICKMAN_IMGS.dark : STICKMAN_IMGS.light;
+  const l = document.getElementById('stickman-left');
+  const r = document.getElementById('stickman-right');
+  if (l) l.src = imgs.left;
+  if (r) r.src = imgs.right;
+}
+
 // ── Auth / Profile ────────────────────────────────────────────
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -402,15 +482,37 @@ function initAuth() {
     return;
   }
 
-  document.getElementById('login-btn').style.display     = 'none';
-  document.getElementById('profile-btn').style.display   = 'flex';
-  document.getElementById('mobile-login').style.display  = 'none';
+  document.getElementById('login-btn').style.display      = 'none';
+  document.getElementById('profile-btn').style.display    = 'flex';
+  document.getElementById('mobile-login').style.display   = 'none';
   document.getElementById('mobile-profile').style.display = 'block';
 
-  document.getElementById('profile-name-label').textContent = payload.name || 'Profiel';
-  document.getElementById('popup-name').textContent  = payload.name  || 'Student';
-  document.getElementById('popup-email').textContent = payload.email || '';
-  document.getElementById('popup-role').textContent  = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Student';
+  const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+
+  document.getElementById('profile-name-label').textContent = displayName;
+  document.getElementById('popup-name').textContent         = displayName;
+  document.getElementById('popup-email').textContent        = payload.email || '';
+
+  const navAv = document.getElementById('nav-avatar-display');
+  const popAv = document.getElementById('popup-avatar-lg');
+  if (navAv) navAv.textContent = avatarEmoji;
+  if (popAv) popAv.textContent = avatarEmoji;
+
+  const darkToggle = document.getElementById('popup-dark-toggle');
+  if (darkToggle) darkToggle.checked = localStorage.getItem('dark_mode') === 'true';
+
+  const notifToggle = document.getElementById('popup-notif-toggle');
+  if (notifToggle) notifToggle.checked = localStorage.getItem('notif_platform_alerts') === 'true';
+}
+
+function handleDarkToggle(checked) {
+  const theme = checked ? 'dark' : 'light';
+  localStorage.setItem('user_theme', theme);
+  localStorage.setItem('dark_mode', String(checked));
+  if (window.applyTheme) window.applyTheme(theme);
+  applyStickmanTheme(checked);
 }
 
 function toggleProfilePopup(e) {
@@ -423,9 +525,10 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) popup.classList.remove('open');
 });
 
 // ── Hamburger menu ────────────────────────────────────────────
@@ -435,7 +538,8 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
 
 // ── Boot ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  applyLanguage(language);  // set initial language state
-  fetchSchools();           // load schools from backend (or fallback)
-  initAuth();               // show profile button if logged in
+  applyLanguage(language);
+  fetchSchools();
+  initAuth();
+  applyStickmanTheme(localStorage.getItem('user_theme') === 'dark');
 });

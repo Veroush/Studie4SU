@@ -497,6 +497,23 @@ body {
 }
 .btn-details:hover { background: var(--green-700); }
 
+.btn-compare-school {
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--green-600);
+  background: #fff;
+  color: var(--green-700);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+}
+.btn-compare-school:hover { background: var(--green-50); }
+
 .btn-compare {
   padding: 9px 14px;
   border-radius: var(--radius-sm);
@@ -521,16 +538,42 @@ body {
   padding: 64px 0;
   color: var(--gray-500);
 }
-.spinner {
-  width: 40px; height: 40px;
-  border: 3px solid var(--gray-200);
-  border-top-color: var(--green-600);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.state-animation {
+  position: relative;
+  width: min(100%, 380px);
+  height: 160px;
   margin: 0 auto 16px;
+  overflow: hidden;
+}
+.state-animation::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(22,163,74,.08), rgba(22,163,74,.22), rgba(22,163,74,.08));
+}
+.state-runner,
+.state-chaser {
+  position: absolute;
+  bottom: 18px;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  pointer-events: none;
+}
+.state-chaser { left: 30px; }
+.state-runner { left: 170px; }
+@media (max-width: 480px) {
+  .state-animation { height: 140px; }
+  .state-runner,
+  .state-chaser { width: 76px; height: 76px; }
+  .state-chaser { left: 24px; }
+  .state-runner { left: 140px; }
 }
 .state-center p { font-size: .95rem; }
-.state-icon { font-size: 2.5rem; margin-bottom: 12px; }
 
 /* ─── COMPARE BAR ──────────────────────────────────────────── */
 .compare-bar {
@@ -660,6 +703,27 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+@keyframes spinInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-80px) rotate(-60deg) scale(.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+}
+@keyframes spinInRight {
+  from {
+    opacity: 0;
+    transform: translateX(80px) rotate(60deg) scale(.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+}
+
 /* ─── PROFILE BUTTON & POPUP ───────────────────────────────── */
 .profile-wrap {
   position: relative;
@@ -744,3 +808,95 @@ body {
     transform: translateX(0) rotate(0deg) scale(1);
   }
 }
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE — applied via html.theme-dark (set by theme-init.js)
+   ══════════════════════════════════════════════════════════ */
+
+html.theme-dark body {
+  color: #e5e7eb;
+  background: linear-gradient(135deg, #0f1f16 0%, #0a1a10 100%);
+}
+
+/* Page title */
+html.theme-dark .page-title-section h1 { color: #f3f4f6; }
+html.theme-dark .page-title-section p  { color: #9ca3af; }
+
+/* Search */
+html.theme-dark .search-label { color: #4ade80; }
+html.theme-dark .search-input {
+  background: linear-gradient(180deg, #1a2e1f 0%, #162518 100%);
+  color: #f3f4f6;
+  border-color: rgba(74,222,128,.25);
+  box-shadow: 0 14px 30px -20px rgba(74,222,128,.3), 0 8px 20px -16px rgba(0,0,0,.6);
+}
+html.theme-dark .search-input::placeholder { color: #6b7280; }
+html.theme-dark .search-input:focus {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74,222,128,.15), 0 16px 32px -20px rgba(74,222,128,.4);
+}
+
+/* Filter panel */
+html.theme-dark .filter-panel { background: #132010; border: 1px solid rgba(255,255,255,.07); }
+html.theme-dark .filter-header h2 { color: #f3f4f6; }
+html.theme-dark .filter-group label { color: #d1d5db; }
+html.theme-dark .filter-select {
+  background-color: #1a2e1f;
+  color: #e5e7eb;
+  border-color: rgba(255,255,255,.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+html.theme-dark .filter-select:focus { border-color: #4ade80; }
+html.theme-dark .filter-select option { background: #1a2e1f; color: #e5e7eb; }
+
+/* Results count */
+html.theme-dark .results-count { color: #9ca3af; }
+
+/* School cards */
+html.theme-dark .school-card {
+  background: #132010;
+  border: 1px solid rgba(255,255,255,.07);
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+}
+html.theme-dark .school-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+html.theme-dark .card-name        { color: #f3f4f6; }
+html.theme-dark .card-meta-row    { color: #9ca3af; }
+html.theme-dark .card-description { color: #9ca3af; }
+
+/* Badges */
+html.theme-dark .badge-public  { background: rgba(74,222,128,.15); color: #4ade80; }
+html.theme-dark .badge-private { background: rgba(96,165,250,.15); color: #60a5fa; }
+html.theme-dark .badge-level   { background: rgba(255,255,255,.08); color: #d1d5db; }
+
+/* Compare button on card */
+html.theme-dark .btn-compare { border-color: rgba(255,255,255,.2); color: #9ca3af; }
+html.theme-dark .btn-compare:hover  { border-color: #4ade80; color: #4ade80; }
+html.theme-dark .btn-compare.active {
+  border-color: #4ade80;
+  background: rgba(74,222,128,.1);
+  color: #4ade80;
+}
+
+/* Favourite button */
+html.theme-dark .btn-favorite { background: rgba(255,255,255,.12); }
+html.theme-dark .btn-favorite:hover { background: rgba(255,255,255,.2); }
+html.theme-dark .btn-favorite svg { color: #9ca3af; }
+
+/* Loading / empty states */
+html.theme-dark .state-center { color: #6b7280; }
+html.theme-dark .spinner { border-color: rgba(255,255,255,.1); border-top-color: #4ade80; }
+
+/* Profile popup */
+html.theme-dark .profile-popup {
+  background: #132010;
+  border-color: rgba(255,255,255,.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+html.theme-dark .popup-name    { color: #f3f4f6; }
+html.theme-dark .popup-email   { color: #9ca3af; }
+html.theme-dark .popup-divider { border-color: rgba(255,255,255,.1); }
+html.theme-dark .popup-logout  {
+  background: rgba(220,38,38,.1);
+  border-color: rgba(220,38,38,.3);
+  color: #f87171;
+}
+html.theme-dark .popup-logout:hover { background: rgba(220,38,38,.2); }

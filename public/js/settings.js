@@ -22,20 +22,10 @@ const AVATARS = [
   { id: 'globe',     emoji: '🌍', label: 'Globe' },
 ];
 
-const ACCENT_COLORS = [
-  { id: 'gold',   value: '#e8b84b', rgb: '232,184,75',  label: 'Goud' },
-  { id: 'blue',   value: '#3b82f6', rgb: '59,130,246',  label: 'Blauw' },
-  { id: 'purple', value: '#8b5cf6', rgb: '139,92,246',  label: 'Paars' },
-  { id: 'green',  value: '#22c55e', rgb: '34,197,94',   label: 'Groen' },
-  { id: 'orange', value: '#f97316', rgb: '249,115,22',  label: 'Oranje' },
-  { id: 'red',    value: '#ef4444', rgb: '239,68,68',   label: 'Rood' },
-  { id: 'teal',   value: '#14b8a6', rgb: '20,184,166',  label: 'Teal' },
-];
-
 /* ============================================================
    USER SETTINGS — stored in localStorage
    Keys: user_avatar, user_display_name, user_theme,
-         user_accent, user_notif_*, dark_mode
+         user_notif_*, dark_mode
 ============================================================ */
 function getSetting(key, fallback = null) {
   const v = localStorage.getItem(key);
@@ -196,17 +186,10 @@ function initDisplayName() {
 /* ============================================================
    THEME
 ============================================================ */
-function applyTheme(theme) {
-  // For now this is stored — actual light/dark CSS switching
-  // would be added per-page. This stores the preference.
+function handleThemeChange(theme) {
   setSetting('user_theme', theme);
-  if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.remove('theme-light');
-    document.documentElement.classList.add('theme-dark');
-  } else if (theme === 'light') {
-    document.documentElement.classList.remove('theme-dark');
-    document.documentElement.classList.add('theme-light');
-  }
+  // window.applyTheme is set by theme-init.js — toggles html.theme-dark class
+  if (typeof window.applyTheme === 'function') window.applyTheme(theme);
 }
 
 function renderThemeOptions() {
@@ -218,7 +201,7 @@ function renderThemeOptions() {
     radio.checked = val === current;
     el.classList.toggle('selected', val === current);
     radio.addEventListener('change', () => {
-      applyTheme(val);
+      handleThemeChange(val);
       document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
       const msg = lang === 'nl' ? '✓ Thema opgeslagen' : '✓ Theme saved';
@@ -228,47 +211,12 @@ function renderThemeOptions() {
 }
 
 /* ============================================================
-   ACCENT COLOR
-============================================================ */
-function applyAccent(colorObj) {
-  document.documentElement.style.setProperty('--accent', colorObj.value);
-  document.documentElement.style.setProperty('--accent-rgb', colorObj.rgb);
-  setSetting('user_accent', colorObj.id);
-}
-
-function renderAccentGrid() {
-  const grid = document.getElementById('accent-grid');
-  if (!grid) return;
-  const current = getSetting('user_accent', 'gold');
-  grid.innerHTML = ACCENT_COLORS.map(c => `
-    <div class="accent-swatch${c.id === current ? ' selected' : ''}"
-         data-accent="${c.id}"
-         style="background:${c.value}"
-         title="${c.label}"
-         onclick="selectAccent('${c.id}')">
-    </div>
-  `).join('');
-  // Apply current accent
-  const current_obj = ACCENT_COLORS.find(c => c.id === current) || ACCENT_COLORS[0];
-  applyAccent(current_obj);
-}
-
-function selectAccent(id) {
-  const colorObj = ACCENT_COLORS.find(c => c.id === id);
-  if (!colorObj) return;
-  applyAccent(colorObj);
-  document.querySelectorAll('.accent-swatch').forEach(el => {
-    el.classList.toggle('selected', el.dataset.accent === id);
-  });
-  const msg = lang === 'nl' ? '✓ Kleur opgeslagen' : '✓ Color saved';
-  showToast(msg);
-}
-
-/* ============================================================
    DARK MODE TOGGLE (in popup + init)
 ============================================================ */
 function handleDarkToggle(checked) {
-  setSetting('dark_mode', checked);
+  const theme = checked ? 'dark' : 'light';
+  setSetting('user_theme', theme);
+  handleThemeChange(theme);
   const msg = checked
     ? (lang === 'nl' ? '🌙 Donkere modus aan' : '🌙 Dark mode on')
     : (lang === 'nl' ? '☀️ Lichte modus aan'  : '☀️ Light mode on');
@@ -287,7 +235,6 @@ const NOTIF_KEYS = [
   'email_announcements',
   'email_resources',
   'email_important',
-  'platform_replies',
   'platform_updates',
   'platform_alerts',
 ];
@@ -449,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAvatarGrid();
   renderThemeOptions();
-  renderAccentGrid();
   initDisplayName();
   initNotifToggles();
   initNotifToggle();
@@ -457,6 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initPasswordForm();
   initSidenavScroll();
 
-  // Apply saved theme & accent on load
-  applyTheme(getSetting('user_theme', 'dark'));
+  // Apply saved theme on load
+  handleThemeChange(getSetting('user_theme', 'dark'));
 });

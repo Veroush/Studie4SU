@@ -6,8 +6,12 @@
   <title>Scholen – Studie4SU</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  
+  <link rel="preload" as="image" href="img/chasing-1.svg">
+  <link rel="preload" as="image" href="img/running-1.svg">
+
+  <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/schools.css">
+  <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
 
@@ -31,14 +35,44 @@
 
       <!-- Profile button (shown when logged in) -->
       <div class="profile-wrap" id="profile-btn" style="display:none">
-        <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+        <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+          <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+          <span id="profile-name-label">Profiel</span>
+        </button>
         <div class="profile-popup" id="profile-popup">
-          <div class="popup-avatar">👤</div>
-          <div class="popup-name"  id="popup-name"></div>
-          <div class="popup-email" id="popup-email"></div>
-          <div class="popup-role"  id="popup-role"></div>
+          <div class="popup-top">
+            <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+            <div class="popup-name"  id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+          </div>
           <hr class="popup-divider"/>
-          <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+          <div class="popup-actions">
+            <div class="popup-action-row">
+              <span class="popup-action-icon">🌙</span>
+              <span class="popup-action-label" data-nl="Donkere modus" data-en="Dark mode">Donkere modus</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="popup-dark-toggle" onchange="handleDarkToggle(this.checked)"/>
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <div class="popup-action-row">
+              <span class="popup-action-icon">🔔</span>
+              <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="popup-notif-toggle"/>
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <a href="settings.html" class="popup-action-row popup-action-link">
+              <span class="popup-action-icon">⚙️</span>
+              <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+              <span class="popup-action-arrow">›</span>
+            </a>
+          </div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">
+            <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+          </button>
         </div>
       </div>
 
@@ -65,8 +99,8 @@
 <main class="page-container">
 
   <div class="page-title-section">
-    <img src="img/scholen_stickman1.5.png" alt="Stickman links" class="title-stickman title-stickman-left">
-    <img src="img/scholen_stickman2.5.png" alt="Stickman rechts" class="title-stickman title-stickman-right">
+    <img id="stickman-left"  src="img/scholen_stickman1.5.png"  alt="Stickman links"  class="title-stickman title-stickman-left">
+    <img id="stickman-right" src="img/scholen_stickman2.5.png"  alt="Stickman rechts" class="title-stickman title-stickman-right">
     <h1 id="page-title">Alle Scholen</h1>
     <p id="page-subtitle">Ontdek en vergelijk scholen in Suriname</p>
   </div>
@@ -126,7 +160,10 @@
 
   <div class="schools-grid" id="schools-grid">
     <div class="state-center" id="loading-state">
-      <div class="spinner"></div>
+      <div class="state-animation" aria-hidden="true">
+        <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+        <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+      </div>
       <p id="loading-text">Scholen laden...</p>
     </div>
   </div>
