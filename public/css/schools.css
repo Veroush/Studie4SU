@@ -770,7 +770,7 @@ body {
   transition: background .15s;
 }
 .popup-logout:hover { background: #fee2e2; }
-<<<<<<< HEAD
+
 
 @keyframes spinInLeft {
   from {
@@ -792,5 +792,3 @@ body {
     transform: translateX(0) rotate(0deg) scale(1);
   }
 }
-=======
->>>>>>> 3db57db5d8f9d697fa520f13a4e86d03bfa6ff6e
