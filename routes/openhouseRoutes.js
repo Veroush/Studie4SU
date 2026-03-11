@@ -45,7 +45,27 @@ router.get('/', optionalAuth, async (req, res) => {
         school: {
           select: { id: true, name: true, shortName: true, type: true }
         },
-        registrations: { select: { userId: true } },
+
+        // ---------------------------------------------------------------
+        // Veroush's code (original) used:
+        //   registrations: { select: { userId: true } }
+        //
+        // WHY IT BROKE:
+        //   Raksha's schema.prisma named this relation "OpenHouseRegistration"
+        //   (the full Prisma model name, capitalised) instead of "registrations".
+        //   After running `prisma db push`, Prisma regenerated its client based
+        //   on the schema — so the old shorthand name "registrations" no longer
+        //   existed on the OpenHouse model. Prisma threw a PrismaClientValidationError.
+        //
+        // RAKSHA'S SCHEMA defines the relation as:
+        //   model OpenHouse {
+        //     OpenHouseRegistration OpenHouseRegistration[]
+        //     ...
+        //   }
+        //
+        // FIX: renamed "registrations" → "OpenHouseRegistration" to match Raksha's schema.
+        // ---------------------------------------------------------------
+        OpenHouseRegistration: { select: { userId: true } },
       }
     });
 
@@ -60,8 +80,17 @@ router.get('/', optionalAuth, async (req, res) => {
       isOnline:          oh.isOnline,
       registrationUrl:   oh.registrationUrl,
       school:            oh.school?.shortName || oh.school?.name || oh.title,
-      registered:        userId ? oh.registrations.some(r => r.userId === userId) : false,
-      registrationCount: oh.registrations.length,
+
+      // ---------------------------------------------------------------
+      // YOUR CODE (original) used:
+      //   oh.registrations.some(r => r.userId === userId)
+      //   oh.registrations.length
+      //
+      // FIX: updated both references from "registrations" → "OpenHouseRegistration"
+      //      to match the renamed include above. Same data, different key name.
+      // ---------------------------------------------------------------
+      registered:        userId ? oh.OpenHouseRegistration.some(r => r.userId === userId) : false,
+      registrationCount: oh.OpenHouseRegistration.length,
     }));
 
     res.json(data);
@@ -73,6 +102,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
 // GET /openhouses/:id
 // Returns one open house by ID
+// ── Veroush's code — untouched, no relation access here ──
 router.get('/:id', async (req, res) => {
   try {
     const openHouse = await prisma.openHouse.findUnique({
@@ -110,6 +140,8 @@ router.get('/:id', async (req, res) => {
 //   isOnline         (boolean) — default false
 //   registrationUrl  (string)  — external link
 //   isActive         (boolean) — default true
+//
+// ── Veroush's code — untouched, no registration relation access here ──
 router.post('/', async (req, res) => {
   try {
     const {
@@ -117,14 +149,12 @@ router.post('/', async (req, res) => {
       isOnline, registrationUrl, isActive, schoolId
     } = req.body;
 
-    // Validate required fields
     if (!title || !date || !schoolId) {
       return res.status(400).json({
         error: 'title, date, and schoolId are required'
       });
     }
 
-    // Validate the date is a valid date string
     const parsedDate = new Date(date);
     if (isNaN(parsedDate.getTime())) {
       return res.status(400).json({
@@ -132,7 +162,6 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Check that the school exists
     const school = await prisma.school.findUnique({ where: { id: schoolId } });
     if (!school) {
       return res.status(404).json({ error: `School with id "${schoolId}" not found` });
@@ -160,8 +189,8 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /admin/openhouses/:id
-// Updates an existing open house
-// Send only the fields you want to change
+// Updates an existing open house — send only the fields you want to change
+// ── Veroush's code — untouched, no registration relation access here ──
 router.put('/:id', async (req, res) => {
   try {
     const {
@@ -169,7 +198,6 @@ router.put('/:id', async (req, res) => {
       isOnline, registrationUrl, isActive, schoolId
     } = req.body;
 
-    // Check the open house exists
     const existing = await prisma.openHouse.findUnique({
       where: { id: req.params.id }
     });
@@ -177,7 +205,6 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Open house not found' });
     }
 
-    // If a new date was provided, validate it
     let parsedDate;
     if (date !== undefined) {
       parsedDate = new Date(date);
@@ -188,7 +215,6 @@ router.put('/:id', async (req, res) => {
       }
     }
 
-    // If schoolId is being changed, verify the new school exists
     if (schoolId) {
       const school = await prisma.school.findUnique({ where: { id: schoolId } });
       if (!school) {
@@ -221,6 +247,7 @@ router.put('/:id', async (req, res) => {
 // DELETE /admin/openhouses/:id
 // Deletes an open house event permanently
 // Tip: consider using PUT to set isActive: false instead of deleting
+// ── Veroush's code — untouched, no registration relation access here ──
 router.delete('/:id', async (req, res) => {
   try {
     const existing = await prisma.openHouse.findUnique({
@@ -246,9 +273,9 @@ router.delete('/:id', async (req, res) => {
 // ================================================================
 
 // POST /openhouses/:id/register   → register the logged-in user
-router.post('/:id/register', requireAuth, ctrl.register);
-
 // DELETE /openhouses/:id/register → unregister the logged-in user
+// ── Veroush's code — untouched, handled by openHousesController ──
+router.post('/:id/register', requireAuth, ctrl.register);
 router.delete('/:id/register', requireAuth, ctrl.unregister);
 
 
