@@ -24,8 +24,7 @@ const AVATARS = [
 
 /* ============================================================
    USER SETTINGS — stored in localStorage
-   Keys: user_avatar, user_display_name, user_theme,
-         user_notif_*, dark_mode
+   Keys: user_avatar, user_display_name, user_notif_*
 ============================================================ */
 function getSetting(key, fallback = null) {
   const v = localStorage.getItem(key);
@@ -184,49 +183,12 @@ function initDisplayName() {
 }
 
 /* ============================================================
-   THEME
+   DARK MODE TOGGLE — REMOVED
+   handleDarkToggle, handleThemeChange, renderThemeOptions,
+   and initDarkToggle have been deleted because the dark mode
+   feature was scrapped entirely. theme-init.js is also no
+   longer loaded.
 ============================================================ */
-function handleThemeChange(theme) {
-  setSetting('user_theme', theme);
-  // window.applyTheme is set by theme-init.js — toggles html.theme-dark class
-  if (typeof window.applyTheme === 'function') window.applyTheme(theme);
-}
-
-function renderThemeOptions() {
-  const current = getSetting('user_theme', 'dark');
-  document.querySelectorAll('.theme-option').forEach(el => {
-    const radio = el.querySelector('input[type=radio]');
-    const val   = radio ? radio.value : null;
-    if (!val) return;
-    radio.checked = val === current;
-    el.classList.toggle('selected', val === current);
-    radio.addEventListener('change', () => {
-      handleThemeChange(val);
-      document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('selected'));
-      el.classList.add('selected');
-      const msg = lang === 'nl' ? '✓ Thema opgeslagen' : '✓ Theme saved';
-      showToast(msg);
-    });
-  });
-}
-
-/* ============================================================
-   DARK MODE TOGGLE (in popup + init)
-============================================================ */
-function handleDarkToggle(checked) {
-  const theme = checked ? 'dark' : 'light';
-  setSetting('user_theme', theme);
-  handleThemeChange(theme);
-  const msg = checked
-    ? (lang === 'nl' ? '🌙 Donkere modus aan' : '🌙 Dark mode on')
-    : (lang === 'nl' ? '☀️ Lichte modus aan'  : '☀️ Light mode on');
-  showToast(msg);
-}
-
-function initDarkToggle() {
-  const t = document.getElementById('popup-dark-toggle');
-  if (t) t.checked = getSetting('dark_mode', false);
-}
 
 /* ============================================================
    NOTIFICATIONS
@@ -395,14 +357,12 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLang(lang);
 
   renderAvatarGrid();
-  renderThemeOptions();
+  // renderThemeOptions() — removed, dark mode scrapped
   initDisplayName();
   initNotifToggles();
   initNotifToggle();
-  initDarkToggle();
+  // initDarkToggle() — removed, dark mode scrapped
   initPasswordForm();
   initSidenavScroll();
-
-  // Apply saved theme on load
-  handleThemeChange(getSetting('user_theme', 'dark'));
+  // handleThemeChange() on load — removed, dark mode scrapped
 });

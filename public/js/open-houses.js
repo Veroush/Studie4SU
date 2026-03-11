@@ -549,6 +549,13 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
 });
 
 // ── Auth / Profile ────────────────────────────────────────────
+/* Avatar emoji map — must match settings.js exactly */
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -569,10 +576,24 @@ function initAuth() {
   document.getElementById('mobile-login').style.display   = 'none';
   document.getElementById('mobile-profile').style.display = 'block';
 
-  document.getElementById('profile-name-label').textContent = payload.name  || 'Profiel';
-  document.getElementById('popup-name').textContent          = payload.name  || 'Student';
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Profiel';
+  const avatarKey   = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarKey] || '🎓';
+
+  document.getElementById('profile-name-label').textContent = displayName;
+  document.getElementById('nav-avatar-display').textContent  = avatarEmoji;
+  document.getElementById('popup-avatar-lg').textContent     = avatarEmoji;
+  document.getElementById('popup-name').textContent          = displayName;
   document.getElementById('popup-email').textContent         = payload.email || '';
-  document.getElementById('popup-role').textContent          = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+
+  // Notifications toggle state
+  const notifToggle = document.getElementById('popup-notif-toggle');
+  if (notifToggle) {
+    notifToggle.checked = localStorage.getItem('user_notif_general') === 'true';
+    notifToggle.addEventListener('change', () => {
+      localStorage.setItem('user_notif_general', notifToggle.checked);
+    });
+  }
 }
 
 function toggleProfilePopup(e) {

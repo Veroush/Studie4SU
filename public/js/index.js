@@ -248,15 +248,10 @@ function initAuth() {
   const popAv = document.getElementById('popup-avatar-lg');
   if (navAv) navAv.textContent = avatarEmoji;
   if (popAv) popAv.textContent = avatarEmoji;
-
-  // Dark mode toggle state
-  const darkToggle = document.getElementById('popup-dark-toggle');
-  if (darkToggle) darkToggle.checked = localStorage.getItem('dark_mode') === 'true';
+  // dark_mode toggle state removed — dark mode feature scrapped
 }
 
-function handleDarkToggle(checked) {
-  localStorage.setItem('dark_mode', String(checked));
-}
+// handleDarkToggle() removed — dark mode feature scrapped
 
 function toggleProfilePopup(e) {
   e.stopPropagation();

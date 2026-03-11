@@ -271,129 +271,14 @@
 .btn-save-inline:active { transform: scale(0.97); }
 
 /* ── Theme Options ──────────────────────────────────────── */
-.theme-options {
-  display: flex;
-  gap: 16px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-.theme-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.theme-option input { display: none; }
-
-.theme-preview {
-  width: 90px;
-  height: 60px;
-  border-radius: 10px;
-  border: 2px solid rgba(255,255,255,0.1);
-  overflow: hidden;
-  transition: all .2s;
-  position: relative;
-}
-
-.theme-option:has(input:checked) .theme-preview,
-.theme-option.selected .theme-preview {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2);
-}
-
-.theme-preview-light {
-  background: #f3f4f6;
-}
-.theme-preview-light .tp-header {
-  height: 14px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-}
-.theme-preview-light .tp-body { padding: 8px; }
-.theme-preview-light .tp-line {
-  height: 4px; border-radius: 2px;
-  background: #d1d5db; margin-bottom: 4px;
-}
-.theme-preview-light .tp-line.short { width: 60%; }
-
-.theme-preview-dark {
-  background: #0d2b1f;
-}
-.theme-preview-dark .tp-header {
-  height: 14px;
-  background: #122b1e;
-  border-bottom: 1px solid rgba(232,184,75,.2);
-}
-.theme-preview-dark .tp-body { padding: 8px; }
-.theme-preview-dark .tp-line {
-  height: 4px; border-radius: 2px;
-  background: rgba(255,255,255,.15); margin-bottom: 4px;
-}
-.theme-preview-dark .tp-line.short { width: 60%; }
-
-.theme-preview-system {
-  display: flex;
-}
-.tp-half-light {
-  flex: 1;
-  background: #f3f4f6;
-}
-.tp-half-dark {
-  flex: 1;
-  background: #0d2b1f;
-}
-
-.theme-option span {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-.theme-option:has(input:checked) span,
-.theme-option.selected span {
-  color: var(--accent);
-}
+/* REMOVED — dark mode / theme picker feature scrapped.
+   .theme-options, .theme-option, .theme-preview-light,
+   .theme-preview-dark, .theme-preview-system, .tp-half-*
+   all deleted. */
 
 /* ── Accent Color Grid ──────────────────────────────────── */
-.accent-grid {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-
-.accent-swatch {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  cursor: pointer;
-  transition: all .2s;
-  position: relative;
-}
-.accent-swatch:hover {
-  transform: scale(1.15);
-}
-.accent-swatch.selected {
-  border-color: #fff;
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
-}
-.accent-swatch.selected::after {
-  content: '✓';
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  display: grid;
-  place-items: center;
-}
+/* REMOVED — accent color picker feature scrapped alongside dark mode.
+   .accent-grid, .accent-swatch all deleted. */
 
 /* ── Toggle Switch ──────────────────────────────────────── */
 .toggle-switch {
@@ -767,13 +652,6 @@
   }
   .btn-save-inline {
     width: 100%;
-  }
-  .theme-options {
-    gap: 10px;
-  }
-  .theme-preview {
-    width: 70px;
-    height: 46px;
   }
   .modal-actions {
     flex-direction: column-reverse;

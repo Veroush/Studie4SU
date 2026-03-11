@@ -8,9 +8,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="img/chasing-1.svg">
   <link rel="preload" as="image" href="img/running-1.svg">
-
-  <script src="js/theme-init.js"></script>
+  
   <link rel="stylesheet" href="css/schools.css">
+  <!-- settings.css needed for rich profile popup styles (.btn-profile-nav, .popup-top etc) -->
+  <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
   <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
@@ -35,10 +36,12 @@
 
       <!-- Profile button (shown when logged in) -->
       <div class="profile-wrap" id="profile-btn" style="display:none">
+        <!-- Upgraded nav button (pill style from settings.html) -->
         <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
           <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
           <span id="profile-name-label">Profiel</span>
         </button>
+        <!-- Rich dropdown popup — dark mode row REMOVED (dark mode feature scrapped) -->
         <div class="profile-popup" id="profile-popup">
           <div class="popup-top">
             <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
@@ -47,14 +50,7 @@
           </div>
           <hr class="popup-divider"/>
           <div class="popup-actions">
-            <div class="popup-action-row">
-              <span class="popup-action-icon">🌙</span>
-              <span class="popup-action-label" data-nl="Donkere modus" data-en="Dark mode">Donkere modus</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="popup-dark-toggle" onchange="handleDarkToggle(this.checked)"/>
-                <span class="toggle-track"></span>
-              </label>
-            </div>
+            <!-- 🌙 Dark mode toggle row intentionally removed — feature scrapped -->
             <div class="popup-action-row">
               <span class="popup-action-icon">🔔</span>
               <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
@@ -99,8 +95,8 @@
 <main class="page-container">
 
   <div class="page-title-section">
-    <img id="stickman-left"  src="img/scholen_stickman1.5.png"  alt="Stickman links"  class="title-stickman title-stickman-left">
-    <img id="stickman-right" src="img/scholen_stickman2.5.png"  alt="Stickman rechts" class="title-stickman title-stickman-right">
+    <img src="img/scholen_stickman1.5.png" alt="Stickman links" class="title-stickman title-stickman-left">
+    <img src="img/scholen_stickman2.5.png" alt="Stickman rechts" class="title-stickman title-stickman-right">
     <h1 id="page-title">Alle Scholen</h1>
     <p id="page-subtitle">Ontdek en vergelijk scholen in Suriname</p>
   </div>

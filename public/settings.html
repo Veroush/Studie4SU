@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Instellingen — Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <script src="js/theme-init.js"></script>
+  <!-- theme-init.js intentionally removed — dark mode feature scrapped -->
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/settings.css"/>
 </head>
@@ -39,14 +39,7 @@
           </div>
           <hr class="popup-divider"/>
           <div class="popup-actions">
-            <div class="popup-action-row">
-              <span class="popup-action-icon">🌙</span>
-              <span class="popup-action-label" data-nl="Donkere modus" data-en="Dark mode">Donkere modus</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="popup-dark-toggle" onchange="handleDarkToggle(this.checked)"/>
-                <span class="toggle-track"></span>
-              </label>
-            </div>
+            <!-- 🌙 Dark mode toggle row intentionally removed — feature scrapped -->
             <div class="popup-action-row">
               <span class="popup-action-icon">🔔</span>
               <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
@@ -104,7 +97,6 @@
       <!-- Sticky sidebar nav -->
       <nav class="settings-sidenav">
         <a href="#section-profile"       class="sidenav-item active" data-nl="Profiel"       data-en="Profile">👤 Profiel</a>
-        <a href="#section-appearance"    class="sidenav-item"        data-nl="Weergave"       data-en="Appearance">🎨 Weergave</a>
         <a href="#section-notifications" class="sidenav-item"        data-nl="Meldingen"      data-en="Notifications">🔔 Meldingen</a>
         <a href="#section-account"       class="sidenav-item"        data-nl="Account"        data-en="Account">🔐 Account</a>
       </nav>
@@ -137,47 +129,6 @@
                 <button class="btn-save-inline" id="save-name-btn" data-nl="Opslaan" data-en="Save">Opslaan</button>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- ═══ SECTION 2: APPEARANCE ═══ -->
-        <section class="settings-section" id="section-appearance">
-          <div class="settings-section-header">
-            <h2 data-nl="Weergave" data-en="Appearance">Weergave</h2>
-            <p data-nl="Pas het thema van de website aan" data-en="Customize the website theme">Pas het thema van de website aan</p>
-          </div>
-
-          <div class="settings-card">
-            <div class="card-block">
-              <label class="card-label" data-nl="Thema" data-en="Theme">Thema</label>
-              <div class="theme-options">
-                <label class="theme-option" data-theme="light">
-                  <input type="radio" name="theme" value="light"/>
-                  <div class="theme-preview theme-preview-light">
-                    <div class="tp-header"></div>
-                    <div class="tp-body"><div class="tp-line"></div><div class="tp-line short"></div></div>
-                  </div>
-                  <span data-nl="Licht" data-en="Light">Licht</span>
-                </label>
-                <label class="theme-option" data-theme="dark">
-                  <input type="radio" name="theme" value="dark"/>
-                  <div class="theme-preview theme-preview-dark">
-                    <div class="tp-header"></div>
-                    <div class="tp-body"><div class="tp-line"></div><div class="tp-line short"></div></div>
-                  </div>
-                  <span data-nl="Donker" data-en="Dark">Donker</span>
-                </label>
-                <label class="theme-option" data-theme="system">
-                  <input type="radio" name="theme" value="system"/>
-                  <div class="theme-preview theme-preview-system">
-                    <div class="tp-half-light"></div>
-                    <div class="tp-half-dark"></div>
-                  </div>
-                  <span data-nl="Systeem" data-en="System">Systeem</span>
-                </label>
-              </div>
-            </div>
-
           </div>
         </section>
 
