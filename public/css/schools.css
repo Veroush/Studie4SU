@@ -788,23 +788,36 @@ body {
 }
 .popup-logout:hover { background: #fee2e2; }
 
-@keyframes spinInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-80px) rotate(-60deg) scale(.6);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0) rotate(0deg) scale(1);
-  }
-}
-@keyframes spinInRight {
-  from {
-    opacity: 0;
-    transform: translateX(80px) rotate(60deg) scale(.6);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0) rotate(0deg) scale(1);
-  }
-}
+/* ---------------------------------------------------------------
+   ⚠️  CONFLICT RESOLUTION — public/css/schools.css
+       Location: end of file, after the second @keyframes spinInRight block
+
+   WHAT THE CONFLICT WAS:
+     HEAD (raksha/testing/merge): file ended cleanly after the closing }
+     of the second @keyframes spinInRight block.
+
+     feature/settings (Veroush): added a large "DARK MODE" block below it —
+     roughly 90 lines of html.theme-dark { ... } selectors covering body,
+     search, filter panel, school cards, badges, buttons, profile popup, etc.
+     This block was applied via the html.theme-dark class set by theme-init.js.
+
+   WHY HEAD WAS KEPT (dark mode block dropped entirely):
+     Dark mode was scrapped as a feature this project cycle. The decision was
+     made to remove theme-init.js entirely and never apply html.theme-dark.
+     Keeping the dark mode CSS would be dead weight — it references a class
+     that is never set, and theme-init.js no longer exists in the project.
+     The duplicate @keyframes spinInLeft / spinInRight that appeared just
+     before the dark mode block (also from the feature/settings side) were
+     also dropped as they were redundant — the identical keyframes already
+     appear earlier in this file.
+
+   RESOLUTION:
+     Kept everything up to and including the closing } of the second
+     @keyframes spinInRight block (HEAD's end-of-file). Dropped the entire
+     dark mode CSS block that followed on the feature/settings side.
+     No light-mode styles were lost — only dead dark-mode code was removed.
+
+   OWNERSHIP:
+     Light-mode styles: Veroush (original) + Raksha (integration branch).
+     Dark-mode block (dropped): Veroush / feature/settings branch.
+--------------------------------------------------------------- */

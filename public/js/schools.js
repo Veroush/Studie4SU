@@ -440,7 +440,42 @@ function applyLanguage(lang) {
 document.getElementById('btn-nl').addEventListener('click', () => applyLanguage('nl'));
 document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
 
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — public/js/schools.js
+//     Location: between applyLanguage() and initAuth() — stickman block
+//
+// WHAT THE CONFLICT WAS:
+//   feature/settings (Veroush) added two items here:
+//     1. const STICKMAN_IMGS = { light: {...}, dark: {...} }
+//        — object mapping theme names to left/right stickman image paths
+//     2. function applyStickmanTheme(isDark) { ... }
+//        — swapped stickman <img> src based on isDark boolean
+//   HEAD (raksha/testing/merge) had neither — these were new additions
+//   only on the feature/settings branch.
+//
+// WHY BOTH WERE DROPPED:
+//   Dark mode was scrapped entirely. theme-init.js was deleted.
+//   The dark stickman image variants (scholen_stickman*-dark.png) do not
+//   exist in the project. applyStickmanTheme() served no purpose without
+//   a dark mode toggle to call it. Keeping dead code that references
+//   non-existent assets would cause silent errors.
+//
+// RESOLUTION:
+//   Both STICKMAN_IMGS and applyStickmanTheme() were deleted.
+//   The stickman images in schools.html always use the light variants
+//   (scholen_stickman1.5.png / scholen_stickman2.5.png) — no JS swap needed.
+//
+// OWNERSHIP:
+//   STICKMAN_IMGS + applyStickmanTheme: Veroush / feature/settings (dropped).
+// ---------------------------------------------------------------
+
 // ── Auth / Profile ────────────────────────────────────────────
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -456,16 +491,81 @@ function initAuth() {
     return;
   }
 
-  document.getElementById('login-btn').style.display     = 'none';
-  document.getElementById('profile-btn').style.display   = 'flex';
-  document.getElementById('mobile-login').style.display  = 'none';
+  document.getElementById('login-btn').style.display      = 'none';
+  document.getElementById('profile-btn').style.display    = 'flex';
+  document.getElementById('mobile-login').style.display   = 'none';
   document.getElementById('mobile-profile').style.display = 'block';
 
-  document.getElementById('profile-name-label').textContent = payload.name || 'Profiel';
-  document.getElementById('popup-name').textContent  = payload.name  || 'Student';
-  document.getElementById('popup-email').textContent = payload.email || '';
-  document.getElementById('popup-role').textContent  = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Student';
+  const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+
+  document.getElementById('profile-name-label').textContent = displayName;
+  document.getElementById('popup-name').textContent         = displayName;
+  document.getElementById('popup-email').textContent        = payload.email || '';
+
+  const navAv = document.getElementById('nav-avatar-display');
+  const popAv = document.getElementById('popup-avatar-lg');
+  if (navAv) navAv.textContent = avatarEmoji;
+  if (popAv) popAv.textContent = avatarEmoji;
+
+  // ---------------------------------------------------------------
+  // ⚠️  CONFLICT RESOLUTION — public/js/schools.js
+  //     Location: inside initAuth(), toggle wiring block
+  //
+  // WHAT THE CONFLICT WAS:
+  //   feature/settings (Veroush) had TWO toggles wired here:
+  //     const darkToggle = document.getElementById('popup-dark-toggle');
+  //     if (darkToggle) darkToggle.checked = localStorage.getItem('dark_mode') === 'true';
+  //
+  //     const notifToggle = document.getElementById('popup-notif-toggle');
+  //     if (notifToggle) notifToggle.checked = localStorage.getItem('notif_platform_alerts') === 'true';
+  //
+  //   HEAD had neither of these lines — they were new on feature/settings.
+  //
+  // WHY darkToggle LINES WERE DROPPED:
+  //   Dark mode was scrapped. The popup has no dark mode toggle row.
+  //   popup-dark-toggle does not exist in the HTML — getElementById would
+  //   return null and the if-guard would silently no-op, but keeping dead
+  //   code is confusing. Dropped entirely.
+  //
+  // WHY notifToggle LINES WERE KEPT:
+  //   The popup does have a notifications toggle (popup-notif-toggle).
+  //   This wiring correctly pre-populates its checked state from localStorage
+  //   on page load. This is real, working functionality — kept.
+  //
+  // OWNERSHIP:
+  //   darkToggle lines: Veroush / feature/settings (dropped).
+  //   notifToggle lines: Veroush / feature/settings (kept).
+  // ---------------------------------------------------------------
+
+  const notifToggle = document.getElementById('popup-notif-toggle');
+  if (notifToggle) notifToggle.checked = localStorage.getItem('notif_platform_alerts') === 'true';
 }
+
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — public/js/schools.js
+//     Location: handleDarkToggle() function
+//
+// WHAT THE CONFLICT WAS:
+//   feature/settings (Veroush) added handleDarkToggle(checked) here:
+//     function handleDarkToggle(checked) {
+//       const theme = checked ? 'dark' : 'light';
+//       localStorage.setItem('user_theme', theme);
+//       localStorage.setItem('dark_mode', String(checked));
+//       if (window.applyTheme) window.applyTheme(theme);
+//       applyStickmanTheme(checked);   ← also calls the dropped function
+//     }
+//   HEAD had no such function.
+//
+// WHY IT WAS DROPPED:
+//   Dark mode is scrapped. No element in the popup calls handleDarkToggle().
+//   It also called applyStickmanTheme() which was also dropped above.
+//   Keeping it would be dead code with a broken dependency.
+//
+// OWNERSHIP:
+//   handleDarkToggle: Veroush / feature/settings (dropped).
+// ---------------------------------------------------------------
 
 function toggleProfilePopup(e) {
   e.stopPropagation();
@@ -477,9 +577,10 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) popup.classList.remove('open');
 });
 
 // ── Hamburger menu ────────────────────────────────────────────
@@ -488,6 +589,45 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — public/js/schools.js
+//     Location: DOMContentLoaded boot block at the bottom of the file
+//
+// WHAT THE CONFLICT WAS:
+//   HEAD (raksha/testing/merge):
+//     document.addEventListener('DOMContentLoaded', async () => {
+//       await window.FavSync.loadFromDB();
+//       favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
+//       applyLanguage(language);
+//       fetchSchools();
+//       initAuth();
+//     });
+//
+//   feature/settings (Veroush):
+//     document.addEventListener('DOMContentLoaded', () => {
+//       applyLanguage(language);
+//       fetchSchools();
+//       initAuth();
+//       applyStickmanTheme(localStorage.getItem('user_theme') === 'dark');
+//     });
+//
+// WHY HEAD WAS KEPT:
+//   1. FavSync.loadFromDB() — Raksha's FavSync singleton must be awaited
+//      before reading fav_schools from localStorage, otherwise the local
+//      cache may be stale and the heart icons won't reflect the user's
+//      actual saved favorites. This is a correctness requirement.
+//   2. The async/await pattern is required for FavSync to work properly.
+//   3. applyStickmanTheme() call on the feature/settings side was dropped
+//      because dark mode is scrapped (see note above).
+//
+// RESOLUTION:
+//   Kept HEAD's async boot block verbatim. Dropped feature/settings sync
+//   version including its applyStickmanTheme() call.
+//
+// OWNERSHIP:
+//   async FavSync boot pattern: Raksha (integration branch).
+//   applyStickmanTheme call (dropped): Veroush / feature/settings.
+// ---------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
   await window.FavSync.loadFromDB();
   favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');

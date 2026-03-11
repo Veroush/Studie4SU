@@ -210,6 +210,12 @@ function renderEvents() {
 /* ============================================================
    AUTH
 ============================================================ */
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -230,11 +236,22 @@ function initAuth() {
   document.getElementById('mobile-login').style.display   = 'none';
   document.getElementById('mobile-profile').style.display = 'block';
 
-  document.getElementById('profile-name-label').textContent = payload.name || 'Profiel';
-  document.getElementById('popup-name').textContent  = payload.name  || 'Student';
-  document.getElementById('popup-email').textContent = payload.email || '';
-  document.getElementById('popup-role').textContent  = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Student';
+  const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+
+  document.getElementById('profile-name-label').textContent = displayName;
+  document.getElementById('popup-name').textContent          = displayName;
+  document.getElementById('popup-email').textContent         = payload.email || '';
+
+  const navAv = document.getElementById('nav-avatar-display');
+  const popAv = document.getElementById('popup-avatar-lg');
+  if (navAv) navAv.textContent = avatarEmoji;
+  if (popAv) popAv.textContent = avatarEmoji;
+  // dark_mode toggle state removed — dark mode feature scrapped
 }
+
+// handleDarkToggle() removed — dark mode feature scrapped
 
 function toggleProfilePopup(e) {
   e.stopPropagation();
@@ -246,9 +263,12 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) {
+    popup.classList.remove('open');
+  }
 });
 
 /* ============================================================

@@ -6,34 +6,65 @@
   <title>Opleiding | Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/program-detail.css" />
-  <style>
-    .btn-compare-program {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: 10px;
-      border: 2px solid rgba(255,255,255,.35);
-      background: rgba(255,255,255,.12);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .875rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .2s, border-color .2s;
-      margin-top: 8px;
-    }
-    .btn-compare-program:hover {
-      background: rgba(255,255,255,.22);
-      border-color: rgba(255,255,255,.6);
-    }
-    .btn-compare-program.active {
-      background: #fff;
-      border-color: #fff;
-      color: var(--green-700, #15803d);
-    }
-  </style>
+
+  <!--
+    ⚠️  CONFLICT RESOLUTION — public/program-detail.html
+        Location: <head> section, stylesheet / style block after program-detail.css
+
+    WHAT THE CONFLICT WAS:
+      HEAD (raksha/testing/merge) had an inline <style> block:
+        <style>
+          .btn-compare-program {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,.35);
+            background: rgba(255,255,255,.12);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, border-color .2s;
+            margin-top: 8px;
+          }
+          .btn-compare-program:hover { ... }
+          .btn-compare-program.active { ... }
+        </style>
+
+      feature/settings (Veroush) had instead:
+        <!-- settings.css needed for rich profile popup styles -->
+        <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
+        <link rel="stylesheet" href="css/settings.css" />
+
+    WHY feature/settings WAS KEPT:
+      1. settings.css is required on every page that uses the rich profile
+         popup (emoji avatar, display name, toggle switches, popup layout).
+         Without it the popup is completely unstyled.
+      2. The inline <style> block for .btn-compare-program is a workaround
+         that doesn't belong in HTML. Those styles should live in
+         program-detail.css — if they aren't there yet, add them there.
+      3. theme-init.js is correctly absent: dark mode was scrapped and
+         theme-init.js was deleted from the project entirely.
+
+    RESOLUTION:
+      Dropped the inline <style> block entirely.
+      Kept the settings.css <link> and both explanatory comments.
+      ACTION NEEDED: verify .btn-compare-program styles exist in
+      program-detail.css. If not, move the three rule-sets from the
+      dropped inline block into program-detail.css.
+
+    OWNERSHIP:
+      Inline <style> block (dropped): HEAD / raksha/testing/merge.
+      settings.css link (kept): Veroush / feature/settings.
+  -->
+
+  <!-- settings.css needed for rich profile popup styles -->
+  <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
+  <link rel="stylesheet" href="css/settings.css" />
 </head>
 <body>
 
@@ -54,14 +85,37 @@
 
         <!-- Profile button (shown when logged in) -->
         <div class="profile-wrap" id="profile-btn" style="display:none">
-          <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+          <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+            <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+            <span id="profile-name-label">Profiel</span>
+          </button>
+          <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
           <div class="profile-popup" id="profile-popup">
-            <div class="popup-avatar">👤</div>
-            <div class="popup-name"  id="popup-name"></div>
-            <div class="popup-email" id="popup-email"></div>
-            <div class="popup-role"  id="popup-role"></div>
+            <div class="popup-top">
+              <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+              <div class="popup-name"  id="popup-name"></div>
+              <div class="popup-email" id="popup-email"></div>
+            </div>
             <hr class="popup-divider"/>
-            <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+            <div class="popup-actions">
+              <div class="popup-action-row">
+                <span class="popup-action-icon">🔔</span>
+                <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="popup-notif-toggle"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <a href="settings.html" class="popup-action-row popup-action-link">
+                <span class="popup-action-icon">⚙️</span>
+                <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+                <span class="popup-action-arrow">›</span>
+              </a>
+            </div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">
+              <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+            </button>
           </div>
         </div>
 

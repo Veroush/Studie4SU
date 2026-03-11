@@ -47,6 +47,25 @@ router.get('/', optionalAuth, async (req, res) => {
         },
 
         // ---------------------------------------------------------------
+        // ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+        //     Location: include block in GET / handler
+        //
+        // WHAT THE CONFLICT WAS:
+        //   HEAD used lowercase: // Veroush's code (original) used:
+        //   feature/settings used uppercase: // Veroush's CODE (original) used:
+        //   Identical comment, different casing only.
+        //
+        // WHY HEAD WAS KEPT:
+        //   HEAD (raksha/testing/merge) is the integration branch — its casing
+        //   was already established as the project standard. Purely cosmetic.
+        //
+        // RESOLUTION:
+        //   Kept HEAD's lowercase "code". Dropped feature/settings uppercase "CODE".
+        //
+        // OWNERSHIP:
+        //   Comment + fix by Veroush; relation rename context from Raksha's schema.
+        // ---------------------------------------------------------------
+
         // Veroush's code (original) used:
         //   registrations: { select: { userId: true } }
         //
@@ -82,6 +101,25 @@ router.get('/', optionalAuth, async (req, res) => {
       school:            oh.school?.shortName || oh.school?.name || oh.title,
 
       // ---------------------------------------------------------------
+      // ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+      //     Location: map() block in GET / handler
+      //
+      // WHAT THE CONFLICT WAS:
+      //   HEAD used:              // YOUR CODE (original) used:
+      //   feature/settings used:  // Veroush's CODE (original) used:
+      //   Different label + casing, same meaning.
+      //
+      // WHY HEAD WAS KEPT:
+      //   "YOUR CODE" was the phrasing already established in the integration
+      //   branch. Kept for consistency. Purely cosmetic difference.
+      //
+      // RESOLUTION:
+      //   Kept HEAD's "YOUR CODE" label. Dropped feature/settings "Veroush's CODE".
+      //
+      // OWNERSHIP:
+      //   Comment + fix by Veroush; context from Raksha's schema rename.
+      // ---------------------------------------------------------------
+
       // YOUR CODE (original) used:
       //   oh.registrations.some(r => r.userId === userId)
       //   oh.registrations.length
@@ -102,6 +140,19 @@ router.get('/', optionalAuth, async (req, res) => {
 
 // GET /openhouses/:id
 // Returns one open house by ID
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+//     Location: comment above GET /:id handler
+//
+// WHAT THE CONFLICT WAS:
+//   HEAD:             // ── Veroush's code — untouched, no relation access here ──
+//   feature/settings: // ── Veroush's CODE — untouched, no relation access here ──
+//   Casing only.
+//
+// WHY HEAD WAS KEPT: Consistent with lowercase standard on integration branch.
+// RESOLUTION: Kept HEAD. Dropped feature/settings uppercase variant.
+// OWNERSHIP: Veroush's route, unchanged by either branch.
+// ---------------------------------------------------------------
 // ── Veroush's code — untouched, no relation access here ──
 router.get('/:id', async (req, res) => {
   try {
@@ -141,6 +192,19 @@ router.get('/:id', async (req, res) => {
 //   registrationUrl  (string)  — external link
 //   isActive         (boolean) — default true
 //
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+//     Location: comment above POST / handler
+//
+// WHAT THE CONFLICT WAS:
+//   HEAD:             // ── Veroush's code — untouched, no registration relation access here ──
+//   feature/settings: // ── Veroush's CODE — untouched, no registration relation access here ──
+//   Casing only.
+//
+// WHY HEAD WAS KEPT: Same reason as above — lowercase is the established standard.
+// RESOLUTION: Kept HEAD. Dropped feature/settings uppercase variant.
+// OWNERSHIP: Veroush's route.
+// ---------------------------------------------------------------
 // ── Veroush's code — untouched, no registration relation access here ──
 router.post('/', async (req, res) => {
   try {
@@ -190,6 +254,15 @@ router.post('/', async (req, res) => {
 
 // PUT /admin/openhouses/:id
 // Updates an existing open house — send only the fields you want to change
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+//     Location: comment above PUT /:id handler
+//
+// WHAT THE CONFLICT WAS: Same casing difference — code vs CODE.
+// WHY HEAD WAS KEPT: Same reason throughout — lowercase standard.
+// RESOLUTION: Kept HEAD. Dropped feature/settings uppercase variant.
+// OWNERSHIP: Veroush's route.
+// ---------------------------------------------------------------
 // ── Veroush's code — untouched, no registration relation access here ──
 router.put('/:id', async (req, res) => {
   try {
@@ -247,6 +320,15 @@ router.put('/:id', async (req, res) => {
 // DELETE /admin/openhouses/:id
 // Deletes an open house event permanently
 // Tip: consider using PUT to set isActive: false instead of deleting
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+//     Location: comment above DELETE /:id handler
+//
+// WHAT THE CONFLICT WAS: Same casing difference — code vs CODE.
+// WHY HEAD WAS KEPT: Same reason throughout — lowercase standard.
+// RESOLUTION: Kept HEAD. Dropped feature/settings uppercase variant.
+// OWNERSHIP: Veroush's route.
+// ---------------------------------------------------------------
 // ── Veroush's code — untouched, no registration relation access here ──
 router.delete('/:id', async (req, res) => {
   try {
@@ -274,6 +356,15 @@ router.delete('/:id', async (req, res) => {
 
 // POST /openhouses/:id/register   → register the logged-in user
 // DELETE /openhouses/:id/register → unregister the logged-in user
+// ---------------------------------------------------------------
+// ⚠️  CONFLICT RESOLUTION — routes/openHouseRoutes.js
+//     Location: comment above registration route pair
+//
+// WHAT THE CONFLICT WAS: Same casing difference — code vs CODE.
+// WHY HEAD WAS KEPT: Same reason throughout — lowercase standard.
+// RESOLUTION: Kept HEAD. Dropped feature/settings uppercase variant.
+// OWNERSHIP: Veroush's routes + controller wiring.
+// ---------------------------------------------------------------
 // ── Veroush's code — untouched, handled by openHousesController ──
 router.post('/:id/register', requireAuth, ctrl.register);
 router.delete('/:id/register', requireAuth, ctrl.unregister);

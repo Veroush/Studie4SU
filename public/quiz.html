@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/quiz.css" />
+  <!-- settings.css needed for rich profile popup styles -->
+  <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
+  <link rel="stylesheet" href="css/settings.css" />
 </head>
 <body>
 
@@ -32,14 +35,37 @@
 
         <!-- Profile button (shown when logged in) -->
         <div class="profile-wrap" id="profile-btn" style="display:none">
-          <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+          <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+            <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+            <span id="profile-name-label">Profiel</span>
+          </button>
+          <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
           <div class="profile-popup" id="profile-popup">
-            <div class="popup-avatar">👤</div>
-            <div class="popup-name"  id="popup-name"></div>
-            <div class="popup-email" id="popup-email"></div>
-            <div class="popup-role"  id="popup-role"></div>
+            <div class="popup-top">
+              <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+              <div class="popup-name"  id="popup-name"></div>
+              <div class="popup-email" id="popup-email"></div>
+            </div>
             <hr class="popup-divider"/>
-            <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+            <div class="popup-actions">
+              <div class="popup-action-row">
+                <span class="popup-action-icon">🔔</span>
+                <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="popup-notif-toggle"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <a href="settings.html" class="popup-action-row popup-action-link">
+                <span class="popup-action-icon">⚙️</span>
+                <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+                <span class="popup-action-arrow">›</span>
+              </a>
+            </div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">
+              <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+            </button>
           </div>
         </div>
 
