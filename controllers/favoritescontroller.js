@@ -4,6 +4,37 @@ const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient();
 
+// ─────────────────────────────────────────────────────────────
+// BUG FIX — PrismaClientKnownRequestError P2002
+// "Unique constraint failed on FavoriteSchool_userId_schoolId_key"
+//
+// WHAT WAS HAPPENING:
+//   POST /favorites/schools (and /programs, /openhouses) threw a
+//   P2002 unique constraint error even though the upsert WHERE
+//   clause was correctly written with the compound key.
+//
+// ROOT CAUSE:
+//   The Prisma generated client was out of sync with schema.prisma.
+//   Raksha added @@unique([userId, schoolId]) to the schema and ran
+//   `npx prisma db push`, but `npx prisma generate` was NOT run
+//   afterwards. The client did not know the compound unique key name
+//   `userId_schoolId`, so the `where` clause in upsert() was
+//   silently ignored, Prisma fell through to a raw INSERT, and the
+//   DB rejected it because the row already existed.
+//
+// HOW WE FIXED IT:
+//   1. PRIMARY FIX: run `npx prisma generate` after every schema
+//      change so the client knows all compound unique key names.
+//   2. SAFETY NET: each upsert now has an explicit P2002 catch —
+//      if the record already exists we fetch and return it instead
+//      of crashing, making all three endpoints fully idempotent.
+//
+// REMINDER: after any schema.prisma change, always run BOTH:
+//   npx prisma db push
+//   npx prisma generate
+// NEVER run `npx prisma migrate dev` on this project.
+// ─────────────────────────────────────────────────────────────
+
 // ── Helper: extract user from JWT ─────────────────────────────
 function getUserFromToken(req) {
   const authHeader = req.headers.authorization || '';
@@ -63,6 +94,16 @@ async function addSchool(req, res) {
     });
     res.json(fav);
   } catch (err) {
+    // P2002 = unique constraint violation — record already exists.
+    // Safety net in case Prisma client is out of sync with schema
+    // (i.e. `npx prisma generate` was not run after `db push`).
+    // We treat this as a success: fetch the existing row and return it.
+    if (err.code === 'P2002') {
+      const existing = await prisma.favoriteSchool.findUnique({
+        where: { userId_schoolId: { userId: user.id, schoolId } },
+      });
+      return res.json(existing);
+    }
     console.error('[POST /favorites/schools]', err);
     res.status(500).json({ error: 'Failed to add favorite' });
   }
@@ -100,6 +141,13 @@ async function addProgram(req, res) {
     });
     res.json(fav);
   } catch (err) {
+    // P2002 safety net — see addSchool comment above for full explanation.
+    if (err.code === 'P2002') {
+      const existing = await prisma.favoriteProgram.findUnique({
+        where: { userId_programId: { userId: user.id, programId } },
+      });
+      return res.json(existing);
+    }
     console.error('[POST /favorites/programs]', err);
     res.status(500).json({ error: 'Failed to add favorite' });
   }
@@ -137,6 +185,13 @@ async function addOpenHouse(req, res) {
     });
     res.json(fav);
   } catch (err) {
+    // P2002 safety net — see addSchool comment above for full explanation.
+    if (err.code === 'P2002') {
+      const existing = await prisma.favoriteOpenHouse.findUnique({
+        where: { userId_openHouseId: { userId: user.id, openHouseId } },
+      });
+      return res.json(existing);
+    }
     console.error('[POST /favorites/openhouses]', err);
     res.status(500).json({ error: 'Failed to add favorite' });
   }
