@@ -2,6 +2,7 @@
 
 // ── State ─────────────────────────────────────────────────────
 let language     = localStorage.getItem('language') || 'nl';
+// Raksha: favorites now synced from DB via FavSync.loadFromDB() at boot
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = JSON.parse(localStorage.getItem('school_compare')   || '[]');
 let currentSchool = null;
@@ -603,7 +604,7 @@ function renderPage() {
       }
     </section>`;
 
-  // Reveal hero now that content is ready (removes the initial hidden state)
+  // Reveal hero now that content is ready
   const heroEl = document.getElementById('hero-section');
   if (heroEl) { heroEl.style.visibility = 'visible'; heroEl.style.animation = 'fadeIn .3s ease'; }
 
@@ -628,7 +629,7 @@ function initSlider() {
   if (!track || !viewport) return;
 
   const cards = track.querySelectorAll('.slider-card');
-  _sliderTotal = Math.floor(cards.length / 2); // real count (we doubled for loop)
+  _sliderTotal = Math.floor(cards.length / 2);
   if (_sliderTotal < 2) return;
 
   function getVisibleCount() {
@@ -655,12 +656,8 @@ function initSlider() {
   function next() { jumpTo(_sliderIndex + 1); }
   function prev() { jumpTo(_sliderIndex - 1); }
 
-  function startAuto() {
-    stopAuto();
-    _sliderTimer = setInterval(next, 3500);
-  }
-
-  function stopAuto() { clearInterval(_sliderTimer); }
+  function startAuto() { stopAuto(); _sliderTimer = setInterval(next, 3500); }
+  function stopAuto()  { clearInterval(_sliderTimer); }
 
   nextBtn?.addEventListener('click', () => { next(); startAuto(); });
   prevBtn?.addEventListener('click', () => { prev(); startAuto(); });
@@ -674,7 +671,7 @@ function initSlider() {
   startAuto();
 }
 
-// ── Fav toast ────────────────────────────────────────────────
+// ── Fav toast ─────────────────────────────────────────────────
 let _toastTimer;
 function showFavToast(added) {
   let el = document.getElementById('fav-toast');
@@ -688,7 +685,7 @@ function showFavToast(added) {
     ? (language === 'nl' ? 'Toegevoegd aan favorieten' : 'Added to favourites')
     : (language === 'nl' ? 'Verwijderd uit favorieten' : 'Removed from favourites');
   el.innerHTML = added
-    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${language === 'nl' ? 'Bekijk favorieten \u2192' : 'View favourites \u2192'}</a>`
+    ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${language === 'nl' ? 'Bekijk favorieten →' : 'View favourites →'}</a>`
     : msg;
   el.classList.add('show');
   clearTimeout(_toastTimer);
@@ -696,23 +693,24 @@ function showFavToast(added) {
 }
 
 // ── Favorite toggle ───────────────────────────────────────────
+// Raksha: uses FavSync to sync favorite to DB — localStorage updated automatically
 function toggleFavorite() {
   if (!currentSchool) return;
-  const id  = currentSchool.id;
-  const idx = favorites.indexOf(id);
-  if (idx === -1) favorites.push(id); else favorites.splice(idx, 1);
-  localStorage.setItem('fav_schools', JSON.stringify(favorites));
-  const isFav = favorites.includes(id);
-  const btn   = document.getElementById('btn-fav');
-  const tx    = T[language];
-  if (btn) {
-    btn.classList.toggle('fav-active', isFav);
-    btn.innerHTML = `${isFav ? icons.heartFill : icons.heart}<span>${isFav ? tx.removeFav : tx.addFav}</span>`;
-  }
-  showFavToast(isFav);
+  const id = currentSchool.id;
+
+  window.FavSync.toggle('schools', id).then(added => {
+    favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
+    const btn = document.getElementById('btn-fav');
+    const tx  = T[language];
+    if (btn) {
+      btn.classList.toggle('fav-active', added);
+      btn.innerHTML = `${added ? icons.heartFill : icons.heart}<span>${added ? tx.removeFav : tx.addFav}</span>`;
+    }
+    showFavToast(added);
+  });
 }
 
-// ── Compare: scroll to programs section and enter select mode ─
+// ── Compare ───────────────────────────────────────────────────
 function toggleCompare() {
   if (!currentSchool) return;
   const programs = currentSchool.programs || [];
@@ -723,23 +721,15 @@ function toggleCompare() {
     return;
   }
 
-  // Scroll to programs section
   const section = document.querySelector('.programs-section') || document.getElementById('content-section');
-  if (section) {
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Activate compare-select mode after scroll settles
   setTimeout(() => enterCompareProgramSelectMode(programs), 400);
 }
 
 function enterCompareProgramSelectMode(programs) {
-  // Remove any existing banner
   document.getElementById('compare-select-banner')?.remove();
 
-  const tx = T[language];
-
-  // Inject a sticky banner above the programs slider
   const programsSection = document.querySelector('.programs-section');
   if (!programsSection) return;
 
@@ -761,15 +751,12 @@ function enterCompareProgramSelectMode(programs) {
     </div>`;
   programsSection.insertAdjacentElement('beforebegin', banner);
 
-  // Add click listeners to every program slider card
   document.querySelectorAll('.slider-card').forEach(card => {
-    // Find program ID from the detail link inside the card
     const link = card.querySelector('a[href*="program-detail.html"]');
     if (!link) return;
     const url = new URL(link.href, location.href);
     const programId = url.searchParams.get('id');
     if (!programId) return;
-
     card.classList.add('cmp-selectable');
     card.dataset.programId = programId;
     card.addEventListener('click', _onCompareProgramCardClick);
@@ -777,7 +764,6 @@ function enterCompareProgramSelectMode(programs) {
 }
 
 function _onCompareProgramCardClick(e) {
-  // Don't intercept clicks on the "Bekijk opleiding" link itself
   if (e.target.closest('a') && !e.target.closest('.slider-card-inner > a.slider-link') === false) return;
   e.preventDefault();
 
@@ -794,7 +780,6 @@ function _onCompareProgramCardClick(e) {
     return;
   }
   if (items.length >= 3) {
-    // Full — send to compare page so user can swap one out
     window.location.href = `program-compare.html?ids=${items.join(',')}&replace=${encodeURIComponent(programId)}`;
     return;
   }
@@ -813,7 +798,6 @@ function exitCompareProgramSelectMode() {
   });
 }
 
-// Legacy — no longer needed but keep so nothing breaks if called externally
 function showComparePicker() { toggleCompare(); }
 function closeComparePicker() { exitCompareProgramSelectMode(); }
 function pickProgramForCompare(programId) {
@@ -906,12 +890,16 @@ document.addEventListener('click', () => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────
+// Raksha: load favorites from DB first so heart state is correct on render.
+// Then load the school. After school loads, check for ?compare=1 param (your feature).
 applyLanguage(language);
 initAuth();
-loadSchool().then(() => {
-  // Auto-enter compare mode if page was opened with ?compare=1
-  if (new URLSearchParams(window.location.search).get('compare') === '1') {
-    // Small delay so the slider has rendered
-    setTimeout(toggleCompare, 600);
-  }
+window.FavSync.loadFromDB().then(() => {
+  favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
+  loadSchool().then(() => {
+    // Auto-enter compare mode if page was opened with ?compare=1
+    if (new URLSearchParams(window.location.search).get('compare') === '1') {
+      setTimeout(toggleCompare, 600);
+    }
+  });
 });

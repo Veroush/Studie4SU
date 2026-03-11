@@ -46,22 +46,46 @@ const T = {
 
 /* ================================================================
    FALLBACK EVENT DATA — used when backend is unavailable
+   Raksha: stable string IDs so favorites work correctly even
+   when the API is down — IDs match the seed.js open house IDs
 ================================================================ */
 const FALLBACK_EVENTS = [
-  { id: '1', school: 'Anton de Kom Universiteit (AdeKUS)', date: '2026-03-14', time: '10:00 – 16:00', location: 'Leysweg 86, Paramaribo', description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.', registered: false },
-  { id: '2', school: 'Natuurtechnisch Instituut (NATIN)', date: '2026-03-21', time: '09:00 – 14:00', location: 'Zwartenhovenbrugstraat, Paramaribo', description: 'Bezoek onze workshops en labs en ervaar technisch onderwijs. Bekijk de ICT- en ingenieursafdelingen van dichtbij.', registered: false },
-  { id: '3', school: 'Instituut voor de Opleiding van Leraren (IOL)', date: '2026-03-28', time: '10:00 – 15:00', location: 'Dr. Sophie Redmondstraat, Paramaribo', description: 'Leer alles over de lerarenopleiding. Spreek met studenten en docenten over het vak en de toekomstmogelijkheden.', registered: false },
-  { id: '4', school: 'COVAB', date: '2026-04-11', time: '09:00 – 13:00', location: 'Leysweg, Paramaribo', description: 'Ontdek de agrarische en biologische wetenschappen. Bezoek onze onderzoekstuinen en laboratoria.', registered: false },
-  { id: '5', school: 'IMEAO', date: '2026-04-18', time: '10:00 – 15:00', location: 'Paramaribo', description: 'Informeer je over de MBO-opleidingen van IMEAO in economie en bedrijfskunde. Praat met studenten en begeleiders.', registered: false },
-  { id: '6', school: 'Polytechnical College Suriname (PTC)', date: '2026-04-25', time: '09:00 – 14:00', location: 'Meerzorgweg, Paramaribo', description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.', registered: false },
-  { id: '7', school: 'IGSR', date: '2026-05-09', time: '10:00 – 16:00', location: 'Paramaribo', description: 'Open dag van IGSR. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.', registered: false },
-  { id: '8', school: 'Anton de Kom Universiteit (AdeKUS)', date: '2026-05-23', time: '09:00 – 17:00', location: 'Leysweg 86, Paramaribo', description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.', registered: false },
+  { id: 'oh_adekus_march', school: 'Anton de Kom Universiteit (AdeKUS)', date: '2026-03-14', time: '10:00 – 16:00', location: 'Leysweg 86, Paramaribo', description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.', registered: false },
+  { id: 'oh_natin_march',  school: 'Natuurtechnisch Instituut (NATIN)',   date: '2026-03-21', time: '09:00 – 14:00', location: 'Zwartenhovenbrugstraat, Paramaribo', description: 'Bezoek onze workshops en labs en ervaar technisch onderwijs. Bekijk de ICT- en ingenieursafdelingen van dichtbij.', registered: false },
+  { id: 'oh_iol_march',    school: 'Instituut voor de Opleiding van Leraren (IOL)', date: '2026-03-28', time: '10:00 – 15:00', location: 'Dr. Sophie Redmondstraat, Paramaribo', description: 'Leer alles over de lerarenopleiding. Spreek met studenten en docenten over het vak en de toekomstmogelijkheden.', registered: false },
+  { id: 'oh_covab_april',  school: 'COVAB', date: '2026-04-11', time: '09:00 – 13:00', location: 'Leysweg, Paramaribo', description: 'Ontdek de agrarische en biologische wetenschappen. Bezoek onze onderzoekstuinen en laboratoria.', registered: false },
+  { id: 'oh_imeao_april',  school: 'IMEAO', date: '2026-04-18', time: '10:00 – 15:00', location: 'Paramaribo', description: 'Informeer je over de MBO-opleidingen van IMEAO in economie en bedrijfskunde. Praat met studenten en begeleiders.', registered: false },
+  { id: 'oh_ptc_april',    school: 'Polytechnical College Suriname (PTC)', date: '2026-04-25', time: '09:00 – 14:00', location: 'Meerzorgweg, Paramaribo', description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.', registered: false },
+  { id: 'oh_igsr_may',     school: 'IGSR', date: '2026-05-09', time: '10:00 – 16:00', location: 'Paramaribo', description: 'Open dag van IGSR. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.', registered: false },
+  { id: 'oh_adekus_may',   school: 'Anton de Kom Universiteit (AdeKUS)', date: '2026-05-23', time: '09:00 – 17:00', location: 'Leysweg 86, Paramaribo', description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.', registered: false },
 ];
+
+// Raksha: EVENTS is populated from the API (or fallback) via loadEvents()
+let EVENTS = [];
+
+// Raksha: fetches live open house data from /openhouses API
+async function loadEvents() {
+  try {
+    const res = await fetch('/openhouses');
+    if (!res.ok) throw new Error('API error');
+    const raw = await res.json();
+    EVENTS = raw.map(ev => ({
+      ...ev,
+      school: ev.school?.name || ev.school || '',
+      time:   ev.date
+        ? new Date(ev.date).toLocaleTimeString('nl-SR', { hour: '2-digit', minute: '2-digit', hour12: false })
+        : '',
+      date:   ev.date ? ev.date.slice(0, 10) : '',
+    }));
+  } catch (err) {
+    console.warn('Could not load open houses from API, using fallback data', err);
+    EVENTS = FALLBACK_EVENTS;
+  }
+}
 
 /* ================================================================
    STATE
 ================================================================ */
-let EVENTS         = [];          // populated from API (or fallback)
 let currentFilter  = 'all';
 let currentView    = 'list';
 let currentLang    = localStorage.getItem('language') || 'nl';
@@ -80,20 +104,8 @@ function getAuthHeader() {
   return token ? { 'Authorization': 'Bearer ' + token } : {};
 }
 
-
-
-function saveFavData() {
-  // Store full event objects so favorites.html can display them without an API call
-  const data = {};
-  favorites.forEach(id => {
-    const ev = EVENTS.find(e => e.id === id);
-    if (ev) data[id] = ev;
-  });
-  localStorage.setItem('fav_openhouses_data', JSON.stringify(data));
-}
-
 /* ================================================================
-   API — FETCH OPEN HOUSES
+   API — FETCH OPEN HOUSES (used by registerEvent / unregisterEvent)
 ================================================================ */
 async function fetchEvents() {
   try {
@@ -107,7 +119,7 @@ async function fetchEvents() {
     EVENTS = data.map(oh => ({
       id:          oh.id,
       school:      oh.school,
-      date:        oh.date ? oh.date.slice(0, 10) : '',   // ISO → YYYY-MM-DD
+      date:        oh.date ? oh.date.slice(0, 10) : '',
       time:        oh.time || '',
       location:    oh.location || '',
       description: oh.description || '',
@@ -123,8 +135,6 @@ async function fetchEvents() {
     registeredSet = new Set();
   }
 }
-
-
 
 /* ================================================================
    HELPERS
@@ -159,18 +169,15 @@ function getFilteredEvents() {
    GOOGLE CALENDAR
 ================================================================ */
 function addToGoogleCalendar(ev) {
-  // Parse "09:00 – 14:00" or "10:00 – 16:00" into start/end
   const timeMatch = ev.time && ev.time.match(/(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})/);
-  const dateClean = ev.date.replace(/-/g, ''); // "20260314"
+  const dateClean = ev.date.replace(/-/g, '');
 
   let startDT, endDT;
   if (timeMatch) {
-    // Build local datetime strings — Google Calendar interprets these as local time
     const toGCal = (d, t) => d + 'T' + t.replace(':', '') + '00';
     startDT = toGCal(dateClean, timeMatch[1]);
     endDT   = toGCal(dateClean, timeMatch[2]);
   } else {
-    // No parseable time — all-day event (date-only, no T suffix)
     startDT = dateClean;
     const d = new Date(ev.date + 'T00:00:00');
     d.setDate(d.getDate() + 1);
@@ -182,8 +189,6 @@ function addToGoogleCalendar(ev) {
     'Toegevoegd via Studie4SU — studie4su.sr'
   ].filter(Boolean).join('\n\n');
 
-  // NOTE: dates= must NOT be encodeURIComponent'd — the '/' separator must stay literal.
-  // The invalid &add=POPUP:1440 and &output=xml params caused "We kunnen deze afspraak niet maken."
   const calUrl = 'https://calendar.google.com/calendar/render'
     + '?action=TEMPLATE'
     + '&text='     + encodeURIComponent('Open Dag – ' + ev.school)
@@ -417,19 +422,12 @@ function setViewMode(mode) {
   render();
 }
 
-function toggleFavorite(id) {
-  const idx      = favorites.indexOf(id);
-  const justAdded = idx === -1;
-  let msg;
-  if (idx > -1) {
-    favorites.splice(idx, 1);
-    msg = t('removedFav');
-  } else {
-    favorites.push(id);
-    msg = t('addedFav');
-  }
-  localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
-  saveFavData();
+// Raksha: toggleFavorite now syncs to DB via FavSync
+async function toggleFavorite(id) {
+  const justAdded = await window.FavSync.toggle('openhouses', id);
+  favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+
+  const msg = justAdded ? t('addedFav') : t('removedFav');
   showToast(msg, 'success', justAdded);
   announce(msg);
 
@@ -437,16 +435,14 @@ function toggleFavorite(id) {
     render();
   } else {
     document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
-      const isFav = favorites.includes(id);
-      btn.classList.toggle('active', isFav);
-      btn.setAttribute('aria-pressed', String(isFav));
-      btn.setAttribute('aria-label', isFav ? t('ariaFavRemove') : t('ariaFavAdd'));
+      btn.classList.toggle('active', justAdded);
+      btn.setAttribute('aria-pressed', String(justAdded));
+      btn.setAttribute('aria-label', justAdded ? t('ariaFavRemove') : t('ariaFavAdd'));
     });
   }
 }
 
 async function registerEvent(id) {
-  // Require login
   if (!getAuthToken()) {
     showToast(t('loginRequired'), '');
     setTimeout(() => { window.location.href = 'login.html'; }, 1200);
@@ -456,7 +452,6 @@ async function registerEvent(id) {
   const ev = EVENTS.find(e => e.id === id);
   if (!ev) return;
 
-  // Optimistic UI update
   registeredSet.add(id);
   render();
 
@@ -467,21 +462,18 @@ async function registerEvent(id) {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    // Open Google Calendar for the user to save the event
     addToGoogleCalendar(ev);
 
     // Auto-favourite when registering
     if (!favorites.includes(id)) {
-      favorites.push(id);
-      localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
-      saveFavData();
+      await window.FavSync.toggle('openhouses', id);
+      favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
     }
 
     showToast(t('regSuccess'), 'success');
     announce(t('regSuccess'));
   } catch (err) {
     console.error('[registerEvent]', err);
-    // Roll back optimistic update
     registeredSet.delete(id);
     render();
     showToast(currentLang === 'nl' ? 'Aanmelden mislukt. Probeer opnieuw.' : 'Registration failed. Please try again.', '');
@@ -492,7 +484,6 @@ async function unregisterEvent(id) {
   const ev = EVENTS.find(e => e.id === id);
   if (!ev) return;
 
-  // Optimistic UI update
   registeredSet.delete(id);
   render();
 
@@ -503,7 +494,6 @@ async function unregisterEvent(id) {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    // Toast with Google Calendar deep-link so they can delete the event
     const calLink = `https://calendar.google.com/calendar/r/search?q=${encodeURIComponent('Open Dag – ' + ev.school)}`;
     const toastEl = document.getElementById('toast');
     toastEl.innerHTML = `${t('unregSuccess')} &nbsp;<a href="${calLink}" target="_blank" rel="noopener noreferrer" class="toast-fav-link">${t('calendarHint')}</a>`;
@@ -518,14 +508,11 @@ async function unregisterEvent(id) {
     announce(t('unregSuccess'));
   } catch (err) {
     console.error('[unregisterEvent]', err);
-    // Roll back optimistic update
     registeredSet.add(id);
     render();
     showToast(currentLang === 'nl' ? 'Afmelden mislukt. Probeer opnieuw.' : 'Unregister failed. Please try again.', '');
   }
 }
-
-
 
 function setLanguage(lang) {
   currentLang = lang;
@@ -590,9 +577,15 @@ document.addEventListener('click', () => {
   if (popup) popup.classList.remove('open');
 });
 
-// Init
-(async () => {
-  initAuth();
-  await fetchEvents();
-  setLanguage(currentLang);
-})();
+// ── Init ─────────────────────────────────────────────────────
+// Raksha: loadEvents() fetches from API, FavSync.loadFromDB() restores favorites from DB.
+// setLanguage() and initAuth() run first so the UI is ready before data arrives.
+setLanguage(currentLang);
+initAuth();
+Promise.all([
+  loadEvents(),
+  window.FavSync.loadFromDB(),
+]).then(() => {
+  favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+  render();
+});

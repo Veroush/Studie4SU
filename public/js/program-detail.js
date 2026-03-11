@@ -91,19 +91,12 @@ function showFavToast(added) {
 
 // ── Favorites ─────────────────────────────────────────────────
 function isProgramFav(id) {
-  try { return (JSON.parse(localStorage.getItem('fav_programs') || '[]')).includes(id); }
-  catch { return false; }
+  return window.FavSync.isFav('programs', id);
 }
 
-function toggleProgramFav(id) {
-  let favs;
-  try { favs = JSON.parse(localStorage.getItem('fav_programs') || '[]'); }
-  catch { favs = []; }
-  const idx = favs.indexOf(id);
-  if (idx === -1) favs.push(id);
-  else favs.splice(idx, 1);
-  localStorage.setItem('fav_programs', JSON.stringify(favs));
-  showFavToast(idx === -1); // idx===-1 means it was just added
+async function toggleProgramFav(id) {
+  const added = await window.FavSync.toggle('programs', id);
+  showFavToast(added);
   updateFavButton(id);
 }
 
@@ -512,4 +505,4 @@ document.documentElement.lang = currentLang;
 
 // ── Go ────────────────────────────────────────────────────────
 initAuth();
-init();
+window.FavSync.loadFromDB().then(() => init());

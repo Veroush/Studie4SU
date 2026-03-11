@@ -571,7 +571,7 @@ async function main() {
       cluster:       `TECH`,
       description:   `Niveau: master`,
       tuitionCost:   `7000`,
-      levelRequired: `Graduates with a minimum of 60% from any of the disciplines from recognized university – BE/B.tech/B.Sc, with Mathematics/statistics as one of the subjects.  Pre-College master’s program i...`,
+      levelRequired: `Graduates with a minimum of 60% from any of the disciplines from recognized university – BE/B.tech/B.Sc, with Mathematics/statistics as one of the subjects.  Pre-College master's program i...`,
       duration:      `2 years`,
     },
     {
@@ -691,7 +691,7 @@ async function main() {
       cluster:       `LAW`,
       description:   `Niveau: master`,
       tuitionCost:   `Application Fee	€ 400,- Program Tuition Fee	€ 12.500,-`,
-      levelRequired: `Degree Degree: A Bachelor’s degree, consisting of a minimum of three years University or HBO study, in law preferably. Work experience At least two (2) or more years of relevant working ex...`,
+      levelRequired: `Degree Degree: A Bachelor's degree, consisting of a minimum of three years University or HBO study, in law preferably. Work experience At least two (2) or more years of relevant working ex...`,
       duration:      `2.5 jaar`,
     },
     {
@@ -745,59 +745,142 @@ async function main() {
     console.log(`  ✅ Program: ${program.name}`);
   }
 
-  console.log('\n🎉 Done! 3 schools + 69 programs seeded.');
+  // ── Raksha: 5 extra schools needed for open houses ───────────
+  const extraSchools = [
+    {
+      id:        'school_natin',
+      name:      'Natuurtechnisch Instituut',
+      shortName: 'NATIN',
+      type:      'MBO',
+      location:  'Zwartenhovenbrugstraat, Paramaribo',
+      website:   null,
+    },
+    {
+      id:        'school_iol',
+      name:      'Instituut voor de Opleiding van Leraren',
+      shortName: 'IOL',
+      type:      'HBO',
+      location:  'Dr. Sophie Redmondstraat, Paramaribo',
+      website:   null,
+    },
+    {
+      id:        'school_covab',
+      name:      'College voor Agrarische en Biologische Wetenschappen',
+      shortName: 'COVAB',
+      type:      'HBO',
+      location:  'Leysweg, Paramaribo',
+      website:   null,
+    },
+    {
+      id:        'school_imeao',
+      name:      'Instituut voor Middelbaar Economisch en Administratief Onderwijs',
+      shortName: 'IMEAO',
+      type:      'MBO',
+      location:  'Paramaribo',
+      website:   null,
+    },
+    {
+      id:        'school_igsr',
+      name:      'Institute for Graduate Studies and Research',
+      shortName: 'IGSR',
+      type:      'HBO',
+      location:  'Paramaribo',
+      website:   null,
+    },
+  ];
 
-  // ── Open Houses ──────────────────────────────────────────────
+  for (const school of extraSchools) {
+    await prisma.school.upsert({
+      where:  { id: school.id },
+      update: school,
+      create: school,
+    });
+    console.log(`  ✅ School: ${school.shortName}`);
+  }
+
+  // ── Raksha: 8 open houses with stable string IDs ─────────────
+  // Using stable IDs (not auto-generated cuids) so favorites work
+  // correctly even when API is unavailable and FALLBACK_EVENTS is used.
   const openHouses = [
     {
-      id:          'oh_adekus_1',
-      title:       'Open Dag AdeKUS – Maart',
-      description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.',
+      id:          'oh_adekus_march',
+      title:       'Open Dag AdeKUS',
+      schoolId:    'school_adekus',
       date:        new Date('2026-03-14T10:00:00'),
       location:    'Leysweg 86, Paramaribo',
+      description: 'Ontdek alle universitaire opleidingen en spreek met docenten en studenten van AdeKUS. Rondleidingen door de campus zijn beschikbaar.',
       isOnline:    false,
       isActive:    true,
-      schoolId:    'school_adekus',
     },
     {
-      id:          'oh_ptc_1',
-      title:       'Open Dag PTC – April',
-      description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.',
-      date:        new Date('2026-04-25T09:00:00'),
-      location:    'Meerzorgweg, Paramaribo',
+      id:          'oh_natin_march',
+      title:       'Open Dag NATIN',
+      schoolId:    'school_natin',
+      date:        new Date('2026-03-21T09:00:00'),
+      location:    'Zwartenhovenbrugstraat, Paramaribo',
+      description: 'Bezoek onze workshops en labs en ervaar technisch onderwijs. Bekijk de ICT- en ingenieursafdelingen van dichtbij.',
       isOnline:    false,
       isActive:    true,
-      schoolId:    'school_ptc',
     },
     {
-      id:          'oh_fhr_1',
-      title:       'Open Dag FHR – April',
-      description: 'Informeer je over de HBO-opleidingen van FHR in business en management. Praat met studenten en begeleiders.',
+      id:          'oh_iol_march',
+      title:       'Open Dag IOL',
+      schoolId:    'school_iol',
+      date:        new Date('2026-03-28T10:00:00'),
+      location:    'Dr. Sophie Redmondstraat, Paramaribo',
+      description: 'Leer alles over de lerarenopleiding. Spreek met studenten en docenten over het vak en de toekomstmogelijkheden.',
+      isOnline:    false,
+      isActive:    true,
+    },
+    {
+      id:          'oh_covab_april',
+      title:       'Open Dag COVAB',
+      schoolId:    'school_covab',
+      date:        new Date('2026-04-11T09:00:00'),
+      location:    'Leysweg, Paramaribo',
+      description: 'Ontdek de agrarische en biologische wetenschappen. Bezoek onze onderzoekstuinen en laboratoria.',
+      isOnline:    false,
+      isActive:    true,
+    },
+    {
+      id:          'oh_imeao_april',
+      title:       'Open Dag IMEAO',
+      schoolId:    'school_imeao',
       date:        new Date('2026-04-18T10:00:00'),
       location:    'Paramaribo',
+      description: 'Informeer je over de MBO-opleidingen van IMEAO in economie en bedrijfskunde. Praat met studenten en begeleiders.',
       isOnline:    false,
       isActive:    true,
-      schoolId:    'school_fhr',
     },
     {
-      id:          'oh_adekus_2',
-      title:       'Open Dag AdeKUS – Mei',
-      description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.',
+      id:          'oh_ptc_april',
+      title:       'Open Dag PTC',
+      schoolId:    'school_ptc',
+      date:        new Date('2026-04-25T09:00:00'),
+      location:    'Meerzorgweg, Paramaribo',
+      description: 'Bekijk de technische opleidingen van PTC. Demonstraties van leerlingen in de werkplaatsen en ateliers.',
+      isOnline:    false,
+      isActive:    true,
+    },
+    {
+      id:          'oh_igsr_may',
+      title:       'Open Dag IGSR',
+      schoolId:    'school_igsr',
+      date:        new Date('2026-05-09T10:00:00'),
+      location:    'Paramaribo',
+      description: 'Open dag van IGSR. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.',
+      isOnline:    false,
+      isActive:    true,
+    },
+    {
+      id:          'oh_adekus_may',
+      title:       'Open Dag AdeKUS — Internationaal',
+      schoolId:    'school_adekus',
       date:        new Date('2026-05-23T09:00:00'),
       location:    'Leysweg 86, Paramaribo',
+      description: 'Tweede open dag van AdeKUS gericht op internationale studenten en samenwerkingsprogramma\'s.',
       isOnline:    false,
       isActive:    true,
-      schoolId:    'school_adekus',
-    },
-    {
-      id:          'oh_ptc_2',
-      title:       'Open Dag PTC – Mei',
-      description: 'Open dag van PTC. Ontmoet de studenten en docenten en leer meer over de beschikbare HBO-programma\'s.',
-      date:        new Date('2026-05-09T10:00:00'),
-      location:    'Meerzorgweg, Paramaribo',
-      isOnline:    false,
-      isActive:    true,
-      schoolId:    'school_ptc',
     },
   ];
 
@@ -807,10 +890,10 @@ async function main() {
       update: oh,
       create: oh,
     });
-    console.log(`  ✅ Open House: ${oh.title}`);
+    console.log(`  ✅ Open house: ${oh.title}`);
   }
 
-  console.log('\n🎉 Seeding complete! 3 schools + 69 programs + 5 open houses.');
+  console.log('\n🎉 Done! 8 schools + 69 programs + 8 open houses seeded.');
 }
 
 main()

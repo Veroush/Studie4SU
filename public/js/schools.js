@@ -162,10 +162,10 @@ async function fetchSchools() {
   renderGrid();
 
   try {
-    const res = await fetch('/admin/schools');
+    const res = await fetch('/schools');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    // /admin/schools returns array with _count.programs
+    // /schools returns array with _count.programs
     allSchools = data;
     isLoading = false;
     renderGrid();
@@ -320,21 +320,15 @@ function showFavToast(added) {
 }
 
 // ── Favorite toggle ───────────────────────────────────────────
-function toggleFavorite(id, btn) {
-  const idx = favorites.indexOf(id);
-  if (idx === -1) {
-    favorites.push(id);
-  } else {
-    favorites.splice(idx, 1);
-  }
-  localStorage.setItem('fav_schools', JSON.stringify(favorites));
+async function toggleFavorite(id, btn) {
+  const added = await window.FavSync.toggle('schools', id);
+  favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 
-  const isFav = favorites.includes(id);
-  showFavToast(isFav);
-  btn.classList.toggle('active', isFav);
+  showFavToast(added);
+  btn.classList.toggle('active', added);
   const path = btn.querySelector('path');
-  if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
-  btn.setAttribute('aria-label', isFav ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
+  if (path) path.setAttribute('fill', added ? 'currentColor' : 'none');
+  btn.setAttribute('aria-label', added ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
 }
 
 // ── Compare toggle (programs — triggered from program-detail.html) ────────────
@@ -494,8 +488,10 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  applyLanguage(language);  // set initial language state
-  fetchSchools();           // load schools from backend (or fallback)
-  initAuth();               // show profile button if logged in
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.FavSync.loadFromDB();
+  favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
+  applyLanguage(language);
+  fetchSchools();
+  initAuth();
 });

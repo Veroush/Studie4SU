@@ -1,0 +1,345 @@
+/* =========================================================
+   CSS VARIABLES & GLOBAL BASE
+   ========================================================= */
+:root {
+    --color-primary: #16a34a;
+    --color-primary-dark: #15803d;
+    --color-bg: #f3f5f4;
+    --color-surface: #ffffff;
+    --color-border: #e5e7eb;
+    --color-text-main: #1f2937;
+    --color-text-muted: #6b7280;
+
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 16px;
+
+    --shadow-sm: 0 2px 6px rgba(0,0,0,0.05);
+    --shadow-md: 0 10px 30px rgba(0,0,0,0.08);
+    --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
+
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* =========================================================
+   RESET EXTENSION
+   ========================================================= */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text-main);
+    line-height: 1.6;
+}
+
+/* =========================================================
+   PAGE & CONTAINERS (RESPONSIVE MAX-WIDTH)
+   ========================================================= */
+.page {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-inline: clamp(16px, 4vw, 32px);
+}
+
+.header__container,
+.hero__container,
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin-inline: auto;
+}
+
+/* =========================================================
+   HEADER & NAVIGATION
+   ========================================================= */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.header__container {
+    height: auto;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.nav {
+    display: flex;
+    gap: 32px;
+}
+
+.nav__link {
+    position: relative;
+    text-decoration: none;
+    color: #374151;
+    font-size: 14px;
+    padding: 4px 0;
+}
+
+.nav__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s var(--ease-out);
+}
+
+.nav__link:hover::after,
+.nav__link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Mobile nav collapse (CSS-only) */
+@media (max-width: 768px) {
+    .header__container {
+        flex-wrap: wrap;
+    }
+
+    .nav {
+        width: 100%;
+        justify-content: space-around;
+        padding: 12px 0;
+        border-top: 1px solid var(--color-border);
+    }
+}
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+.hero {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    padding: clamp(32px, 6vw, 56px) 0;
+}
+
+.hero__container {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    justify-content: space-between;
+    animation: hero-slide-in 0.8s var(--ease-out) both;
+}
+
+.hero__icon {
+    animation: hero-float 4s ease-in-out infinite;
+    will-change: transform;
+}
+
+@keyframes hero-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes hero-slide-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero__title {
+    font-size: clamp(22px, 3vw, 32px);
+}
+
+@media (max-width: 768px) {
+    .hero__container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hero__actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+/* =========================================================
+   MAIN LAYOUT (GRID-BASED RESPONSIVE)
+   ========================================================= */
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 356px;
+    gap: 24px;
+}
+
+.main {
+    max-width: 820px;
+    width: 100%;
+}
+
+.sidebar {
+    max-width: 356px;
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        order: 2;
+    }
+}
+
+/* =========================================================
+   CARDS (ANIMATION + INTERACTION)
+   ========================================================= */
+.card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.35s var(--ease-out),
+                box-shadow 0.35s var(--ease-out),
+                background 0.3s ease;
+    animation: fade-up 0.6s var(--ease-out) both;
+    will-change: transform, box-shadow;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.sidebar .card:hover {
+    transform: scale(1.02);
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* staggered card animation */
+.main .card:nth-child(1) { animation-delay: 0.05s; }
+.main .card:nth-child(2) { animation-delay: 0.1s; }
+.main .card:nth-child(3) { animation-delay: 0.15s; }
+.main .card:nth-child(4) { animation-delay: 0.2s; }
+
+/* =========================================================
+   PROGRAM ITEMS
+   ========================================================= */
+.program {
+    transition: border-color 0.3s var(--ease-out),
+                transform 0.3s var(--ease-out),
+                box-shadow 0.3s var(--ease-out);
+}
+
+.program:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   LIST GRID RESPONSIVENESS
+   ========================================================= */
+.list-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+.badge {
+    transition: transform 0.25s var(--ease-out);
+}
+
+.badge:hover {
+    transform: scale(1.08);
+}
+
+/* =========================================================
+   BUTTONS (ADVANCED INTERACTIONS)
+   ========================================================= */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s var(--ease-out),
+                box-shadow 0.25s var(--ease-out),
+                background 0.25s ease;
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transform: translateX(-100%);
+}
+
+.btn:hover::before {
+    transform: translateX(100%);
+    transition: transform 0.6s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.btn:focus-visible {
+    outline: 3px solid rgba(22,163,74,0.4);
+    outline-offset: 3px;
+}
+
+/* =========================================================
+   SIDEBAR ITEMS
+   ========================================================= */
+.social-item,
+.deadline {
+    transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.social-item:hover,
+.deadline:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   TYPOGRAPHY POLISH
+   ========================================================= */
+.card__title {
+    font-size: clamp(15px, 1.4vw, 18px);
+}
+
+.card__text,
+.sidebar__item,
+.list-item {
+    font-size: clamp(13px, 1.1vw, 14px);
+}
+
+/* =========================================================
+   FINAL RESPONSIVE SPACING
+   ========================================================= */
+.container {
+    margin-block: clamp(24px, 5vw, 40px);
+}

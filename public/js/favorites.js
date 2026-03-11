@@ -394,7 +394,7 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Auth / Profile — Ver's branch ──────────────────────────────────────────────
+// ── Auth / Profile ────────────────────────────────────────────────────────────
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -433,7 +433,7 @@ document.addEventListener('click', () => {
   if (popup) popup.classList.remove('open');
 });
 
-// ── Painter Animation — Val's branch ───────────────────────────────────────
+// ── Painter Animation ─────────────────────────────────────────────────────────
 function initPainterAnimation() {
   const stickman     = document.getElementById('stickman');
   const paintingParts = document.querySelectorAll('.paint');
@@ -469,7 +469,7 @@ function initPainterAnimation() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btn-nl').addEventListener('click', () => setLang('nl'));
   document.getElementById('btn-en').addEventListener('click', () => setLang('en'));
 
@@ -477,9 +477,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mobile-nav').classList.toggle('open');
   });
 
-  initAuth();         // Ver's branch — always first
+  initAuth();
+
+  // Raksha: sync favorites from DB before rendering so they survive localStorage clears
+  await window.FavSync.loadFromDB();
+  favorites.schools    = readFavs('fav_schools');
+  favorites.programs   = readFavs('fav_programs');
+  favorites.openhouses = readFavs('fav_openhouses');
+
   applyLanguage();
   updateCounts();
-  initPainterAnimation();   // Val's branch
+  initPainterAnimation();
   renderAll();
 });
