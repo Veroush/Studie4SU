@@ -65,6 +65,13 @@ const T = {
   }
 };
 
+// ── Avatar map — must match settings.js exactly ──────────────────────────────
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
 // ── State ────────────────────────────────────────────────────────────────────
 let lang      = localStorage.getItem('language') || 'nl';
 let activeTab = 'schools';
@@ -225,7 +232,7 @@ async function renderPrograms() {
   );
 
   grid.innerHTML = '';
-  results.forEach(res => {
+  results.forEach((res) => {
     const program = res.status === 'fulfilled' ? res.value : null;
     if (!program) return;
     grid.appendChild(buildProgramCard(program));
@@ -251,10 +258,10 @@ function buildProgramCard(program) {
       </button>
     </div>
     <div class="card-body">
-      ${program.cluster ? `<span class="card-type-badge">${escHtml(program.cluster)}</span>` : ''}
+      <span class="card-type-badge">${escHtml(program.cluster || '')}</span>
       <h3>${escHtml(program.name)}</h3>
-      ${program.school ? `<p class="card-meta">🏫 ${escHtml(program.school.name)}</p>` : ''}
-      ${program.duration ? `<p class="card-meta">⏱ ${escHtml(program.duration)} ${t.years}</p>` : ''}
+      ${program.school?.name ? `<p class="card-meta">🏫 ${escHtml(program.school.name)}</p>` : ''}
+      ${program.duration     ? `<p class="card-meta">⏱ ${program.duration} ${t.years}</p>`   : ''}
       <button class="btn-view" onclick="window.location.href='program-detail.html?id=${escHtml(program.id)}'">
         ${t.btnView}
       </button>
@@ -266,29 +273,28 @@ function buildProgramCard(program) {
 async function renderOpenHouses() {
   const grid  = document.getElementById('openhouses-grid');
   const empty = document.getElementById('openhouses-empty');
+  const t     = T[lang];
 
   if (favorites.openhouses.length === 0) {
     grid.innerHTML = '';
     empty.hidden   = false;
     return;
   }
-
-  let dataMap = {};
-  try { dataMap = JSON.parse(localStorage.getItem('fav_openhouses_data') || '{}'); }
-  catch { dataMap = {}; }
-
   empty.hidden   = true;
-  grid.innerHTML = '';
+  grid.innerHTML = `<p class="loading-msg">${t.loading}</p>`;
 
-  let rendered = 0;
-  favorites.openhouses.forEach(id => {
-    const ev = dataMap[id];
+  const results = await Promise.allSettled(
+    favorites.openhouses.map(id => fetch(`/openhouses/${id}`).then(r => r.ok ? r.json() : null))
+  );
+
+  grid.innerHTML = '';
+  results.forEach((res) => {
+    const ev = res.status === 'fulfilled' ? res.value : null;
     if (!ev) return;
     grid.appendChild(buildEventCard(ev));
-    rendered++;
   });
 
-  if (rendered === 0) empty.hidden = false;
+  if (!grid.hasChildNodes()) empty.hidden = false;
 }
 
 function buildEventCard(ev) {
@@ -408,14 +414,35 @@ function initAuth() {
     localStorage.removeItem('auth_token');
     return;
   }
+
   document.getElementById('login-btn').style.display      = 'none';
   document.getElementById('profile-btn').style.display    = 'flex';
   document.getElementById('mobile-login').style.display   = 'none';
   document.getElementById('mobile-profile').style.display = 'block';
-  document.getElementById('profile-name-label').textContent = payload.name  || 'Profiel';
-  document.getElementById('popup-name').textContent          = payload.name  || 'Student';
+
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Student';
+  const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+
+  document.getElementById('profile-name-label').textContent = displayName;
+  document.getElementById('popup-name').textContent          = displayName;
   document.getElementById('popup-email').textContent         = payload.email || '';
-  document.getElementById('popup-role').textContent          = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+
+  const navAv = document.getElementById('nav-avatar-display');
+  const popAv = document.getElementById('popup-avatar-lg');
+  if (navAv) navAv.textContent = avatarEmoji;
+  if (popAv) popAv.textContent = avatarEmoji;
+
+  // Notifications toggle
+  const notifToggle = document.getElementById('popup-notif-toggle');
+  if (notifToggle) {
+    notifToggle.checked = localStorage.getItem('user_notif_general') !== 'false';
+    notifToggle.addEventListener('change', () => {
+      localStorage.setItem('user_notif_general', notifToggle.checked ? 'true' : 'false');
+    });
+  }
+
+  // dark mode toggle removed — feature scrapped
 }
 
 function toggleProfilePopup(e) {
@@ -428,9 +455,12 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) {
+    popup.classList.remove('open');
+  }
 });
 
 // ── Painter Animation ─────────────────────────────────────────────────────────

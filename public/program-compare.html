@@ -12,6 +12,8 @@
   <link rel="preload" as="image" href="img/running-1.svg">
 
   <link rel="stylesheet" href="css/program-compare.css">
+  <!-- Rich popup styles (shared across all pages) -->
+  <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
 
@@ -33,14 +35,39 @@
 
         <!-- Profile button (shown when logged in) -->
         <div class="profile-wrap" id="profile-btn" style="display:none">
-          <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+          <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+            <span class="nav-avatar-ring">
+              <span id="nav-avatar-display">🎓</span>
+            </span>
+            <span id="profile-name-label">Profiel</span>
+          </button>
+          <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
           <div class="profile-popup" id="profile-popup">
-            <div class="popup-avatar">👤</div>
-            <div class="popup-name"  id="popup-name"></div>
-            <div class="popup-email" id="popup-email"></div>
-            <div class="popup-role"  id="popup-role"></div>
+            <div class="popup-top">
+              <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+              <div class="popup-name"  id="popup-name"></div>
+              <div class="popup-email" id="popup-email"></div>
+            </div>
             <hr class="popup-divider"/>
-            <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+            <div class="popup-actions">
+              <div class="popup-action-row">
+                <span class="popup-action-icon">🔔</span>
+                <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="popup-notif-toggle"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <a href="settings.html" class="popup-action-row popup-action-link">
+                <span class="popup-action-icon">⚙️</span>
+                <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+                <span class="popup-action-arrow">›</span>
+              </a>
+            </div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">
+              <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+            </button>
           </div>
         </div>
         <button class="hamburger" id="hamburger-btn" aria-label="Menu">
@@ -59,6 +86,32 @@
       <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
     </nav>
   </header>
+
+  <!--
+    AUTH FLASH FIX — placed AFTER </header> so all header elements
+    exist in the DOM when getElementById runs.
+    Prevents login-btn / "Profiel" text flickering before JS loads.
+  -->
+  <script>
+    (function () {
+      if (!localStorage.getItem('auth_token')) return;
+      document.documentElement.classList.add('is-logged-in');
+      var name = localStorage.getItem('user_display_name');
+      if (name) {
+        var nameEl = document.getElementById('profile-name-label');
+        if (nameEl) nameEl.textContent = name;
+      }
+      var AVATARS = {
+        graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+        panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+        art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+      };
+      var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+      var avatarEmoji = AVATARS[avatarId] || '🎓';
+      var navAv = document.getElementById('nav-avatar-display');
+      if (navAv) navAv.textContent = avatarEmoji;
+    })();
+  </script>
 
   <main id="main-content">
     <div class="page-wrap">

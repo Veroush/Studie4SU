@@ -6,64 +6,7 @@
   <title>Opleiding | Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/program-detail.css" />
-
-  <!--
-    ⚠️  CONFLICT RESOLUTION — public/program-detail.html
-        Location: <head> section, stylesheet / style block after program-detail.css
-
-    WHAT THE CONFLICT WAS:
-      HEAD (raksha/testing/merge) had an inline <style> block:
-        <style>
-          .btn-compare-program {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,.35);
-            background: rgba(255,255,255,.12);
-            backdrop-filter: blur(8px);
-            color: #fff;
-            font-family: 'DM Sans', sans-serif;
-            font-size: .875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .2s, border-color .2s;
-            margin-top: 8px;
-          }
-          .btn-compare-program:hover { ... }
-          .btn-compare-program.active { ... }
-        </style>
-
-      feature/settings (Veroush) had instead:
-        <!-- settings.css needed for rich profile popup styles -->
-        <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
-        <link rel="stylesheet" href="css/settings.css" />
-
-    <!--WHY feature/settings WAS KEPT:
-      1. settings.css is required on every page that uses the rich profile
-         popup (emoji avatar, display name, toggle switches, popup layout).
-         Without it the popup is completely unstyled.
-      2. The inline <style> block for .btn-compare-program is a workaround
-         that doesn't belong in HTML. Those styles should live in
-         program-detail.css — if they aren't there yet, add them there.
-      3. theme-init.js is correctly absent: dark mode was scrapped and
-         theme-init.js was deleted from the project entirely.
-
-    RESOLUTION:
-      Dropped the inline <style> block entirely.
-      Kept the settings.css <link> and both explanatory comments.
-      ACTION NEEDED: verify .btn-compare-program styles exist in
-      program-detail.css. If not, move the three rule-sets from the
-      dropped inline block into program-detail.css.
-
-    OWNERSHIP:
-      Inline <style> block (dropped): HEAD / raksha/testing/merge.
-      settings.css link (kept): Veroush / feature/settings.
-  -->
-
-  <!-- settings.css needed for rich profile popup styles -->
-  <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
+  <!-- Rich popup styles (shared across all pages) -->
   <link rel="stylesheet" href="css/settings.css" />
 </head>
 <body>
@@ -72,24 +15,31 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="index.html" class="logo">Studie<span>4SU</span></a>
+
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="schools.html">Scholen</a></li>
-        <li><a href="quiz.html">Quiz</a></li>
-        <li><a href="open-houses.html">Open Dagen</a></li>
+        <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
+        <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a></li>
+        <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+        <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
       </ul>
+
       <div class="header-right">
-        <button class="lang-btn active" id="btn-nl">NL</button>
+        <button class="lang-btn" id="btn-nl">NL</button>
         <button class="lang-btn" id="btn-en">EN</button>
+
+        <!-- Login button (shown when logged out) -->
         <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
 
-        <!-- Profile button (shown when logged in) -->
+        <!-- Profile button (shown when logged in) — rich popup pattern -->
         <div class="profile-wrap" id="profile-btn" style="display:none">
           <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
-            <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+            <span class="nav-avatar-ring">
+              <span id="nav-avatar-display">🎓</span>
+            </span>
             <span id="profile-name-label">Profiel</span>
           </button>
-          <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
+
+          <!-- Rich popup — structure matches quiz.html exactly -->
           <div class="profile-popup" id="profile-popup">
             <div class="popup-top">
               <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
@@ -119,24 +69,51 @@
           </div>
         </div>
 
-      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6"  x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
       </div>
     </div>
+
     <nav class="mobile-nav" id="mobile-nav">
-      <a href="index.html">Home</a>
-      <a href="schools.html">Scholen</a>
-      <a href="quiz.html">Quiz</a>
-      <a href="open-houses.html">Open Dagen</a>
+      <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+      <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+      <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+      <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a>
       <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
-      <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+      <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">🎓 Profiel</a>
     </nav>
   </header>
+
+  <!--
+    AUTH FLASH FIX — inline script placed AFTER </header> so all header
+    elements exist in the DOM when getElementById runs.
+    Runs before DOMContentLoaded to prevent the login-btn flash.
+  -->
+  <script>
+    (function () {
+      if (!localStorage.getItem('auth_token')) return;
+      document.documentElement.classList.add('is-logged-in');
+      var name = localStorage.getItem('user_display_name');
+      if (name) {
+        var nameEl = document.getElementById('profile-name-label');
+        if (nameEl) nameEl.textContent = name;
+      }
+      var AVATARS = {
+        graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+        panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+        art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+      };
+      var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+      var avatarEmoji = AVATARS[avatarId] || '🎓';
+      var navAv = document.getElementById('nav-avatar-display');
+      if (navAv) navAv.textContent = avatarEmoji;
+    })();
+  </script>
 
   <!-- LOADING STATE -->
   <div class="page-loading" id="page-loading">
@@ -296,7 +273,7 @@
   <footer class="site-footer">
     <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
   </footer>
-<script src="/js/favSync.js"></script>
+
   <script src="js/program-detail.js"></script>
 </body>
 </html>

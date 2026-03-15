@@ -1,3 +1,9 @@
+/* ── AUTH FLASH PREVENTION ────────────────────────────────────
+   Must stay at the very top of this file.
+──────────────────────────────────────────────────────────────── */
+.is-logged-in #login-btn   { display: none !important; }
+.is-logged-in #profile-btn { display: flex !important; }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -40,10 +46,14 @@ body {
   max-width: 1280px; margin: 0 auto; padding: 0 24px;
   height: 68px; display: flex; align-items: center;
   justify-content: space-between; gap: 16px;
+  position: relative;
 }
 .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); text-decoration: none; white-space: nowrap; }
 .logo span { color: #fff; }
-.nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-links {
+  display: flex; align-items: center; gap: 4px; list-style: none;
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
 .nav-links a { padding: 8px 14px; border-radius: 8px; color: rgba(255,255,255,.75); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s, background .2s; }
 .nav-links a:hover { color: #fff; background: rgba(255,255,255,.08); }
 .header-right { display: flex; align-items: center; gap: 10px; }
@@ -583,6 +593,7 @@ tbody td:not(:first-child) { text-align: center; }
 .pc-reset-btn:hover { border-color: var(--green-600); color: var(--green-700); }
 
 /* ─── PROFILE POPUP ─────────────────────────────────────────── */
+/* Base positioning and show/hide — settings.css overrides visuals */
 .profile-wrap { position: relative; }
 .profile-popup {
   display: none; position: absolute; top: calc(100% + 10px); right: 0;
@@ -592,10 +603,6 @@ tbody td:not(:first-child) { text-align: center; }
   animation: fadeInDown .18s ease;
 }
 .profile-popup.open { display: block; }
-.popup-avatar { font-size: 2.2rem; margin-bottom: 8px; }
-.popup-name   { font-weight: 700; font-size: 1rem; color: var(--bg-dark); font-family: 'DM Sans', sans-serif; }
-.popup-email  { font-size: .8rem; color: #6b7280; margin-top: 2px; font-family: 'DM Sans', sans-serif; word-break: break-all; }
-.popup-role   { margin-top: 6px; font-size: .78rem; font-weight: 600; color: var(--green-700); font-family: 'DM Sans', sans-serif; }
 .popup-divider { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
 .popup-logout {
   background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;

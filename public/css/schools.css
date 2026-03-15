@@ -1,3 +1,10 @@
+/* ── Auth flash prevention ───────────────────────────────────
+   Applied instantly via inline <script> in the HTML before
+   DOMContentLoaded. Logged-out users are unaffected —
+   .is-logged-in is never added for them.                      */
+.is-logged-in #login-btn   { display: none !important; }
+.is-logged-in #profile-btn { display: flex !important; }
+
 /* ─── Reset & Base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

@@ -92,6 +92,33 @@
   </nav>
 </header>
 
+<!-- Prevent auth flash: runs after header is parsed so all elements exist.
+     CSS (.is-logged-in) hides the login button instantly via the <html> class.
+     Name + avatar are set here so "Profiel" and the default 🎓 never flash.
+     Logged-out users are unaffected — nothing runs if there is no token. -->
+<script>
+  (function () {
+    if (!localStorage.getItem('auth_token')) return;
+    document.documentElement.classList.add('is-logged-in');
+
+    var name = localStorage.getItem('user_display_name');
+    if (name) {
+      var nameEl = document.getElementById('profile-name-label');
+      if (nameEl) nameEl.textContent = name;
+    }
+
+    var AVATARS = {
+      graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+      panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+      art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+    };
+    var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+    var avatarEmoji = AVATARS[avatarId] || '🎓';
+    var navAv = document.getElementById('nav-avatar-display');
+    if (navAv) navAv.textContent = avatarEmoji;
+  })();
+</script>
+
 <main class="page-container">
 
   <div class="page-title-section">

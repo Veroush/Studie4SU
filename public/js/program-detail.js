@@ -91,12 +91,19 @@ function showFavToast(added) {
 
 // ── Favorites ─────────────────────────────────────────────────
 function isProgramFav(id) {
-  return window.FavSync.isFav('programs', id);
+  try { return (JSON.parse(localStorage.getItem('fav_programs') || '[]')).includes(id); }
+  catch { return false; }
 }
 
-async function toggleProgramFav(id) {
-  const added = await window.FavSync.toggle('programs', id);
-  showFavToast(added);
+function toggleProgramFav(id) {
+  let favs;
+  try { favs = JSON.parse(localStorage.getItem('fav_programs') || '[]'); }
+  catch { favs = []; }
+  const idx = favs.indexOf(id);
+  if (idx === -1) favs.push(id);
+  else favs.splice(idx, 1);
+  localStorage.setItem('fav_programs', JSON.stringify(favs));
+  showFavToast(idx === -1);
   updateFavButton(id);
 }
 
@@ -124,18 +131,14 @@ function toggleProgramCompare(id) {
   let items = getCompareItems();
   const idx = items.indexOf(id);
   if (idx === -1) {
-    // Adding to compare
     if (items.length >= 3) {
-      // List is full — go to compare page so user can swap one out
       window.location.href = `program-compare.html?ids=${items.join(',')}&replace=${encodeURIComponent(id)}`;
       return;
     }
     items.push(id);
     localStorage.setItem('program_compare', JSON.stringify(items));
-    // Navigate immediately to compare page
     window.location.href = `program-compare.html?ids=${items.join(',')}`;
   } else {
-    // Removing from compare — stay on page, just update button
     items.splice(idx, 1);
     localStorage.setItem('program_compare', JSON.stringify(items));
     updateCompareButton(id);
@@ -176,7 +179,6 @@ function showCompareToast(added, items) {
   _cmpToastTimer = setTimeout(() => el.classList.remove('show'), 3500);
 }
 
-
 const CLUSTER_LABELS = {
   nl: { TECH: 'Technologie', MED: 'Gezondheidszorg', BUS: 'Economie & Business',
         SOC: 'Sociale Wetenschappen', EDU: 'Onderwijs', SCI: 'Wetenschap', LAW: 'Recht' },
@@ -197,12 +199,10 @@ function show(id)  { const el = document.getElementById(id); if (el) { el.hidden
 function hide(id)  { const el = document.getElementById(id); if (el) { el.hidden = true; el.style.setProperty('display', 'none', 'important'); } }
 function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
-// ── Get program ID from URL ───────────────────────────────────
 function getProgramId() {
   return new URLSearchParams(window.location.search).get('id');
 }
 
-// ── Show error state ──────────────────────────────────────────
 function showError(title, msg) {
   hide('page-loading');
   hide('main-content');
@@ -211,16 +211,21 @@ function showError(title, msg) {
   show('page-error');
 }
 
-// ── Render the page with program data ─────────────────────────
+const CLUSTER_IMAGES = {
+  TECH: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=80',
+  MED:  'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=1200&q=80',
+  BUS:  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
+  SOC:  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80',
+  EDU:  'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80',
+  SCI:  'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&q=80',
+  LAW:  'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80',
+};
+
+// ── Render ────────────────────────────────────────────────────
 function renderProgram(program, school) {
-
-  // Ensure error state is hidden
   hide('page-error');
-
-  // ── Page title
   document.title = `${program.name} | Studie4SU`;
 
-  // ── Breadcrumb
   const schoolUrl = school
     ? `school-detail.html?id=${encodeURIComponent(school.id)}`
     : 'schools.html';
@@ -233,42 +238,39 @@ function renderProgram(program, school) {
   setText('bc-program', program.name);
   setText('bc-schools', t('bcSchools'));
 
-  // ── Back link
   const backLink = document.getElementById('back-link');
   if (backLink) {
     backLink.href = schoolUrl;
     setText('back-label', t('backLabel'));
   }
 
-  // ── Cluster tag
   const clusterTag = document.getElementById('cluster-tag');
   if (clusterTag) {
     clusterTag.textContent = clusterLabel(program.cluster);
     clusterTag.setAttribute('data-cluster', program.cluster || '');
   }
 
-  // ── Hero
+  const heroBgUrl = CLUSTER_IMAGES[program.cluster] || '';
+  if (heroBgUrl) {
+    document.querySelector('.hero').style.setProperty('--hero-bg-img', `url('${heroBgUrl}')`);
+  }
+
   setText('program-name', program.name);
   setText('school-name', school?.name || '—');
 
-  // ── Favorite button — button is in HTML, just sync its state
   updateFavButton(program.id);
   document.getElementById('btn-fav-program')
     .addEventListener('click', () => toggleProgramFav(program.id));
 
-  // ── Compare button
   updateCompareButton(program.id);
   const cmpBtn = document.getElementById('btn-compare-program');
   if (cmpBtn) cmpBtn.addEventListener('click', () => toggleProgramCompare(program.id));
 
-  // Duration pill
   if (program.duration) {
     setText('duration-val', program.duration);
     show('meta-duration');
   }
 
-  // Level pill (stored in description as "Niveau: bachelor")
-  // We also check if levelRequired has a short summary
   const levelMatch = program.description?.match(/Niveau:\s*([^\|]+)/i);
   const levelText  = levelMatch ? levelMatch[1].trim() : null;
   if (levelText) {
@@ -276,13 +278,11 @@ function renderProgram(program, school) {
     show('meta-level');
   }
 
-  // Cost pill
   if (program.tuitionCost) {
     setText('cost-val', program.tuitionCost);
     show('meta-cost');
   }
 
-  // ── CTA button
   if (school?.website) {
     const btnWebsite = document.getElementById('btn-website');
     if (btnWebsite) {
@@ -292,14 +292,9 @@ function renderProgram(program, school) {
     }
   }
 
-  // ── Description card
-  // description field contains "Vakkenpakket: ... | Niveau: ..."
-  // Show just the vakkenpakket part, or full description
   let descText = program.description;
   if (descText) {
-    // Strip the "Niveau: X" suffix added by the seed
     descText = descText.replace(/\s*\|\s*Niveau:[^|]*/i, '').trim();
-    // Also strip "Vakkenpakket: " prefix for cleaner display
     descText = descText.replace(/^Vakkenpakket:\s*/i, '').trim();
     if (descText) {
       setText('description-val', descText);
@@ -308,7 +303,6 @@ function renderProgram(program, school) {
     }
   }
 
-  // ── Admission requirements card
   if (program.levelRequired) {
     const admText = program.levelRequired.endsWith('...')
       ? program.levelRequired.slice(0, -3) + '\n(Zie schoolwebsite voor volledige toelatingseisen)'
@@ -318,7 +312,6 @@ function renderProgram(program, school) {
     show('card-admission');
   }
 
-  // ── Career options card
   if (program.careers) {
     const careersContainer = document.getElementById('careers-val');
     if (careersContainer) {
@@ -333,9 +326,8 @@ function renderProgram(program, school) {
     }
   }
 
-  // ── Duration & Schedule card
   const scheduleContainer = document.getElementById('schedule-val');
-  if (scheduleContainer && (program.duration)) {
+  if (scheduleContainer && program.duration) {
     const rows = [];
     if (program.duration) {
       rows.push({ icon: clockSvg(), label: `${t('duration')}: ${program.duration}` });
@@ -349,7 +341,6 @@ function renderProgram(program, school) {
     }
   }
 
-  // ── Tuition card
   if (program.tuitionCost) {
     setText('tuition-val', program.tuitionCost);
     setText('lbl-tuition', t('labelTuition'));
@@ -357,14 +348,13 @@ function renderProgram(program, school) {
     show('card-tuition');
   }
 
-  // ── School info card
   const schoolInfoContainer = document.getElementById('school-info-val');
   if (schoolInfoContainer && school) {
     const rows = [];
-    if (school.name)     rows.push({ icon: schoolSvg(),    text: school.name });
-    if (school.type)     rows.push({ icon: levelSvg(),     text: school.type });
-    if (school.location) rows.push({ icon: pinSvg(),       text: school.location });
-    if (school.website)  rows.push({ icon: linkSvg(),      text: school.website, isLink: true });
+    if (school.name)     rows.push({ icon: schoolSvg(), text: school.name });
+    if (school.type)     rows.push({ icon: levelSvg(),  text: school.type });
+    if (school.location) rows.push({ icon: pinSvg(),    text: school.location });
+    if (school.website)  rows.push({ icon: linkSvg(),   text: school.website, isLink: true });
 
     schoolInfoContainer.innerHTML = rows.map(r =>
       `<div class="school-info-row">
@@ -388,7 +378,6 @@ function renderProgram(program, school) {
     }
   }
 
-  // ── Reveal
   hide('page-loading');
   show('main-content');
 }
@@ -420,64 +409,70 @@ async function init() {
   }
 
   try {
-    // Fetch program with school included
     const res = await fetch(`/programs/${encodeURIComponent(programId)}`);
-
     if (!res.ok) {
       showError(t('errorTitle'), t('errorMsg'));
       return;
     }
-
     const program = await res.json();
-
-    // school may be nested as program.school
     const school = program.school || null;
-
     renderProgram(program, school);
-
   } catch {
     showError(t('errorTitle'), t('errorMsg'));
   }
 }
 
-// ── Auth / Profile popup ──────────────────────────────────────
-function decodeToken(token) {
-  try { return JSON.parse(atob(token.split('.')[1])); }
-  catch { return null; }
-}
+// ── Auth / Rich profile popup ─────────────────────────────────
 
-/* Avatar emoji map — must match settings.js exactly */
+// Canonical avatar map — must match settings.js exactly.
+// Default fallback key: 'graduate'
 const AVATARS_MAP = {
   graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
   panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
   art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
 };
 
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+
 function initAuth() {
   const token = localStorage.getItem('auth_token');
   if (!token) return;
+
   const payload = decodeToken(token);
   if (!payload || payload.exp * 1000 < Date.now()) {
     localStorage.removeItem('auth_token');
     return;
   }
+
+  // Show profile button, hide login button
+  // (CSS .is-logged-in rules handle the flash prevention;
+  //  these lines sync the full state once JS has fully loaded)
   document.getElementById('login-btn').style.display      = 'none';
   document.getElementById('profile-btn').style.display    = 'flex';
   document.getElementById('mobile-login').style.display   = 'none';
   document.getElementById('mobile-profile').style.display = 'block';
 
+  // Display name — prefer localStorage value set in settings.html
   const displayName = localStorage.getItem('user_display_name') || payload.name || 'Profiel';
+  document.getElementById('profile-name-label').textContent = displayName;
+
+  // Popup name & email from JWT
+  document.getElementById('popup-name').textContent  = payload.name  || 'Student';
+  document.getElementById('popup-email').textContent = payload.email || '';
+
+  // Avatar — read from localStorage, fall back to 'graduate'
   const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
   const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+  document.getElementById('nav-avatar-display').textContent = avatarEmoji;
+  document.getElementById('popup-avatar-lg').textContent    = avatarEmoji;
 
-  document.getElementById('profile-name-label').textContent = displayName;
-  document.getElementById('popup-name').textContent          = displayName;
-  document.getElementById('popup-email').textContent         = payload.email || '';
-  const navAv = document.getElementById('nav-avatar-display');
-  const popAv = document.getElementById('popup-avatar-lg');
-  if (navAv) navAv.textContent = avatarEmoji;
-  if (popAv) popAv.textContent = avatarEmoji;
+  // NOTE: popup-role element has been removed from the rich popup HTML.
+  // Role display is no longer shown in the popup per the new design standard.
 
+  // Notifications toggle — sync with localStorage
   const notifToggle = document.getElementById('popup-notif-toggle');
   if (notifToggle) {
     notifToggle.checked = localStorage.getItem('user_notif_general') === 'true';
@@ -497,19 +492,30 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+// Click-outside handler — closes popup only when clicking outside
+// the entire profile-wrap (button + popup together).
+// FIX: old version used `document.addEventListener('click', ...)` with no
+// contains() check, so it closed the popup on ANY click including inside it.
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('profile-btn');
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  if (popup && wrap && !wrap.contains(e.target)) {
+    popup.classList.remove('open');
+  }
 });
 
 // ── Language switching ────────────────────────────────────────
 function setLanguage(lang) {
   currentLang = lang;
   localStorage.setItem('language', lang);
+
+  document.querySelectorAll('[data-nl]').forEach(el => {
+    el.textContent = el.dataset[lang] || el.textContent;
+  });
+
   document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
   document.documentElement.lang = lang;
-  // Re-run init to re-render all translated labels
   init();
 }
 
@@ -521,11 +527,11 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
   document.getElementById('mobile-nav').classList.toggle('open');
 });
 
-// ── Set initial lang button state ────────────────────────────
+// ── Set initial lang button state ─────────────────────────────
 document.getElementById('btn-nl').classList.toggle('active', currentLang === 'nl');
 document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
 document.documentElement.lang = currentLang;
 
 // ── Go ────────────────────────────────────────────────────────
 initAuth();
-window.FavSync.loadFromDB().then(() => init());
+init();

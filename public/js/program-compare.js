@@ -644,6 +644,13 @@ function getIdsFromUrl() {
 /* ════════════════════════════════════════════════════════════
    AUTH
 ════════════════════════════════════════════════════════════ */
+/* Avatar emoji map — matches settings.js and all other pages */
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
 function decodeToken(token) {
   try { return JSON.parse(atob(token.split('.')[1])); }
   catch { return null; }
@@ -657,22 +664,42 @@ function initAuth() {
     localStorage.removeItem('auth_token');
     return;
   }
-  const loginBtn   = document.getElementById('login-btn');
-  const profileBtn = document.getElementById('profile-btn');
+  const loginBtn      = document.getElementById('login-btn');
+  const profileBtn    = document.getElementById('profile-btn');
   const mobileLogin   = document.getElementById('mobile-login');
   const mobileProfile = document.getElementById('mobile-profile');
-  if (loginBtn)    loginBtn.style.display    = 'none';
-  if (profileBtn)  profileBtn.style.display  = 'flex';
-  if (mobileLogin)    mobileLogin.style.display    = 'none';
-  if (mobileProfile)  mobileProfile.style.display  = 'block';
+  if (loginBtn)      loginBtn.style.display      = 'none';
+  if (profileBtn)    profileBtn.style.display    = 'flex';
+  if (mobileLogin)   mobileLogin.style.display   = 'none';
+  if (mobileProfile) mobileProfile.style.display = 'block';
+
+  // Display name — prefer localStorage value set in settings.html
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Profiel';
   const nameLabel = document.getElementById('profile-name-label');
+  if (nameLabel) nameLabel.textContent = displayName;
+
+  // Popup name & email
   const popupName  = document.getElementById('popup-name');
   const popupEmail = document.getElementById('popup-email');
-  const popupRole  = document.getElementById('popup-role');
-  if (nameLabel)  nameLabel.textContent  = payload.name  || 'Profiel';
   if (popupName)  popupName.textContent  = payload.name  || 'Student';
   if (popupEmail) popupEmail.textContent = payload.email || '';
-  if (popupRole)  popupRole.textContent  = payload.role === 'admin' ? '🛡️ Admin' : '🎓 Student';
+
+  // Avatar — read from localStorage, fall back to 'graduate'
+  const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+  const navAv = document.getElementById('nav-avatar-display');
+  const popAv = document.getElementById('popup-avatar-lg');
+  if (navAv) navAv.textContent = avatarEmoji;
+  if (popAv) popAv.textContent = avatarEmoji;
+
+  // Notifications toggle — sync with localStorage
+  const notifToggle = document.getElementById('popup-notif-toggle');
+  if (notifToggle) {
+    notifToggle.checked = localStorage.getItem('user_notif_general') === 'true';
+    notifToggle.addEventListener('change', () => {
+      localStorage.setItem('user_notif_general', notifToggle.checked);
+    });
+  }
 }
 
 function toggleProfilePopup(e) {
@@ -685,8 +712,13 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
-  document.getElementById('profile-popup')?.classList.remove('open');
+// Click-outside: closes popup only when clicking outside the profile-wrap
+document.addEventListener('click', (e) => {
+  const wrap  = document.getElementById('profile-btn');
+  const popup = document.getElementById('profile-popup');
+  if (popup && wrap && !wrap.contains(e.target)) {
+    popup.classList.remove('open');
+  }
 });
 
 /* ════════════════════════════════════════════════════════════

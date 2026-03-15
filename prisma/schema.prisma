@@ -156,7 +156,7 @@ model PasswordResetToken {
 
 // Raksha: introspected from real DB — do not remove
 model OpenHouseRegistration {
-  id          String    @id
+  id          String    @id @default(cuid())
   userId      Int
   openHouseId String
   createdAt   DateTime  @default(now())

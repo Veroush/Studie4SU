@@ -13,7 +13,7 @@ exports.getAll = async (req, res) => {
       orderBy: { date: "asc" },
       include: {
         school: { select: { name: true, shortName: true } },
-        registrations: { select: { userId: true } },
+        OpenHouseRegistration: { select: { userId: true } },
       },
     });
 
@@ -29,9 +29,9 @@ exports.getAll = async (req, res) => {
       isOnline:    oh.isOnline,
       school:      oh.school?.shortName || oh.school?.name || oh.title,
       registered:  userId
-        ? oh.registrations.some((r) => r.userId === userId)
+        ? oh.OpenHouseRegistration.some((r) => r.userId === userId)
         : false,
-      registrationCount: oh.registrations.length,
+      registrationCount: oh.OpenHouseRegistration.length,
     }));
 
     res.json(data);
