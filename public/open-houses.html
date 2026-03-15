@@ -41,7 +41,7 @@
         <!-- Profile button (shown when logged in) -->
         <div class="profile-wrap" id="profile-btn" style="display:none">
           <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
-            <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+            <span class="nav-avatar-ring"><span id="nav-avatar-display">🎓</span></span>
             <span id="profile-name-label">Profiel</span>
           </button>
           <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
@@ -93,6 +93,28 @@
       <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
     </nav>
   </header>
+
+  <!-- Prevent auth flash: runs after header is parsed so all elements exist. -->
+  <script>
+    (function () {
+      if (!localStorage.getItem('auth_token')) return;
+      document.documentElement.classList.add('is-logged-in');
+      var name = localStorage.getItem('user_display_name');
+      if (name) {
+        var nameEl = document.getElementById('profile-name-label');
+        if (nameEl) nameEl.textContent = name;
+      }
+      var AVATARS = {
+        graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+        panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+        art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+      };
+      var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+      var avatarEmoji = AVATARS[avatarId] || '🎓';
+      var navAv = document.getElementById('nav-avatar-display');
+      if (navAv) navAv.textContent = avatarEmoji;
+    })();
+  </script>
 
   <div class="page-wrapper">
 

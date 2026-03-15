@@ -238,6 +238,34 @@ const SVG = {
 function heartIcons() { return SVG.heartOutline + SVG.heartFilled; }
 
 /* ================================================================
+   SCHOOL HEADER IMAGES
+   One image per school — card header background.
+   Keyed by exact school name strings from FALLBACK_EVENTS / API.
+   Falls back to green gradient if no match.
+================================================================ */
+const SCHOOL_IMAGES = {
+  // picsum.photos IDs are stable and always load — no API key needed
+  'Anton de Kom Universiteit (AdeKUS)':           'https://picsum.photos/id/1067/800/400',  // campus/building
+  'Natuurtechnisch Instituut (NATIN)':             'https://picsum.photos/id/0/800/400',     // tech/electronics
+  'Instituut voor de Opleiding van Leraren (IOL)': 'https://picsum.photos/id/20/800/400',    // classroom/education
+  'COVAB':                                         'https://picsum.photos/id/145/800/400',   // nature/agriculture
+  'IMEAO':                                         'https://picsum.photos/id/1060/800/400',  // business/office
+  'Polytechnical College Suriname (PTC)':          'https://picsum.photos/id/119/800/400',   // industrial/workshop
+  'IGSR':                                          'https://picsum.photos/id/1031/800/400',  // college building
+  'FHR':                                           'https://picsum.photos/id/305/800/400',   // healthcare/medical
+};
+
+function getSchoolImage(schoolName) {
+  if (!schoolName) return null;
+  if (SCHOOL_IMAGES[schoolName]) return SCHOOL_IMAGES[schoolName];
+  // Partial match for API names that may differ slightly
+  const key = Object.keys(SCHOOL_IMAGES).find(k =>
+    schoolName.toLowerCase().includes(k.split(' ')[0].toLowerCase())
+  );
+  return key ? SCHOOL_IMAGES[key] : null;
+}
+
+/* ================================================================
    RENDER — LIST VIEW
 ================================================================ */
 function renderListView(events) {
@@ -245,9 +273,11 @@ function renderListView(events) {
   container.innerHTML = events.map(ev => {
     const isFav = favorites.includes(ev.id);
     const isReg = registeredSet.has(ev.id);
+    const img   = getSchoolImage(ev.school);
+    const headerStyle = img ? ` style="background-image:url('${img}')"` : '';
     return `
     <article class="event-card" role="listitem">
-      <div class="event-card-header">
+      <div class="event-card-header"${headerStyle}>
         <button class="fav-btn ${isFav ? 'active' : ''}"
                 data-event-id="${ev.id}"
                 data-fav="list"
@@ -390,6 +420,7 @@ function render() {
     listEl.style.display = 'grid';
     calEl.style.display  = 'none';
     renderListView(events);
+    animateCards();
   } else {
     listEl.style.display = 'none';
     calEl.style.display  = 'block';
@@ -402,6 +433,28 @@ function render() {
 /* ================================================================
    INTERACTIONS (Filters, View, Favs, Register, Lang)
 ================================================================ */
+/* ================================================================
+   CARD ANIMATIONS — flip in from alternating sides via IntersectionObserver
+================================================================ */
+function animateCards() {
+  const cards = document.querySelectorAll('#list-view .event-card');
+  cards.forEach((card, i) => {
+    // Mark right-origin cards before observing
+    if (i % 2 !== 0) card.classList.add('card-from-right');
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('card-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  cards.forEach(card => observer.observe(card));
+}
+
 function setFilter(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -424,22 +477,34 @@ function setViewMode(mode) {
 
 // Raksha: toggleFavorite now syncs to DB via FavSync
 async function toggleFavorite(id) {
-  const justAdded = await window.FavSync.toggle('openhouses', id);
-  favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+  // Instant UI update — don't wait for DB
+  const wasAdded = !favorites.includes(id);
+  if (wasAdded) {
+    favorites.push(id);
+    localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
+  } else {
+    favorites = favorites.filter(f => f !== id);
+    localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
+  }
 
-  const msg = justAdded ? t('addedFav') : t('removedFav');
-  showToast(msg, 'success', justAdded);
-  announce(msg);
-
+  // Update heart buttons immediately
   if (currentFilter === 'saved') {
     render();
   } else {
     document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
-      btn.classList.toggle('active', justAdded);
-      btn.setAttribute('aria-pressed', String(justAdded));
-      btn.setAttribute('aria-label', justAdded ? t('ariaFavRemove') : t('ariaFavAdd'));
+      btn.classList.toggle('active', wasAdded);
+      btn.setAttribute('aria-pressed', String(wasAdded));
+      btn.setAttribute('aria-label', wasAdded ? t('ariaFavRemove') : t('ariaFavAdd'));
     });
   }
+
+  const msg = wasAdded ? t('addedFav') : t('removedFav');
+  showToast(msg, 'success', wasAdded);
+  announce(msg);
+
+  // Sync to DB in background
+  await window.FavSync.toggle('openhouses', id);
+  favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
 }
 
 async function registerEvent(id) {
@@ -593,9 +658,10 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) popup.classList.remove('open');
 });
 
 // ── Init ─────────────────────────────────────────────────────
