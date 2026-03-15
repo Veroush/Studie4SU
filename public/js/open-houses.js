@@ -69,14 +69,39 @@ async function loadEvents() {
     const res = await fetch('/openhouses');
     if (!res.ok) throw new Error('API error');
     const raw = await res.json();
-    EVENTS = raw.map(ev => ({
-      ...ev,
-      school: ev.school?.name || ev.school || '',
-      time:   ev.date
-        ? new Date(ev.date).toLocaleTimeString('nl-SR', { hour: '2-digit', minute: '2-digit', hour12: false })
-        : '',
-      date:   ev.date ? ev.date.slice(0, 10) : '',
-    }));
+    EVENTS = raw.map(ev => {
+      // Extract date and time by slicing the ISO string directly.
+      // Never use new Date() on a UTC ISO string — it shifts the date in UTC-3 (Suriname).
+      // ISO format: "2026-05-08T03:00:00.000Z"
+      //              0123456789012345
+      let dateStr = '';
+      let timeStr = '';
+      if (ev.date) {
+        dateStr = ev.date.slice(0, 10); // "2026-05-08"
+        const rawTime = ev.date.slice(11, 16); // "03:00" (UTC time from DB)
+        // Convert UTC time to Suriname local time (UTC-3)
+        if (rawTime && rawTime !== '00:00') {
+          const [hUtc, mUtc] = rawTime.split(':').map(Number);
+          let totalMins = hUtc * 60 + mUtc - 180; // subtract 3 hours for UTC-3
+          if (totalMins < 0) {
+            totalMins += 1440; // wrap around midnight
+            // Date also shifts back one day
+            const [y, mo, d] = dateStr.split('-').map(Number);
+            const dt = new Date(y, mo - 1, d - 1);
+            dateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+          }
+          const hLocal = Math.floor(totalMins / 60);
+          const mLocal = totalMins % 60;
+          timeStr = String(hLocal).padStart(2, '0') + ':' + String(mLocal).padStart(2, '0');
+        }
+      }
+      return {
+        ...ev,
+        school: ev.school?.name || ev.school || '',
+        time:   timeStr,
+        date:   dateStr,
+      };
+    });
   } catch (err) {
     console.warn('Could not load open houses from API, using fallback data', err);
     EVENTS = FALLBACK_EVENTS;
@@ -142,16 +167,16 @@ async function fetchEvents() {
 function t(key) { return T[currentLang][key] || key; }
 
 function getMonthName(dateStr, short = false) {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + 'T00:00:00'); // local time, not UTC
   return short
     ? T[currentLang].monthsShort[d.getMonth()]
     : T[currentLang].months[d.getMonth()];
 }
 
-function getDay(dateStr) { return new Date(dateStr).getDate(); }
+function getDay(dateStr) { return new Date(dateStr + 'T00:00:00').getDate(); }
 
 function isUpcoming(dateStr) {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + 'T00:00:00'); // local time, not UTC
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return d >= today;
@@ -169,19 +194,40 @@ function getFilteredEvents() {
    GOOGLE CALENDAR
 ================================================================ */
 function addToGoogleCalendar(ev) {
-  const timeMatch = ev.time && ev.time.match(/(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})/);
-  const dateClean = ev.date.replace(/-/g, '');
+  // Build Google Calendar datetime string: YYYYMMDDTHHMMSS (local time, no Z)
+  const toGCal = (dateStr, timeStr) => dateStr.replace(/-/g, '') + 'T' + timeStr.replace(':', '') + '00';
+
+  // Add HH:MM + minutes, returns HH:MM string
+  const addMinutes = (timeStr, mins) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    const total = h * 60 + m + mins;
+    return String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+  };
+
+  // Try to match a time range: "10:00 – 16:00" or "10:00 - 16:00"
+  const rangeMatch = ev.time && ev.time.match(/(\d{2}:\d{2})\s*[–—-]\s*(\d{2}:\d{2})/);
+  // Try to match a single start time: "10:00"
+  const singleMatch = !rangeMatch && ev.time && ev.time.match(/(\d{2}:\d{2})/);
 
   let startDT, endDT;
-  if (timeMatch) {
-    const toGCal = (d, t) => d + 'T' + t.replace(':', '') + '00';
-    startDT = toGCal(dateClean, timeMatch[1]);
-    endDT   = toGCal(dateClean, timeMatch[2]);
+  if (rangeMatch) {
+    // Has explicit start and end time
+    startDT = toGCal(ev.date, rangeMatch[1]);
+    endDT   = toGCal(ev.date, rangeMatch[2]);
+  } else if (singleMatch) {
+    // Has only start time — default duration 1 hour
+    const startTime = singleMatch[1];
+    const endTime   = addMinutes(startTime, 60);
+    startDT = toGCal(ev.date, startTime);
+    endDT   = toGCal(ev.date, endTime);
   } else {
-    startDT = dateClean;
-    const d = new Date(ev.date + 'T00:00:00');
-    d.setDate(d.getDate() + 1);
-    endDT = d.toISOString().slice(0, 10).replace(/-/g, '');
+    // No time at all — all-day event (Google Calendar format: YYYYMMDD/YYYYMMDD+1)
+    const [y, mo, d] = ev.date.split('-').map(Number);
+    const next = new Date(y, mo - 1, d + 1);
+    const pad  = n => String(n).padStart(2, '0');
+    const nextStr = `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`;
+    startDT = ev.date.replace(/-/g, '');
+    endDT   = nextStr;
   }
 
   const details = [
@@ -244,15 +290,15 @@ function heartIcons() { return SVG.heartOutline + SVG.heartFilled; }
    Falls back to green gradient if no match.
 ================================================================ */
 const SCHOOL_IMAGES = {
-  // picsum.photos IDs are stable and always load — no API key needed
-  'Anton de Kom Universiteit (AdeKUS)':           'https://picsum.photos/id/1067/800/400',  // campus/building
-  'Natuurtechnisch Instituut (NATIN)':             'https://picsum.photos/id/0/800/400',     // tech/electronics
-  'Instituut voor de Opleiding van Leraren (IOL)': 'https://picsum.photos/id/20/800/400',    // classroom/education
-  'COVAB':                                         'https://picsum.photos/id/145/800/400',   // nature/agriculture
-  'IMEAO':                                         'https://picsum.photos/id/1060/800/400',  // business/office
-  'Polytechnical College Suriname (PTC)':          'https://picsum.photos/id/119/800/400',   // industrial/workshop
-  'IGSR':                                          'https://picsum.photos/id/1031/800/400',  // college building
-  'FHR':                                           'https://picsum.photos/id/305/800/400',   // healthcare/medical
+  // Unsplash Source URLs — reliable, no API key needed, always load
+  'Anton de Kom Universiteit (AdeKUS)':           'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',  // university campus
+  'Natuurtechnisch Instituut (NATIN)':             'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',  // tech/electronics lab
+  'Instituut voor de Opleiding van Leraren (IOL)': 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',  // classroom/education
+  'COVAB':                                         'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',  // nature/agriculture
+  'IMEAO':                                         'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',  // business/office
+  'Polytechnical College Suriname (PTC)':          'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',  // industrial/workshop
+  'IGSR':                                          'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',  // college building
+  'FHR':                                           'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',  // healthcare/medical
 };
 
 function getSchoolImage(schoolName) {
@@ -425,6 +471,7 @@ function render() {
     listEl.style.display = 'none';
     calEl.style.display  = 'block';
     renderCalendarView(events);
+    animateCalendarRows();
   }
 
   announce(`${events.length} ${currentLang === 'nl' ? 'evenementen' : 'events'}`);
@@ -455,6 +502,27 @@ function animateCards() {
   cards.forEach(card => observer.observe(card));
 }
 
+/* ================================================================
+   CALENDAR ROW ANIMATIONS — slide in from alternating sides via IntersectionObserver
+================================================================ */
+function animateCalendarRows() {
+  const rows = document.querySelectorAll('#calendar-view .cal-event-row');
+  rows.forEach((row, i) => {
+    if (i % 2 !== 0) row.classList.add('cal-row-from-right');
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('cal-row-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  rows.forEach(row => observer.observe(row));
+}
+
 function setFilter(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -477,34 +545,73 @@ function setViewMode(mode) {
 
 // Raksha: toggleFavorite now syncs to DB via FavSync
 async function toggleFavorite(id) {
-  // Instant UI update — don't wait for DB
+  // ── 1. Update in-memory state immediately (no DB wait) ──────────────────
   const wasAdded = !favorites.includes(id);
   if (wasAdded) {
     favorites.push(id);
-    localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
   } else {
     favorites = favorites.filter(f => f !== id);
-    localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
   }
+  localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
 
-  // Update heart buttons immediately
-  if (currentFilter === 'saved') {
-    render();
-  } else {
+  // ── 2. Update every heart button for this event instantly ───────────────
+  document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
+    btn.classList.toggle('active', wasAdded);
+    btn.setAttribute('aria-pressed', String(wasAdded));
+    btn.setAttribute('aria-label', wasAdded ? t('ariaFavRemove') : t('ariaFavAdd'));
+  });
+
+  // ── 3. If in Saved filter and unfavoriting — remove card from DOM instantly
+  if (currentFilter === 'saved' && !wasAdded) {
     document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
-      btn.classList.toggle('active', wasAdded);
-      btn.setAttribute('aria-pressed', String(wasAdded));
-      btn.setAttribute('aria-label', wasAdded ? t('ariaFavRemove') : t('ariaFavAdd'));
+      const card = btn.closest('.event-card, .cal-event-row');
+      if (card) {
+        card.style.transition = 'opacity .2s ease';
+        card.style.opacity = '0';
+        setTimeout(() => {
+          card.remove();
+          // Show empty state if no cards left
+          const remaining = document.querySelectorAll('.event-card, .cal-event-row');
+          if (remaining.length === 0) {
+            document.getElementById('list-view').style.display = 'none';
+            document.getElementById('calendar-view').style.display = 'none';
+            const emptyEl = document.getElementById('empty-state');
+            emptyEl.style.display = 'block';
+            document.getElementById('empty-msg').textContent = t('noEvents');
+          }
+        }, 200);
+      }
     });
   }
 
+  // ── 4. Show toast immediately ────────────────────────────────────────────
   const msg = wasAdded ? t('addedFav') : t('removedFav');
-  showToast(msg, 'success', wasAdded);
+  showToast(msg, '', wasAdded);
   announce(msg);
 
-  // Sync to DB in background
-  await window.FavSync.toggle('openhouses', id);
-  favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+  // ── 5. Sync to DB silently in background — never touch UI after this ─────
+  // NOTE: We do NOT call FavSync.toggle() here because FavSync.toggle()
+  // re-reads localStorage and toggles it again, which would reverse our
+  // update above. Instead we call the API directly.
+  const token = getAuthToken();
+  if (token) {
+    try {
+      if (wasAdded) {
+        await fetch('/favorites/openhouses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ openHouseId: id }),
+        });
+      } else {
+        await fetch('/favorites/openhouses/' + id, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        });
+      }
+    } catch (err) {
+      console.warn('[toggleFavorite] DB sync failed:', err);
+    }
+  }
 }
 
 async function registerEvent(id) {

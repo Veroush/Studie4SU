@@ -342,14 +342,15 @@ button { font-family: inherit; cursor: pointer; }
   background: linear-gradient(to bottom, rgba(0,0,0,.35) 0%, rgba(0,0,0,.6) 100%);
   pointer-events: none;
 }
-/* All direct children sit above the overlay */
-.event-card-header > * { position: relative; z-index: 1; }
+/* All direct children sit above the overlay — except .fav-btn which is absolute */
+.event-card-header > *:not(.fav-btn) { position: relative; z-index: 1; }
 
 /* Favourite button — absolute top-right */
 .fav-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
+  z-index: 2;
   width: 2.5rem;
   height: 2.5rem;
   border-radius: var(--radius-full);
@@ -364,7 +365,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .fav-btn:hover { background: rgba(255,255,255,.35); }
 .fav-btn.active { background: var(--red-500); }
-.fav-btn svg { width: 20px; height: 20px; }
+.fav-btn svg { width: 20px; height: 20px; pointer-events: none; }
 
 /* Smaller fav btn for calendar view */
 .fav-btn-sm {
@@ -382,7 +383,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .fav-btn-sm:hover { background: var(--gray-100); }
 .fav-btn-sm.active { background: var(--red-500); color: var(--white); border-color: var(--red-500); }
-.fav-btn-sm svg { width: 16px; height: 16px; }
+.fav-btn-sm svg { width: 16px; height: 16px; pointer-events: none; }
 
 /* Heart icon filled state */
 .heart-outline { display: block; }
@@ -559,9 +560,14 @@ button { font-family: inherit; cursor: pointer; }
   padding: 1rem;
   border-radius: var(--radius-xl);
   background: var(--grad-cal-row);
-  transition: box-shadow .3s ease-in-out;
+  transition: box-shadow .3s ease-in-out, opacity .55s ease, transform .55s cubic-bezier(.22,.68,0,1.1);
   margin-bottom: 1rem;
+  /* Animation start state */
+  opacity: 0;
+  transform: translateX(-48px);
 }
+.cal-event-row.cal-row-from-right { transform: translateX(48px); }
+.cal-event-row.cal-row-visible    { opacity: 1; transform: none; }
 .cal-event-row:last-child { margin-bottom: 0; }
 .cal-event-row:hover { box-shadow: var(--shadow-md); }
 
