@@ -434,15 +434,18 @@ function updateProgressBar() {
 /* ============================================================
    RENDER QUESTION
 ============================================================ */
-function renderQuestion() {
+function renderQuestion(direction = 'forward') {
   const questions = questionsData[currentLang];
   const q   = questions[quizState.currentQuestion];
   const t   = translations[currentLang];
   const ans = quizState.answers[q.id];
 
-  // Fade out
   const card = document.getElementById('question-card');
-  card.style.opacity = '0';
+
+  // Slide out in the appropriate direction
+  const exitClass = direction === 'forward' ? 'card-exit-left' : 'card-exit-right';
+  card.classList.remove('card-enter', 'card-enter-left', 'card-enter-right', 'card-exit-left', 'card-exit-right');
+  card.classList.add(exitClass);
 
   setTimeout(() => {
     document.getElementById('question-text').textContent = q.question;
@@ -486,11 +489,13 @@ function renderQuestion() {
     const isLast = quizState.currentQuestion === questions.length - 1;
     document.getElementById('next-label').textContent = isLast ? t.finish : t.next;
 
-    // Fade in
-    card.style.opacity = '1';
+    // Slide in from the opposite direction
+    card.classList.remove(exitClass);
+    const enterClass = direction === 'forward' ? 'card-enter-right' : 'card-enter-left';
+    card.classList.add(enterClass);
 
     updateNavigationButtons();
-  }, 150);
+  }, 200);
 }
 
 /* ============================================================
@@ -545,9 +550,8 @@ function handleNext() {
   const total = questionsData[currentLang].length;
   if (quizState.currentQuestion < total - 1) {
     quizState.currentQuestion++;
-    renderQuestion();
+    renderQuestion('forward');
     updateProgressBar();
-    scrollToTop();
     announceToScreenReader(
       `${translations[currentLang].progress} ${quizState.currentQuestion + 1}: ${questionsData[currentLang][quizState.currentQuestion].question}`
     );
@@ -561,9 +565,8 @@ function handleNext() {
 function handlePrevious() {
   if (quizState.currentQuestion > 0) {
     quizState.currentQuestion--;
-    renderQuestion();
+    renderQuestion('back');
     updateProgressBar();
-    scrollToTop();
   }
 }
 
@@ -758,8 +761,9 @@ function renderResults() {
   list.innerHTML = recs.map((rec, i) => {
     const schoolId  = PROGRAM_SCHOOL_MAP[rec.id] || '';
     const programId = PROGRAM_ID_MAP[rec.id] || '';
+    const slideDir  = i % 2 === 0 ? 'left' : 'right';
     return `
-    <div class="rec-card">
+    <div class="rec-card" data-slide="${slideDir}">
       <div class="rec-layout">
         <div class="rank-badge" aria-label="Rank ${i + 1}">#${i + 1}</div>
         <div class="rec-content">
@@ -805,6 +809,18 @@ function renderResults() {
   localStorage.removeItem('quiz_pending_answers');
   localStorage.removeItem('quiz_pending_lang');
 
+  // Scroll-triggered slide-in for each rec-card
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('rec-card-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  list.querySelectorAll('.rec-card').forEach(card => observer.observe(card));
+
   scrollToTop();
   announceToScreenReader(t.resultsTitle);
 }
@@ -822,7 +838,12 @@ function retakeQuiz() {
   };
   document.getElementById('results-container').style.display = 'none';
   document.getElementById('quiz-section').style.display = 'block';
-  renderQuestion();
+  const card = document.getElementById('question-card');
+  if (card) {
+    card.classList.remove('card-enter-right', 'card-enter-left', 'card-exit-left', 'card-exit-right');
+    card.classList.add('card-enter');
+  }
+  renderQuestion('forward');
   updateProgressBar();
   scrollToTop();
 }
@@ -902,9 +923,10 @@ function logout() {
   window.location.reload();
 }
 
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const popup = document.getElementById('profile-popup');
-  if (popup) popup.classList.remove('open');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) popup.classList.remove('open');
 });
 
 /* ============================================================
@@ -941,7 +963,10 @@ document.addEventListener('click', () => {
     quizState.showResults = true;
     renderResults();
   } else {
-    renderQuestion();
+    // Add card-enter before renderQuestion so the card animates in on first paint
+    const card = document.getElementById('question-card');
+    if (card) card.classList.add('card-enter');
+    renderQuestion('forward');
     updateProgressBar();
   }
 })();

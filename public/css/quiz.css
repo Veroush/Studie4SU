@@ -177,7 +177,7 @@ button { font-family: inherit; cursor: pointer; }
 .page {
   max-width: 68rem; /* 1088px — uses horizontal space better */
   margin: 0 auto;
-  padding: 1.5rem 1.5rem;
+  padding: 48px 1.5rem 1.5rem;
 }
 .page.results-mode { max-width: 72rem; }
 
@@ -185,19 +185,29 @@ button { font-family: inherit; cursor: pointer; }
    PAGE HEADER
 ========================================================= */
 /* Page header: tighter margins, smaller title */
-.page-header { text-align: center; margin-bottom: 1.25rem; }
+.page-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 48px;
+  padding: 0 90px;
+  animation: fadeInDown .5s ease both;
+}
 .page-header h1 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.75rem; font-weight: 700;
+  font-size: 2.25rem;
+  font-weight: 700;
   color: var(--gray-900);
-  margin-bottom: .4rem;
+  margin-bottom: 12px;
 }
 @media (min-width: 768px) {
-  .page-header h1 { font-size: 2.25rem; }
+  .page-header h1 { font-size: 3rem; }
 }
 .page-header p {
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: var(--gray-600);
+}
+@media (max-width: 768px) {
+  .page-header { padding: 0 16px; }
 }
 
 /* =========================================================
@@ -234,7 +244,30 @@ button { font-family: inherit; cursor: pointer; }
   padding: 1.25rem 1.5rem 1rem;
   box-shadow: var(--shadow-xl);
   margin-bottom: 1rem;
-  transition: opacity .2s ease;
+  transition: opacity .22s ease, transform .22s ease;
+  will-change: opacity, transform;
+}
+/* Entry animation on page load */
+.question-card.card-enter {
+  animation: cardSlideUp .45s cubic-bezier(.22,.68,0,1.2) both;
+}
+/* Slide out to the left (going forward) */
+.question-card.card-exit-left {
+  opacity: 0;
+  transform: translateX(-32px) scale(.97);
+}
+/* Slide out to the right (going back) */
+.question-card.card-exit-right {
+  opacity: 0;
+  transform: translateX(32px) scale(.97);
+}
+/* Slide in from the right (going forward) */
+.question-card.card-enter-right {
+  animation: cardSlideInRight .35s cubic-bezier(.22,.68,0,1.1) both;
+}
+/* Slide in from the left (going back) */
+.question-card.card-enter-left {
+  animation: cardSlideInLeft .35s cubic-bezier(.22,.68,0,1.1) both;
 }
 @media (min-width: 768px) {
   .question-card { padding: 1.5rem 2rem 1.25rem; }
@@ -272,12 +305,51 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: .65rem;
   border: 2px solid var(--gray-200);
   background: var(--white);
-  transition: var(--transition-colors);
+  transition: var(--transition-colors), transform .15s ease, box-shadow .15s ease;
   display: flex; align-items: center; gap: .6rem;
 }
+/* Stagger option buttons only when card is animating in (not on first paint) */
+.question-card.card-enter-right .option-btn,
+.question-card.card-enter-left .option-btn,
+.question-card.card-enter .option-btn {
+  opacity: 0;
+  animation: optionFadeUp .3s ease both;
+}
+.question-card.card-enter-right .option-btn:nth-child(1),
+.question-card.card-enter-left  .option-btn:nth-child(1),
+.question-card.card-enter       .option-btn:nth-child(1)  { animation-delay: .04s; }
+.question-card.card-enter-right .option-btn:nth-child(2),
+.question-card.card-enter-left  .option-btn:nth-child(2),
+.question-card.card-enter       .option-btn:nth-child(2)  { animation-delay: .08s; }
+.question-card.card-enter-right .option-btn:nth-child(3),
+.question-card.card-enter-left  .option-btn:nth-child(3),
+.question-card.card-enter       .option-btn:nth-child(3)  { animation-delay: .12s; }
+.question-card.card-enter-right .option-btn:nth-child(4),
+.question-card.card-enter-left  .option-btn:nth-child(4),
+.question-card.card-enter       .option-btn:nth-child(4)  { animation-delay: .16s; }
+.question-card.card-enter-right .option-btn:nth-child(5),
+.question-card.card-enter-left  .option-btn:nth-child(5),
+.question-card.card-enter       .option-btn:nth-child(5)  { animation-delay: .20s; }
+.question-card.card-enter-right .option-btn:nth-child(6),
+.question-card.card-enter-left  .option-btn:nth-child(6),
+.question-card.card-enter       .option-btn:nth-child(6)  { animation-delay: .24s; }
+.question-card.card-enter-right .option-btn:nth-child(7),
+.question-card.card-enter-left  .option-btn:nth-child(7),
+.question-card.card-enter       .option-btn:nth-child(7)  { animation-delay: .28s; }
+.question-card.card-enter-right .option-btn:nth-child(8),
+.question-card.card-enter-left  .option-btn:nth-child(8),
+.question-card.card-enter       .option-btn:nth-child(8)  { animation-delay: .32s; }
+.question-card.card-enter-right .option-btn:nth-child(9),
+.question-card.card-enter-left  .option-btn:nth-child(9),
+.question-card.card-enter       .option-btn:nth-child(9)  { animation-delay: .36s; }
+.question-card.card-enter-right .option-btn:nth-child(10),
+.question-card.card-enter-left  .option-btn:nth-child(10),
+.question-card.card-enter       .option-btn:nth-child(10) { animation-delay: .40s; }
 .option-btn:hover:not(.selected) {
   border-color: var(--green-300);
   background: var(--gray-50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22,163,74,.1);
 }
 .option-btn.selected {
   border-color: var(--green-600);
@@ -373,7 +445,17 @@ button { font-family: inherit; cursor: pointer; }
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: var(--shadow-lg);
-  transition: box-shadow .3s ease;
+  transition: box-shadow .3s ease, opacity .55s ease, transform .55s cubic-bezier(.22,.68,0,1.1);
+  opacity: 0;
+}
+/* Slide in from left */
+.rec-card[data-slide="left"]  { transform: translateX(-48px); }
+/* Slide in from right */
+.rec-card[data-slide="right"] { transform: translateX(48px); }
+/* Visible state — triggered by IntersectionObserver */
+.rec-card.rec-card-visible {
+  opacity: 1;
+  transform: none;
 }
 .rec-card:hover { box-shadow: var(--shadow-xl); }
 .rec-layout {
@@ -540,6 +622,27 @@ button { font-family: inherit; cursor: pointer; }
 }
 .popup-logout:hover { background: #fee2e2; }
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(28px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cardSlideInRight {
+  from { opacity: 0; transform: translateX(40px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cardSlideInLeft {
+  from { opacity: 0; transform: translateX(-40px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes optionFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes progressPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(22,163,74,.45); }
+  70%  { box-shadow: 0 0 0 6px rgba(22,163,74,0); }
+  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
 }
