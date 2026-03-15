@@ -106,6 +106,24 @@ function getDescription(id) {
   return d[language] || d.nl;
 }
 
+// ── School Header Images ──────────────────────────────────────
+// Keyed by school.id — Unsplash URLs, no API key needed, always load.
+// To change an image: swap the photo ID in the URL (the part after /photo-).
+const SCHOOL_IMAGES = {
+  school_adekus: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop', // university campus
+  school_natin:  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop', // tech/electronics lab
+  school_iol:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop', // classroom/education
+  school_covab:  'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop', // nature/agriculture
+  school_imeao:  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop', // business/office
+  school_ptc:    'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop', // industrial/workshop
+  school_igsr:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop', // healthcare/medical
+  school_fhr:    'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop', // college building
+};
+
+function getSchoolImage(id) {
+  return SCHOOL_IMAGES[id] || null;
+}
+
 // ── School Icons (SVG paths) ───────────────────────────────────
 const SCHOOL_ICON = `
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -212,7 +230,7 @@ function renderGrid() {
   if (isLoading) {
     countEl.innerHTML = '';
     grid.innerHTML = `
-      <div class="state-center" style="grid-column:1/-1">
+      <div class="state-center" style="grid-column:1/-1;width:100%;text-align:center">
         <div class="state-animation" aria-hidden="true">
           <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
           <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
@@ -223,14 +241,14 @@ function renderGrid() {
     return;
   }
 
-const filtered = getFiltered();
+  const filtered = getFiltered();
 
   // Results count
   countEl.innerHTML = tx.results(filtered.length);
 
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div class="state-center" style="grid-column:1/-1">
+      <div class="state-center" style="grid-column:1/-1;width:100%;text-align:center">
       <div class="state-animation" aria-hidden="true">
         <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
         <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
@@ -249,11 +267,16 @@ const filtered = getFiltered();
       : school.type;
     const desc      = getDescription(school.id);
     const locText   = school.location || 'Suriname';
+    const imgUrl    = getSchoolImage(school.id);
+    const headerStyle = imgUrl
+      ? `style="background-image:url('${imgUrl}');background-size:cover;background-position:center"`
+      : '';
 
     return `
-      <div class="school-card" style="animation-delay:${i * 0.06}s">
-        <div class="card-header">
-          <div class="card-school-icon">${SCHOOL_ICON}</div>
+      <div class="school-card card-hidden" data-index="${i}">
+        <div class="card-header" ${headerStyle}>
+          ${imgUrl ? '<div class="card-img-overlay"></div>' : ''}
+          <div class="card-school-icon">${imgUrl ? '' : SCHOOL_ICON}</div>
 
           <span class="card-type-badge badge-${school.type?.toLowerCase()}">${typeLabel}</span>
 
@@ -296,9 +319,37 @@ const filtered = getFiltered();
         </div>
       </div>`;
   }).join('');
+
+  // Trigger scroll-in animations for newly rendered cards
+  requestAnimationFrame(() => animateCards());
 }
 
-// ── Toast ─────────────────────────────────────────────────────
+// ── Scroll-triggered card animations ─────────────────────────
+// Cards start hidden (.card-hidden), then get .card-visible when
+// they enter the viewport. Stagger delay based on data-index.
+let cardObserver = null;
+
+function animateCards() {
+  if (cardObserver) cardObserver.disconnect();
+
+  cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const card  = entry.target;
+      const idx   = parseInt(card.dataset.index || '0', 10);
+      // Stagger delay: each column position is 80ms later
+      card.style.transitionDelay = (idx % 3) * 0.08 + 's';
+      card.classList.add('card-visible');
+      cardObserver.unobserve(card);
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.card-hidden').forEach(card => {
+    cardObserver.observe(card);
+  });
+}
+
+
 let _toastTimer;
 function showFavToast(added) {
   let el = document.getElementById('fav-toast');
@@ -320,15 +371,48 @@ function showFavToast(added) {
 }
 
 // ── Favorite toggle ───────────────────────────────────────────
+// Instant UI pattern: update state + DOM immediately, then sync to DB
+// in the background. Never call FavSync.toggle() here — it re-reads
+// localStorage and would reverse our update (double-toggle bug).
 async function toggleFavorite(id, btn) {
-  const added = await window.FavSync.toggle('schools', id);
-  favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
+  // 1. Update in-memory state immediately (no DB wait)
+  const wasAdded = !favorites.includes(id);
+  if (wasAdded) {
+    favorites.push(id);
+  } else {
+    favorites = favorites.filter(f => f !== id);
+  }
+  localStorage.setItem('fav_schools', JSON.stringify(favorites));
 
-  showFavToast(added);
-  btn.classList.toggle('active', added);
+  // 2. Update button UI instantly
+  btn.classList.toggle('active', wasAdded);
   const path = btn.querySelector('path');
-  if (path) path.setAttribute('fill', added ? 'currentColor' : 'none');
-  btn.setAttribute('aria-label', added ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
+  if (path) path.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
+  btn.setAttribute('aria-label', wasAdded ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
+
+  // 3. Show toast immediately
+  showFavToast(wasAdded);
+
+  // 4. Sync to DB silently in background
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    try {
+      if (wasAdded) {
+        await fetch('/favorites/schools', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ schoolId: id }),
+        });
+      } else {
+        await fetch('/favorites/schools/' + id, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        });
+      }
+    } catch (err) {
+      console.warn('[toggleFavorite] DB sync failed:', err);
+    }
+  }
 }
 
 // ── Compare toggle (programs — triggered from program-detail.html) ────────────
