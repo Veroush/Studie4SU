@@ -100,8 +100,30 @@
   </nav>
 </header>
 
+<!-- Auth flash fix — runs before first paint -->
+<script>
+  (function () {
+    if (!localStorage.getItem('auth_token')) return;
+    document.documentElement.classList.add('is-logged-in');
+    var name = localStorage.getItem('user_display_name');
+    if (name) {
+      var nameEl = document.getElementById('profile-name-label');
+      if (nameEl) nameEl.textContent = name;
+    }
+    var AVATARS = {
+      graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+      panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+      art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+    };
+    var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+    var avatarEmoji = AVATARS[avatarId] || '🎓';
+    var navAv = document.getElementById('nav-avatar-display');
+    if (navAv) navAv.textContent = avatarEmoji;
+  })();
+</script>
+
 <!-- ═══════════════════════════════════════════════════════
-     HERO
+     HERO — Centered layout
 ════════════════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="hero-orb hero-orb-1"></div>
@@ -128,12 +150,12 @@
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <div class="stat-number">7+</div>
+        <div class="stat-number" id="stat-school-count">8+</div>
         <div class="stat-label" id="stat-schools">Scholen</div>
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
-        <div class="stat-number">76</div>
+        <div class="stat-number" id="stat-program-count">69</div>
         <div class="stat-label" id="stat-programs">Opleidingen</div>
       </div>
       <div class="stat-divider"></div>
@@ -146,7 +168,7 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     FEATURES
+     FEATURES — Large image discovery cards
 ════════════════════════════════════════════════════════════ -->
 <section class="features-section fade-in">
   <div class="container">
@@ -155,24 +177,49 @@
       <h2 class="section-heading">Alles wat je nodig hebt om de<br/><span>Juiste Keuze te Maken</span></h2>
     </div>
     <div class="features-grid">
+
       <div class="feature-card">
-        <div class="feature-icon icon-green">🏫</div>
-        <h3 id="feat-schools-title">Scholen & Instituten</h3>
-        <p id="feat-schools-desc">Verken AdeKUS, NATIN, IOL, COVAB, IMEAO en alle andere scholen in Suriname.</p>
-        <a href="schools.html" class="feature-link" id="feat-schools-link">Ontdek scholen →</a>
+        <div class="feature-card-img">
+          <div class="feature-card-img-inner" style="background-image: url('https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=600&h=300&fit=crop')"></div>
+          <div class="feature-card-icon icon-green">🏫</div>
+        </div>
+        <div class="feature-card-body">
+          <h3 id="feat-schools-title">Scholen & Instituten</h3>
+          <p id="feat-schools-desc">Verken AdeKUS, NATIN, IOL, COVAB, IMEAO en alle andere scholen in Suriname.</p>
+          <a href="schools.html" class="feature-link" id="feat-schools-link">
+            Ontdek scholen <span class="arrow">→</span>
+          </a>
+        </div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon icon-gold">📚</div>
-        <h3 id="feat-programs-title">Studierichtingen</h3>
-        <p id="feat-programs-desc">Bekijk alle beschikbare opleidingen — van Geneeskunde en Rechten tot ICT en Landbouw.</p>
-        <a href="schools.html" class="feature-link" id="feat-programs-link">Bekijk opleidingen →</a>
+        <div class="feature-card-img">
+          <div class="feature-card-img-inner" style="background-image: url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=300&fit=crop')"></div>
+          <div class="feature-card-icon icon-gold">📚</div>
+        </div>
+        <div class="feature-card-body">
+          <h3 id="feat-programs-title">Studierichtingen</h3>
+          <p id="feat-programs-desc">Bekijk alle beschikbare opleidingen — van Geneeskunde en Rechten tot ICT en Landbouw.</p>
+          <a href="schools.html" class="feature-link" id="feat-programs-link">
+            Bekijk opleidingen <span class="arrow">→</span>
+          </a>
+        </div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon icon-teal">📅</div>
-        <h3 id="feat-openhouses-title">Open Dagen</h3>
-        <p id="feat-openhouses-desc">Bezoek scholen en ervaar opleidingen in het echt voordat je beslist.</p>
-        <a href="open-houses.html" class="feature-link" id="feat-openhouses-link">Bekijk open dagen →</a>
+        <div class="feature-card-img">
+          <div class="feature-card-img-inner" style="background-image: url('https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&h=300&fit=crop')"></div>
+          <div class="feature-card-icon icon-teal">📅</div>
+        </div>
+        <div class="feature-card-body">
+          <h3 id="feat-openhouses-title">Open Dagen</h3>
+          <p id="feat-openhouses-desc">Bezoek scholen en ervaar opleidingen in het echt voordat je beslist.</p>
+          <a href="open-houses.html" class="feature-link" id="feat-openhouses-link">
+            Bekijk open dagen <span class="arrow">→</span>
+          </a>
+        </div>
       </div>
+
     </div>
   </div>
 </section>

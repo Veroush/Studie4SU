@@ -221,7 +221,15 @@ function announceToSR(message) {
 }
 
 function getRedirectUrl(role) {
+  // 1. sessionStorage redirect set by requireAuth() on protected pages
+  const stored = sessionStorage.getItem('redirect_after_login');
+  if (stored) {
+    sessionStorage.removeItem('redirect_after_login');
+    return stored;
+  }
+  // 2. URL param (used by quiz results flow)
   if (redirectParam === 'quiz-results') return 'quiz.html?showResults=true';
+  // 3. Default
   return role === 'admin' ? 'admin-dashboard.html' : 'index.html';
 }
 
