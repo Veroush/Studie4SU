@@ -274,7 +274,7 @@ section { position: relative; z-index: 1; padding: 80px 0; }
    HERO — Split cinematic layout
 ──────────────────────────────────────────────────────────── */
 .hero {
-  padding: 100px 0 80px;
+  padding: 72px 0 80px;
   position: relative;
   overflow: hidden;
   min-height: 80vh;
@@ -328,7 +328,10 @@ section { position: relative; z-index: 1; padding: 80px 0; }
   color: var(--cream);
   margin-bottom: 20px;
 }
-.hero h1 span { color: var(--gold); }
+.hero h1 .h1-line1 span { color: var(--gold); }
+.hero h1 .h1-line1,
+.hero h1 .h1-line2 { display: block; color: var(--cream); }
+#hero-heading-text { color: #ffffff; }
 
 .hero-sub {
   color: var(--text-muted);

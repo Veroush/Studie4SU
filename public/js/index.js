@@ -55,7 +55,7 @@ let upcomingEvents  = FALLBACK_EVENTS;
 const T = {
   nl: {
     heroBadge:      'Jouw toekomst begint hier',
-    heroHeading:    'Vind Jouw <span>Studierichting</span><br/>in Suriname',
+    heroHeading:    '<span class="hero-h1-line">Vind Jouw <span>Studierichting</span></span><span class="hero-h1-line">in Suriname</span>',
     heroSub:        'Ontdek alle scholen, opleidingen en open dagen in Suriname. Weet je nog niet wat je wil studeren? Doe onze gratis quiz en vind je match in 2 minuten.',
     heroCta:        '✨ Doe de Studie Quiz',
     heroExplore:    '🏫 Verken Scholen',
@@ -80,7 +80,7 @@ const T = {
   },
   en: {
     heroBadge:      'Your future starts here',
-    heroHeading:    'Find Your <span>Study Path</span><br/>in Suriname',
+    heroHeading:    '<span class="hero-h1-line">Find Your <span>Study Path</span></span><span class="hero-h1-line">in Suriname</span>',
     heroSub:        'Discover all schools, programs and open houses in Suriname. Not sure what to study? Take our free quiz and find your match in 2 minutes.',
     heroCta:        '✨ Take the Study Quiz',
     heroExplore:    '🏫 Explore Schools',
@@ -118,8 +118,14 @@ function applyLang(l) {
   document.getElementById('btn-nl').classList.toggle('active', l === 'nl');
   document.getElementById('btn-en').classList.toggle('active', l === 'en');
 
-  document.getElementById('hero-badge-text').textContent  = t.heroBadge;
-  document.getElementById('hero-heading').innerHTML        = t.heroHeading;
+  document.getElementById('hero-badge-text').textContent     = t.heroBadge;
+  // Update h1 parts individually — never overwrite innerHTML to preserve block structure
+  const headingText = document.getElementById('hero-heading-text');
+  const headingHL   = document.getElementById('hero-heading-highlight');
+  const headingSub  = document.getElementById('hero-heading-sub');
+  if (headingText) headingText.textContent = l === 'nl' ? 'Vind Jouw ' : 'Find Your ';
+  if (headingHL)   headingHL.textContent   = l === 'nl' ? 'Studierichting' : 'Study Path';
+  if (headingSub)  headingSub.textContent  = 'in Suriname';
   document.getElementById('hero-sub').textContent          = t.heroSub;
   document.getElementById('hero-cta').textContent          = t.heroCta;
   document.getElementById('hero-explore').textContent      = t.heroExplore;

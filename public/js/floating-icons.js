@@ -56,7 +56,7 @@ const ICONS = {
       <rect x="3" y="3" width="6" height="18" rx="2" fill="none"/>
       <line x1="3" y1="9"  x2="9" y2="9"/>
       <line x1="3" y1="15" x2="9" y2="15"/>
-      <rect class="fi-nb-page" x="9" y="3" width="12" height="18" rx="0 2 2 0"
+      <rect class="fi-nb-page" x="9" y="3" width="12" height="18" rx="2"
             fill="rgba(232,184,75,0)" stroke="currentColor"/>`,
   },
 
