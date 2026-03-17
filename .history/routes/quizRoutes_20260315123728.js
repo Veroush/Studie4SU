@@ -470,43 +470,4 @@ router.post('/recommend', async (req, res) => {
   }
 });
 
-/* =============================================================
-   GET /api/quiz/questions
-   ADDED: returns all active questions with their answer options,
-   ordered by orderIndex. Used by quiz.js to load questions from
-   DB instead of hardcoded questionsData.
-   Returns a questionKey derived from the stable seed ID
-   (e.g. 'q_interests' → 'interests') so quiz state keys match.
-============================================================= */
-router.get('/questions', async (req, res) => {
-  try {
-    const questions = await prisma.question.findMany({
-      where:   { isActive: true },
-      orderBy: { orderIndex: 'asc' },
-      include: {
-        options: {
-          select: {
-            id:     true,
-            text:   true,
-            textEn: true,
-          }
-        }
-      }
-    });
-
-    // Strip the 'q_' prefix from the seed ID to get the quiz state key
-    // e.g. 'q_interests' → 'interests', 'q_preferredfield' → 'preferredfield'
-    // quiz.js uses these as keys in quizState.answers
-    const shaped = questions.map(q => ({
-      ...q,
-      questionKey: q.id.replace(/^q_/, ''),
-    }));
-
-    res.json(shaped);
-  } catch (err) {
-    console.error('Error in GET /api/quiz/questions:', err);
-    res.status(500).json({ error: 'Could not load questions.' });
-  }
-});
-
 module.exports = router;

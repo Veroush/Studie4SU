@@ -6,23 +6,8 @@
   <title>Studie4SU — Jouw Studiegids in Suriname</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/settings.css"/>
-  <link rel="icon" type="image/png" href="favicons4s.png">
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════════════════════
-     CINEMATIC PARALLAX ICON STAGE
-     4 depth layers, populated entirely by floating-icons.js
-     Keep HTML minimal — JS injects all icon nodes
-════════════════════════════════════════════════════════════ -->
-<div class="fi-stage" id="fi-stage" aria-hidden="true">
-  <div class="fi-layer" id="fi-l1" data-layer="1"></div>
-  <div class="fi-layer" id="fi-l2" data-layer="2"></div>
-  <div class="fi-layer" id="fi-l3" data-layer="3"></div>
-  <div class="fi-layer" id="fi-l4" data-layer="4"></div>
-  <div class="fi-text-shield" aria-hidden="true"></div>
-</div><!-- /fi-stage -->
 
 <!-- ═══════════════════════════════════════════════════════
      HEADER — matches schools.html exactly
@@ -47,37 +32,14 @@
 
       <!-- Profile button (shown when logged in) -->
       <div class="profile-wrap" id="profile-btn" style="display:none">
-        <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
-          <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
-          <span id="profile-name-label">Profiel</span>
-        </button>
+        <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
         <div class="profile-popup" id="profile-popup">
-          <div class="popup-top">
-            <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
-            <div class="popup-name"  id="popup-name"></div>
-            <div class="popup-email" id="popup-email"></div>
-          </div>
+          <div class="popup-avatar">👤</div>
+          <div class="popup-name"  id="popup-name"></div>
+          <div class="popup-email" id="popup-email"></div>
+          <div class="popup-role"  id="popup-role"></div>
           <hr class="popup-divider"/>
-          <div class="popup-actions">
-            <!-- 🌙 Dark mode toggle row intentionally removed — feature scrapped -->
-            <div class="popup-action-row">
-              <span class="popup-action-icon">🔔</span>
-              <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="popup-notif-toggle"/>
-                <span class="toggle-track"></span>
-              </label>
-            </div>
-            <a href="settings.html" class="popup-action-row popup-action-link">
-              <span class="popup-action-icon">⚙️</span>
-              <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
-              <span class="popup-action-arrow">›</span>
-            </a>
-          </div>
-          <hr class="popup-divider"/>
-          <button class="popup-logout" onclick="logout()">
-            <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
-          </button>
+          <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
         </div>
       </div>
 
@@ -231,10 +193,9 @@
      FOOTER — matches schools.html exactly
 ════════════════════════════════════════════════════════════ -->
 <footer class="site-footer">
-  <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+  <p>©  &copy; 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
 </footer>
 
 <script src="js/index.js"></script>
-<script src="js/floating-icons.js"></script>
 </body>
 </html>

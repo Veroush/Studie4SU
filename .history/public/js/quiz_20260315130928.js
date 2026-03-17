@@ -61,58 +61,124 @@ const translations = {
    Each question has an id, type ('multiple'|'single'),
    and translations for question text + options.
 ============================================================ */
-// CHANGED: questionsData is no longer hardcoded.
-// Populated by fetchQuestions() on page load.
-let questionsData = { nl: [], en: [] };
-
-/* ============================================================
-   FETCH QUESTIONS FROM DB
-   ADDED: loads questions from /api/quiz/questions and transforms
-   the DB shape into the same {nl:[], en:[]} shape the rest of
-   quiz.js expects, so nothing else needs to change.
-============================================================ */
-async function fetchQuestions() {
-  try {
-    const res = await fetch('/api/quiz/questions');
-    if (!res.ok) throw new Error('Failed to fetch questions');
-    const data = await res.json();
-
-    // CHANGED: map DB id to camelCase key that matches quizState.answers
-    const keyMap = {
-      'q_diplomas':         'diplomas',
-      'q_certificates':     'certificates',
-      'q_educationstatus':  'educationStatus',
-      'q_interests':        'interests',
-      'q_subjectstrengths': 'subjectStrengths',
-      'q_learningstyle':    'learningStyle',
-      'q_preferredfield':   'preferredField',
-      'q_careerdirection':  'careerDirection',
-    };
-
-    questionsData.nl = data.map(q => ({
-      id:          keyMap[q.id] || q.id.replace(/^q_/, ''),
-      type:        q.type,
-      question:    q.text,
-      instruction: q.type === 'multiple'
-        ? translations.nl.selectMultiple
-        : translations.nl.selectOne,
-      options: q.options.map(o => o.text),
-    }));
-
-    questionsData.en = data.map(q => ({
-      id:          keyMap[q.id] || q.id.replace(/^q_/, ''),
-      type:        q.type,
-      question:    q.textEn || q.text,
-      instruction: q.type === 'multiple'
-        ? translations.en.selectMultiple
-        : translations.en.selectOne,
-      options: q.options.map(o => o.textEn || o.text),
-    }));
-
-  } catch (err) {
-    console.error('Could not load questions from DB:', err);
-  }
-}
+const questionsData = {
+  nl: [
+    {
+      id: 'diplomas',
+      type: 'multiple',
+      question: 'Welke diploma\'s heb jij behaald?',
+      instruction: 'Selecteer alle die van toepassing zijn',
+      options: ['MULO', 'LBO / LTO', 'HAVO', 'VWO', 'MBO', 'HBO', 'Universitair diploma', 'NATIN diploma', 'Geen diploma']
+    },
+    {
+      id: 'certificates',
+      type: 'multiple',
+      question: 'Heb je certificaten of extra opleidingen gevolgd?',
+      instruction: 'Selecteer alle die van toepassing zijn',
+      options: ['ICT certificaten (bijv. CISCO, CompTIA)', 'Talenopleidingen (bijv. Engels, Spaans)', 'Bedrijfskunde / Management cursus', 'Gezondheidszorg cursus', 'Technische cursus (bijv. lassen, elektra)', 'Landbouw / Natuur cursus', 'Juridische / Bestuurskunde cursus', 'Onderwijscursus / Pedagogie', 'Geen certificaten']
+    },
+    {
+      id: 'educationStatus',
+      type: 'single',
+      question: 'Wat is jouw huidige situatie?',
+      instruction: 'Selecteer één optie',
+      options: ['Ik studeer momenteel', 'Ik heb mijn studie net afgerond', 'Ik werk en wil verder studeren', 'Ik ben op zoek naar mijn eerste studie', 'Ik wil wisselen van studierichting']
+    },
+    {
+      id: 'interests',
+      type: 'multiple',
+      question: 'Wat zijn jouw interesses?',
+      instruction: 'Selecteer alle die van toepassing zijn',
+      options: ['Technologie en computers', 'Gezondheidszorg en medisch', 'Economie en business', 'Onderwijs en jongeren', 'Natuur en milieu', 'Recht en bestuur', 'Kunst en creatief', 'Landbouw en biologie', 'Sociale wetenschappen en hulpverlening']
+    },
+    {
+      id: 'subjectStrengths',
+      type: 'multiple',
+      question: 'In welke vakken ben jij sterk?',
+      instruction: 'Selecteer alle die van toepassing zijn',
+      options: ['Wiskunde', 'Informatica / Computer Science', 'Biologie', 'Scheikunde', 'Natuur- en Scheikunde', 'Economie', 'Geschiedenis', 'Talen (Nederlands, Engels)', 'Aardrijkskunde', 'Maatschappijleer']
+    },
+    {
+      id: 'learningStyle',
+      type: 'single',
+      question: 'Hoe leer jij het liefst?',
+      instruction: 'Selecteer één optie',
+      options: ['Praktisch: met mijn handen werken en direct toepassen', 'Theoretisch: lezen, schrijven en analyseren', 'Mix van theorie en praktijk', 'Door samenwerken in groepsverband', 'Door opdrachten zelfstandig uit te voeren']
+    },
+    {
+      id: 'preferredField',
+      type: 'single',
+      question: 'In welk werkveld wil jij later werken?',
+      instruction: 'Selecteer één optie',
+      options: ['ICT en Technologie', 'Gezondheidszorg en Medisch', 'Business en Economie', 'Onderwijs en Pedagogie', 'Natuur- en Milieuwetenschappen', 'Recht en Bestuur', 'Landbouw en Biologie', 'Sociale Wetenschappen']
+    },
+    {
+      id: 'careerDirection',
+      type: 'single',
+      question: 'Wat is voor jou het belangrijkst in je toekomstige carrière?',
+      instruction: 'Selecteer één optie',
+      options: ['Hoog salaris en carrièremogelijkheden', 'Mensen helpen en sociaal werk doen', 'Creatief en innovatief werk', 'Maatschappelijke impact maken', 'Stabiliteit en zekerheid', 'Ondernemerschap en vrijheid']
+    }
+  ],
+  en: [
+    {
+      id: 'diplomas',
+      type: 'multiple',
+      question: 'Which diplomas have you completed?',
+      instruction: 'Select all that apply',
+      options: ['MULO', 'LBO / LTO', 'HAVO', 'VWO', 'MBO', 'HBO', 'University degree', 'NATIN diploma', 'No diploma']
+    },
+    {
+      id: 'certificates',
+      type: 'multiple',
+      question: 'Do you have any certificates or extra training?',
+      instruction: 'Select all that apply',
+      options: ['ICT certificates (e.g. CISCO, CompTIA)', 'Language courses (e.g. English, Spanish)', 'Business / Management course', 'Healthcare course', 'Technical course (e.g. welding, electrical)', 'Agriculture / Nature course', 'Legal / Public Administration course', 'Education course / Pedagogy', 'No certificates']
+    },
+    {
+      id: 'educationStatus',
+      type: 'single',
+      question: 'What is your current situation?',
+      instruction: 'Select one option',
+      options: ['I am currently studying', 'I recently finished my studies', 'I am working and want to continue studying', 'I am looking for my first study program', 'I want to change my field of study']
+    },
+    {
+      id: 'interests',
+      type: 'multiple',
+      question: 'What are your interests?',
+      instruction: 'Select all that apply',
+      options: ['Technology and computers', 'Healthcare and medical', 'Economics and business', 'Education and youth', 'Nature and environment', 'Law and governance', 'Art and creative work', 'Agriculture and biology', 'Social sciences and welfare']
+    },
+    {
+      id: 'subjectStrengths',
+      type: 'multiple',
+      question: 'Which subjects are you strong in?',
+      instruction: 'Select all that apply',
+      options: ['Mathematics', 'Computer Science / ICT', 'Biology', 'Chemistry', 'Physics', 'Economics', 'History', 'Languages (Dutch, English)', 'Geography', 'Social Studies']
+    },
+    {
+      id: 'learningStyle',
+      type: 'single',
+      question: 'How do you prefer to learn?',
+      instruction: 'Select one option',
+      options: ['Practically: hands-on and direct application', 'Theoretically: reading, writing and analysis', 'Mix of theory and practice', 'Through collaboration in groups', 'By completing tasks independently']
+    },
+    {
+      id: 'preferredField',
+      type: 'single',
+      question: 'Which field do you want to work in?',
+      instruction: 'Select one option',
+      options: ['ICT and Technology', 'Healthcare and Medical', 'Business and Economics', 'Education and Pedagogy', 'Natural and Environmental Sciences', 'Law and Governance', 'Agriculture and Biology', 'Social Sciences']
+    },
+    {
+      id: 'careerDirection',
+      type: 'single',
+      question: 'What matters most to you in your future career?',
+      instruction: 'Select one option',
+      options: ['High salary and career opportunities', 'Helping people and social work', 'Creative and innovative work', 'Making a social impact', 'Stability and security', 'Entrepreneurship and freedom']
+    }
+  ]
+};
 
 //raksha removed programs data
 
@@ -599,13 +665,10 @@ document.addEventListener('click', () => {
      back here after logging in. Restore their saved answers
      and go straight to results.
 ============================================================ */
-(async function init() {
+(function init() {
   initAuth();
   updateLangButtons();
   updateStaticText();
-
-  // CHANGED: fetch questions from DB before rendering
-  await fetchQuestions();
 
   const params = new URLSearchParams(window.location.search);
 

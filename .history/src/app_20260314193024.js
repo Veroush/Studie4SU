@@ -11,10 +11,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
 // ── Auth middleware ───────────────────────────────────────────
-// requireAuth — blocks with 401 if token is missing or invalid
-// adminOnly   — blocks with 403 if user role is not 'admin'
-// Used together on all /admin/* routes to fully protect the admin panel
-const { requireAuth, adminOnly } = require("../middleware/auth.js"); // ADDED
+const { authenticateAdmin } = require("../middleware/authMiddleware.js"); // ADDED
 
 // ── Routes ───────────────────────────────────────────────────
 const authRoutes          = require("../routes/authRoutes.js");
@@ -28,12 +25,12 @@ const adminSettingsRoutes = require("../routes/adminSettingsRoutes.js");
 
 app.use("/auth",             authRoutes);
 app.use("/api/quiz",         quizRoutes);
-app.use("/admin",            requireAuth, adminOnly, adminRoutes);         // CHANGED — protected
-app.use("/admin/settings",   requireAuth, adminOnly, adminSettingsRoutes); // CHANGED — protected
-// Open houses: public read routes at /openhouses (no auth)
-//              admin write routes at /admin/openhouses (protected)
-app.use("/openhouses",       openHouseRoutes);                             // unchanged — public
-app.use("/admin/openhouses", requireAuth, adminOnly, openHouseRoutes);     // CHANGED — protected
+app.use("/admin",            authenticateAdmin, adminRoutes);         // CHANGED
+app.use("/admin/settings",   authenticateAdmin, adminSettingsRoutes); // CHANGED
+// Open houses: public read routes at /openhouses
+//              admin write routes at /admin/openhouses
+app.use("/openhouses",       openHouseRoutes);
+app.use("/admin/openhouses", authenticateAdmin, openHouseRoutes);     // CHANGED
 
 // Public routes
 app.use("/schools",          schoolRoutes);

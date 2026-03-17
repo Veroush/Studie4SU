@@ -19,16 +19,6 @@ let currentPage  = 1;
 const PAGE_SIZE  = 10;
 let editingId    = null; // null = adding new, string = editing existing
 
-// ── Auth header helper ────────────────────────────────────────
-// ADDED: all /admin/* routes require a Bearer token. Use this helper
-// in every fetch() that hits an /admin/* endpoint.
-function authHeaders(extra = {}) {
-  return {
-    'Authorization': 'Bearer ' + localStorage.getItem('auth_token'),
-    ...extra,
-  };
-}
-
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initAuth();
@@ -68,10 +58,7 @@ document.getElementById('sidebar-overlay').addEventListener('click', () => {
 // ── Load schools from API ─────────────────────────────────────
 async function loadSchools() {
   try {
-    // ADDED: Authorization header — /admin/schools requires admin JWT
-    const res = await fetch('/admin/schools', {
-      headers: authHeaders(),
-    });
+    const res = await fetch('/admin/schools');
     if (!res.ok) throw new Error('Failed to load');
     allSchools = await res.json();
     applyFiltersAndRender();
@@ -292,11 +279,7 @@ async function confirmDelete() {
   btn.disabled = true;
 
   try {
-    // ADDED: Authorization header — /admin/* routes require admin JWT
-    const res = await fetch(`/admin/schools/${deleteTargetId}`, {
-      method: 'DELETE',
-      headers: authHeaders(),
-    });
+    const res = await fetch(`/admin/schools/${deleteTargetId}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Delete failed');
     allSchools = allSchools.filter(s => s.id !== deleteTargetId);
     closeDeleteModal();
@@ -404,18 +387,18 @@ async function submitSchoolForm() {
     let res, saved;
 
     if (editingId) {
-      // PUT update — ADDED: Authorization header
+      // PUT update
       res = await fetch(`/admin/schools/${editingId}`, {
         method: 'PUT',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
     } else {
-      // POST create — ADDED: Authorization header
+      // POST create
       body.id = document.getElementById('field-id').value.trim();
       res = await fetch('/admin/schools', {
         method: 'POST',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
     }

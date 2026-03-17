@@ -17,16 +17,6 @@ let deleteTargetId   = null;
 let answersTargetId  = null;
 let answerCounter    = 0;
 
-// ── Auth header helper ────────────────────────────────────────
-// ADDED: all /admin/* routes require a Bearer token. Use this helper
-// in every fetch() that hits an /admin/* endpoint.
-function authHeaders(extra = {}) {
-  return {
-    'Authorization': 'Bearer ' + localStorage.getItem('auth_token'),
-    ...extra,
-  };
-}
-
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initAuth();
@@ -65,10 +55,7 @@ document.getElementById('sidebar-overlay').addEventListener('click', () => {
 // ── Load questions ────────────────────────────────────────────
 async function loadQuestions() {
   try {
-    // ADDED: Authorization header — /admin/quiz/questions requires admin JWT
-    const res = await fetch('/admin/quiz/questions', {
-      headers: authHeaders(),
-    });
+    const res = await fetch('/admin/quiz/questions');
     if (!res.ok) throw new Error('Failed to load');
     const data = await res.json();
     allQuestions = data;
@@ -305,17 +292,15 @@ async function saveQuestion() {
   try {
     let res;
     if (editingId) {
-      // ADDED: Authorization header — /admin/* routes require admin JWT
       res = await fetch(`/admin/quiz/questions/${editingId}`, {
         method: 'PUT',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
     } else {
-      // ADDED: Authorization header — /admin/* routes require admin JWT
       res = await fetch('/admin/quiz/questions', {
         method: 'POST',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
     }
@@ -418,11 +403,7 @@ async function confirmDelete() {
   btn.textContent = 'Deleting...';
 
   try {
-    // ADDED: Authorization header — /admin/* routes require admin JWT
-    const res = await fetch(`/admin/quiz/questions/${deleteTargetId}`, {
-      method: 'DELETE',
-      headers: authHeaders(),
-    });
+    const res = await fetch(`/admin/quiz/questions/${deleteTargetId}`, { method: 'DELETE' });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(data.error || data.message || 'Delete failed');
@@ -515,10 +496,9 @@ async function saveAnswers() {
   btn.textContent = 'Saving...';
 
   try {
-    // ADDED: Authorization header — /admin/* routes require admin JWT
     const res = await fetch(`/admin/quiz/questions/${answersTargetId}/answers`, {
       method: 'PUT',
-      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ answers }),
     });
     if (!res.ok) {

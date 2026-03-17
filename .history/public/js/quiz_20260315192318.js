@@ -77,20 +77,8 @@ async function fetchQuestions() {
     if (!res.ok) throw new Error('Failed to fetch questions');
     const data = await res.json();
 
-    // CHANGED: map DB id to camelCase key that matches quizState.answers
-    const keyMap = {
-      'q_diplomas':         'diplomas',
-      'q_certificates':     'certificates',
-      'q_educationstatus':  'educationStatus',
-      'q_interests':        'interests',
-      'q_subjectstrengths': 'subjectStrengths',
-      'q_learningstyle':    'learningStyle',
-      'q_preferredfield':   'preferredField',
-      'q_careerdirection':  'careerDirection',
-    };
-
     questionsData.nl = data.map(q => ({
-      id:          keyMap[q.id] || q.id.replace(/^q_/, ''),
+      id:          q.questionKey,
       type:        q.type,
       question:    q.text,
       instruction: q.type === 'multiple'
@@ -100,7 +88,7 @@ async function fetchQuestions() {
     }));
 
     questionsData.en = data.map(q => ({
-      id:          keyMap[q.id] || q.id.replace(/^q_/, ''),
+      id:          q.questionKey,
       type:        q.type,
       question:    q.textEn || q.text,
       instruction: q.type === 'multiple'
@@ -599,13 +587,10 @@ document.addEventListener('click', () => {
      back here after logging in. Restore their saved answers
      and go straight to results.
 ============================================================ */
-(async function init() {
+(function init() {
   initAuth();
   updateLangButtons();
   updateStaticText();
-
-  // CHANGED: fetch questions from DB before rendering
-  await fetchQuestions();
 
   const params = new URLSearchParams(window.location.search);
 

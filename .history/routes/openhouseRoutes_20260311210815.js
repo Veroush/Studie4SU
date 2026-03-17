@@ -22,6 +22,7 @@ const prisma  = new PrismaClient();
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const ctrl = require('../controllers/openHousesController');
 
+
 // ================================================================
 //  PUBLIC ROUTES  (read-only)
 // ================================================================
