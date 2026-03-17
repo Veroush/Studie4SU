@@ -117,6 +117,9 @@ function applyLanguage() {
   const badgeVisual = document.getElementById('badge-text-visual');
   if (badgeVisual) badgeVisual.textContent = t.savedItems;
 
+  const savedBadge = document.querySelector('.saved-badge');
+  if (savedBadge) savedBadge.setAttribute('aria-label', t.savedItems);
+
   // Nav data attributes
   document.querySelectorAll('[data-nl]').forEach(el => {
     el.textContent = lang === 'nl' ? el.dataset.nl : el.dataset.en;

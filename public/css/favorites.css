@@ -199,8 +199,8 @@ body {
    PAGE TITLE — Ver's branch
 ═══════════════════════════════════════════════════════════ */
 .page-title-section {
-  text-align: center;
-  margin-bottom: 24px;
+  text-align: left;
+  margin-bottom: 0;
   animation: fadeInDown .5s ease both;
 }
 .page-title-section h1 {
@@ -222,7 +222,7 @@ body {
 ═══════════════════════════════════════════════════════════ */
 .page-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 2rem;
   margin-bottom: 2rem;
@@ -241,6 +241,11 @@ body {
   font-size: .875rem;
   color: var(--red-800);
   font-weight: 500;
+}
+
+.page-title-section .saved-badge {
+  margin-top: 16px;
+  width: fit-content;
 }
 
 .scene {
@@ -276,7 +281,17 @@ body {
 
 @media (max-width: 960px) {
   .page-header {
-    justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .page-title-section {
+    width: 100%;
+  }
+  .page-title-section .saved-badge {
+    margin-top: 12px;
+  }
+  .scene {
+    align-self: center;
   }
   .scene {
     width: 260px;

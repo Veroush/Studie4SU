@@ -1,3 +1,5 @@
+'use strict';
+
 /* ================================================================
    TRANSLATIONS
 ================================================================ */
@@ -120,6 +122,34 @@ let favorites      = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
 // We keep a local Set for instant UI updates between fetches.
 let registeredSet  = new Set();
 
+let isLoading      = true;
+let stateAnimation = null;
+
+const STICKMAN_CONFUSED_FRAMES = [
+  'img/stickman-confused1.svg',
+  'img/stickman-confused2.svg',
+  'img/stickman-confused3.svg',
+  'img/stickman-confused4.svg',
+];
+
+const CHASER_FRAMES = [
+  'img/chasing-1.svg',
+  'img/chasing-2.svg',
+  'img/chasing-3.svg',
+  'img/chasing-4.svg',
+  'img/chasing-5.svg',
+  'img/chasing-6.svg',
+];
+
+const RUNNER_FRAMES = [
+  'img/running-1.svg',
+  'img/running-2.svg',
+  'img/running-3.svg',
+  'img/running-4.svg',
+  'img/running-5.svg',
+  'img/running-6.svg',
+];
+
 function getAuthToken() {
   return localStorage.getItem('auth_token') || null;
 }
@@ -130,44 +160,12 @@ function getAuthHeader() {
 }
 
 /* ================================================================
-   API — FETCH OPEN HOUSES (used by registerEvent / unregisterEvent)
-================================================================ */
-async function fetchEvents() {
-  try {
-    const res = await fetch('/openhouses', {
-      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    // Normalise API shape to match what the renderers expect
-    EVENTS = data.map(oh => ({
-      id:          oh.id,
-      school:      oh.school,
-      date:        oh.date ? oh.date.slice(0, 10) : '',
-      time:        oh.time || '',
-      location:    oh.location || '',
-      description: oh.description || '',
-      registered:  oh.registered || false,
-    }));
-
-    // Sync registeredSet from API response (source of truth)
-    registeredSet = new Set(EVENTS.filter(e => e.registered).map(e => e.id));
-
-  } catch (err) {
-    console.warn('[Studie4SU] Backend unavailable, using fallback:', err.message);
-    EVENTS = FALLBACK_EVENTS.map(e => ({ ...e }));
-    registeredSet = new Set();
-  }
-}
-
-/* ================================================================
    HELPERS
 ================================================================ */
 function t(key) { return T[currentLang][key] || key; }
 
 function getMonthName(dateStr, short = false) {
-  const d = new Date(dateStr + 'T00:00:00'); // local time, not UTC
+  const d = new Date(dateStr + 'T00:00:00');
   return short
     ? T[currentLang].monthsShort[d.getMonth()]
     : T[currentLang].months[d.getMonth()];
@@ -176,10 +174,45 @@ function getMonthName(dateStr, short = false) {
 function getDay(dateStr) { return new Date(dateStr + 'T00:00:00').getDate(); }
 
 function isUpcoming(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00'); // local time, not UTC
+  const d = new Date(dateStr + 'T00:00:00');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return d >= today;
+}
+
+function stopStateAnimation() {
+  if (!stateAnimation) return;
+  clearInterval(stateAnimation);
+  stateAnimation = null;
+}
+
+function startStateAnimation(kind) {
+  const stickman = document.getElementById('state-stickman');
+  const chaser = document.getElementById('state-chaser');
+  const runner = document.getElementById('state-runner');
+
+  stopStateAnimation();
+
+  if (kind === 'empty' && stickman) {
+    let currentFrame = 0;
+    stateAnimation = window.setInterval(() => {
+      currentFrame = (currentFrame + 1) % STICKMAN_CONFUSED_FRAMES.length;
+      stickman.src = STICKMAN_CONFUSED_FRAMES[currentFrame];
+    }, 400);
+    return;
+  }
+
+  if (kind !== 'loading' || !chaser || !runner) return;
+
+  let chaserFrame = 0;
+  let runnerFrame = 0;
+
+  stateAnimation = window.setInterval(() => {
+    chaser.src = CHASER_FRAMES[chaserFrame];
+    runner.src = RUNNER_FRAMES[runnerFrame];
+    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
+    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
+  }, 150);
 }
 
 function getFilteredEvents() {
@@ -194,34 +227,27 @@ function getFilteredEvents() {
    GOOGLE CALENDAR
 ================================================================ */
 function addToGoogleCalendar(ev) {
-  // Build Google Calendar datetime string: YYYYMMDDTHHMMSS (local time, no Z)
   const toGCal = (dateStr, timeStr) => dateStr.replace(/-/g, '') + 'T' + timeStr.replace(':', '') + '00';
 
-  // Add HH:MM + minutes, returns HH:MM string
   const addMinutes = (timeStr, mins) => {
     const [h, m] = timeStr.split(':').map(Number);
     const total = h * 60 + m + mins;
     return String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
   };
 
-  // Try to match a time range: "10:00 – 16:00" or "10:00 - 16:00"
   const rangeMatch = ev.time && ev.time.match(/(\d{2}:\d{2})\s*[–—-]\s*(\d{2}:\d{2})/);
-  // Try to match a single start time: "10:00"
   const singleMatch = !rangeMatch && ev.time && ev.time.match(/(\d{2}:\d{2})/);
 
   let startDT, endDT;
   if (rangeMatch) {
-    // Has explicit start and end time
     startDT = toGCal(ev.date, rangeMatch[1]);
     endDT   = toGCal(ev.date, rangeMatch[2]);
   } else if (singleMatch) {
-    // Has only start time — default duration 1 hour
     const startTime = singleMatch[1];
     const endTime   = addMinutes(startTime, 60);
     startDT = toGCal(ev.date, startTime);
     endDT   = toGCal(ev.date, endTime);
   } else {
-    // No time at all — all-day event (Google Calendar format: YYYYMMDD/YYYYMMDD+1)
     const [y, mo, d] = ev.date.split('-').map(Number);
     const next = new Date(y, mo - 1, d + 1);
     const pad  = n => String(n).padStart(2, '0');
@@ -285,26 +311,21 @@ function heartIcons() { return SVG.heartOutline + SVG.heartFilled; }
 
 /* ================================================================
    SCHOOL HEADER IMAGES
-   One image per school — card header background.
-   Keyed by exact school name strings from FALLBACK_EVENTS / API.
-   Falls back to green gradient if no match.
 ================================================================ */
 const SCHOOL_IMAGES = {
-  // Unsplash Source URLs — reliable, no API key needed, always load
-  'Anton de Kom Universiteit (AdeKUS)':           'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',  // university campus
-  'Natuurtechnisch Instituut (NATIN)':             'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',  // tech/electronics lab
-  'Instituut voor de Opleiding van Leraren (IOL)': 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',  // classroom/education
-  'COVAB':                                         'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',  // nature/agriculture
-  'IMEAO':                                         'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',  // business/office
-  'Polytechnical College Suriname (PTC)':          'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',  // industrial/workshop
-  'IGSR':                                          'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',  // college building
-  'FHR':                                           'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',  // healthcare/medical
+  'Anton de Kom Universiteit (AdeKUS)':           'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',
+  'Natuurtechnisch Instituut (NATIN)':             'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',
+  'Instituut voor de Opleiding van Leraren (IOL)': 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',
+  'COVAB':                                         'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',
+  'IMEAO':                                         'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
+  'Polytechnical College Suriname (PTC)':          'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',
+  'IGSR':                                          'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',
+  'FHR':                                           'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',
 };
 
 function getSchoolImage(schoolName) {
   if (!schoolName) return null;
   if (SCHOOL_IMAGES[schoolName]) return SCHOOL_IMAGES[schoolName];
-  // Partial match for API names that may differ slightly
   const key = Object.keys(SCHOOL_IMAGES).find(k =>
     schoolName.toLowerCase().includes(k.split(' ')[0].toLowerCase())
   );
@@ -448,15 +469,31 @@ function renderCalendarView(events) {
 ================================================================ */
 function render() {
   const events = getFilteredEvents();
-  const listEl   = document.getElementById('list-view');
-  const calEl    = document.getElementById('calendar-view');
-  const emptyEl  = document.getElementById('empty-state');
+  const listEl    = document.getElementById('list-view');
+  const calEl     = document.getElementById('calendar-view');
+  const emptyEl   = document.getElementById('empty-state');
+  const loadingEl = document.getElementById('loading-state');
+
+  stopStateAnimation();
+
+  if (isLoading) {
+    listEl.style.display = 'none';
+    calEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+    document.getElementById('loading-msg').textContent = t('loading');
+    startStateAnimation('loading');
+    return;
+  }
+
+  loadingEl.style.display = 'none';
 
   if (events.length === 0) {
     listEl.style.display  = 'none';
     calEl.style.display   = 'none';
     emptyEl.style.display = 'block';
     document.getElementById('empty-msg').textContent = t('noEvents');
+    startStateAnimation('empty');
     return;
   }
 
@@ -478,15 +515,11 @@ function render() {
 }
 
 /* ================================================================
-   INTERACTIONS (Filters, View, Favs, Register, Lang)
-================================================================ */
-/* ================================================================
-   CARD ANIMATIONS — flip in from alternating sides via IntersectionObserver
+   CARD ANIMATIONS
 ================================================================ */
 function animateCards() {
   const cards = document.querySelectorAll('#list-view .event-card');
   cards.forEach((card, i) => {
-    // Mark right-origin cards before observing
     if (i % 2 !== 0) card.classList.add('card-from-right');
   });
 
@@ -502,9 +535,6 @@ function animateCards() {
   cards.forEach(card => observer.observe(card));
 }
 
-/* ================================================================
-   CALENDAR ROW ANIMATIONS — slide in from alternating sides via IntersectionObserver
-================================================================ */
 function animateCalendarRows() {
   const rows = document.querySelectorAll('#calendar-view .cal-event-row');
   rows.forEach((row, i) => {
@@ -543,9 +573,8 @@ function setViewMode(mode) {
   render();
 }
 
-// Raksha: toggleFavorite now syncs to DB via FavSync
+// Raksha: toggleFavorite now syncs to DB via direct API call
 async function toggleFavorite(id) {
-  // ── 1. Update in-memory state immediately (no DB wait) ──────────────────
   const wasAdded = !favorites.includes(id);
   if (wasAdded) {
     favorites.push(id);
@@ -554,14 +583,12 @@ async function toggleFavorite(id) {
   }
   localStorage.setItem('fav_openhouses', JSON.stringify(favorites));
 
-  // ── 2. Update every heart button for this event instantly ───────────────
   document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
     btn.classList.toggle('active', wasAdded);
     btn.setAttribute('aria-pressed', String(wasAdded));
     btn.setAttribute('aria-label', wasAdded ? t('ariaFavRemove') : t('ariaFavAdd'));
   });
 
-  // ── 3. If in Saved filter and unfavoriting — remove card from DOM instantly
   if (currentFilter === 'saved' && !wasAdded) {
     document.querySelectorAll(`[data-event-id="${id}"]`).forEach(btn => {
       const card = btn.closest('.event-card, .cal-event-row');
@@ -570,7 +597,6 @@ async function toggleFavorite(id) {
         card.style.opacity = '0';
         setTimeout(() => {
           card.remove();
-          // Show empty state if no cards left
           const remaining = document.querySelectorAll('.event-card, .cal-event-row');
           if (remaining.length === 0) {
             document.getElementById('list-view').style.display = 'none';
@@ -584,15 +610,10 @@ async function toggleFavorite(id) {
     });
   }
 
-  // ── 4. Show toast immediately ────────────────────────────────────────────
   const msg = wasAdded ? t('addedFav') : t('removedFav');
   showToast(msg, '', wasAdded);
   announce(msg);
 
-  // ── 5. Sync to DB silently in background — never touch UI after this ─────
-  // NOTE: We do NOT call FavSync.toggle() here because FavSync.toggle()
-  // re-reads localStorage and toggles it again, which would reverse our
-  // update above. Instead we call the API directly.
   const token = getAuthToken();
   if (token) {
     try {
@@ -636,7 +657,6 @@ async function registerEvent(id) {
 
     addToGoogleCalendar(ev);
 
-    // Auto-favourite when registering
     if (!favorites.includes(id)) {
       await window.FavSync.toggle('openhouses', id);
       favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
@@ -708,7 +728,6 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
 });
 
 // ── Auth / Profile ────────────────────────────────────────────
-/* Avatar emoji map — must match settings.js exactly */
 const AVATARS_MAP = {
   graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
   panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
@@ -745,7 +764,6 @@ function initAuth() {
   document.getElementById('popup-name').textContent          = displayName;
   document.getElementById('popup-email').textContent         = payload.email || '';
 
-  // Notifications toggle state
   const notifToggle = document.getElementById('popup-notif-toggle');
   if (notifToggle) {
     notifToggle.checked = localStorage.getItem('user_notif_general') === 'true';
@@ -771,7 +789,75 @@ document.addEventListener('click', (e) => {
   if (popup && wrap && !wrap.contains(e.target)) popup.classList.remove('open');
 });
 
-// ── Init ─────────────────────────────────────────────────────
+/* ================================================================
+   CONFLICT RESOLUTION — public/js/open-houses.js
+   Location: init block at the very bottom of the file
+
+   WHAT THE CONFLICT WAS:
+     Veroush's (HEAD / raksha/testing/merge):
+       setLanguage(currentLang);
+       initAuth();
+       Promise.all([
+         loadEvents(),
+         window.FavSync.loadFromDB(),
+       ]).then(() => {
+         favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+         render();
+       });
+
+       Key points:
+       - setLanguage() and initAuth() run first so the UI is ready
+         before data arrives (no flash of untranslated text).
+       - loadEvents() and FavSync.loadFromDB() run in parallel via
+         Promise.all, which is faster than running them sequentially.
+       - favorites is re-read from localStorage AFTER FavSync.loadFromDB()
+         completes, so the heart icons reflect the true DB state.
+       - render() is called only once, after both promises settle.
+       - Uses loadEvents() which contains the UTC→Suriname time conversion
+         logic (slicing the ISO string, subtracting 3 hours for UTC-3).
+
+     Val's (feature/settings):
+       (async () => {
+         initAuth();
+         render();           // ← renders BEFORE data loads
+         await fetchEvents();
+         isLoading = false;
+         setLanguage(currentLang);
+       })();
+
+       Key points:
+       - render() is called immediately before fetchEvents() completes.
+         Since isLoading starts as true, this shows the loading spinner,
+         which is intentional, but it also means the UI has no language
+         applied yet when render() first runs.
+       - Uses fetchEvents() instead of loadEvents(). fetchEvents() is a
+         simpler version added by Val that does NOT contain the UTC-3 time
+         conversion logic. Open house times would appear in UTC instead of
+         Suriname local time (e.g. 06:00 instead of 09:00).
+       - FavSync.loadFromDB() is never called, meaning favorites are read
+         from a potentially stale localStorage cache. Heart icons may not
+         reflect the user's actual saved favorites from the DB.
+       - setLanguage() runs last, after the data fetch, causing a brief
+         flash of Dutch (default) text even if the user prefers English.
+
+   WHY YOURS WAS KEPT:
+     1. loadEvents() contains the UTC→Suriname (UTC-3) time conversion
+        which is critical for showing correct event times. Val's
+        fetchEvents() silently drops this logic and would show wrong times.
+     2. FavSync.loadFromDB() must be awaited before reading fav_openhouses
+        so that heart icons reflect the true DB state, not stale cache.
+     3. setLanguage() running first prevents any language flash on load.
+     4. Promise.all is more efficient — both fetches run in parallel.
+
+   RESOLUTION:
+     Kept your (HEAD) init block verbatim. Dropped Val's async IIFE.
+
+   OWNERSHIP:
+     Promise.all + FavSync + loadEvents() init pattern (kept):
+       yours / raksha/testing/merge.
+     async IIFE with fetchEvents() (dropped): Val / feature/settings.
+================================================================ */
+
 // Raksha: loadEvents() fetches from API, FavSync.loadFromDB() restores favorites from DB.
 // setLanguage() and initAuth() run first so the UI is ready before data arrives.
 setLanguage(currentLang);

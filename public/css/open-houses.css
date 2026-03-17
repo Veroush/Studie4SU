@@ -614,23 +614,76 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* ============================================================
-   EMPTY STATE
+   LOADING + EMPTY STATE
    ============================================================ */
+#loading-state,
 #empty-state {
   display: none;
+}
+
+.state-center {
   text-align: center;
   padding: 3rem 1rem;
   background: var(--white);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
 }
-.empty-icon {
-  width: 4rem;
-  height: 4rem;
-  color: var(--gray-300);
+
+.state-animation {
+  position: relative;
   margin: 0 auto 1rem;
+  width: min(100%, 260px);
+  height: 160px;
 }
+
+.state-animation::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 70%);
+}
+
+.state-runner,
+.state-chaser {
+  position: absolute;
+  bottom: 30px;
+  width: 86px;
+  height: 86px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.state-chaser { left: 30px; }
+.state-runner { left: 170px; }
+
+.state-animation-stickman {
+  width: min(100%, 180px);
+  height: 150px;
+}
+
+.state-animation-stickman::after {
+  width: 120px;
+}
+
+.state-stickman {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
 .empty-msg { color: var(--gray-500); font-size: 1.125rem; }
+
+@media (max-width: 560px) {
+  .state-animation { height: 140px; }
+  .state-runner,
+  .state-chaser { width: 76px; height: 76px; }
+  .state-chaser { left: 24px; }
+  .state-runner { left: 140px; }
+}
 
 /* Self-creating toast used by schools.js and program-detail.js */
 .fav-toast {

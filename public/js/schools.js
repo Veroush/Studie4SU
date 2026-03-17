@@ -1,9 +1,9 @@
 'use strict';
 
 // ── State ──────────────────────────────────────────────────────
-let allSchools   = [];   // raw data from backend
+let allSchools   = [];
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
-let compareItems = [];   // max 3 program IDs
+let compareItems = [];
 let stateAnimation = null;
 let isLoading = true;
 
@@ -95,7 +95,6 @@ const descriptions = {
   },
 };
 
-// Default fallback description
 const defaultDesc = {
   nl: 'Een erkende onderwijsinstelling in Suriname met hoogwaardige opleidingen.',
   en: 'A recognized educational institution in Suriname with high-quality programs.',
@@ -107,17 +106,15 @@ function getDescription(id) {
 }
 
 // ── School Header Images ──────────────────────────────────────
-// Keyed by school.id — Unsplash URLs, no API key needed, always load.
-// To change an image: swap the photo ID in the URL (the part after /photo-).
 const SCHOOL_IMAGES = {
-  school_adekus: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop', // university campus
-  school_natin:  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop', // tech/electronics lab
-  school_iol:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop', // classroom/education
-  school_covab:  'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop', // nature/agriculture
-  school_imeao:  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop', // business/office
-  school_ptc:    'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop', // industrial/workshop
-  school_igsr:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop', // healthcare/medical
-  school_fhr:    'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop', // college building
+  school_adekus: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',
+  school_natin:  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',
+  school_iol:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',
+  school_covab:  'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',
+  school_imeao:  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
+  school_ptc:    'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',
+  school_igsr:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',
+  school_fhr:    'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',
 };
 
 function getSchoolImage(id) {
@@ -130,6 +127,13 @@ const SCHOOL_ICON = `
     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
+
+const STICKMAN_CONFUSED_FRAMES = [
+  'img/stickman-confused1.svg',
+  'img/stickman-confused2.svg',
+  'img/stickman-confused3.svg',
+  'img/stickman-confused4.svg',
+];
 
 const CHASER_FRAMES = [
   'img/chasing-1.svg',
@@ -156,11 +160,22 @@ function stopStateAnimation() {
 }
 
 function startStateAnimation() {
+  const stickman = document.getElementById('state-stickman');
   const chaser = document.getElementById('state-chaser');
   const runner = document.getElementById('state-runner');
-  if (!chaser || !runner) return;
 
   stopStateAnimation();
+
+  if (stickman) {
+    let currentFrame = 0;
+    stateAnimation = window.setInterval(() => {
+      currentFrame = (currentFrame + 1) % STICKMAN_CONFUSED_FRAMES.length;
+      stickman.src = STICKMAN_CONFUSED_FRAMES[currentFrame];
+    }, 400);
+    return;
+  }
+
+  if (!chaser || !runner) return;
 
   let chaserFrame = 0;
   let runnerFrame = 0;
@@ -168,7 +183,6 @@ function startStateAnimation() {
   stateAnimation = window.setInterval(() => {
     chaser.src = CHASER_FRAMES[chaserFrame];
     runner.src = RUNNER_FRAMES[runnerFrame];
-
     chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
     runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
   }, 150);
@@ -183,20 +197,18 @@ async function fetchSchools() {
     const res = await fetch('/schools');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    // /schools returns array with _count.programs
     allSchools = data;
     isLoading = false;
     renderGrid();
   } catch (err) {
     console.warn('[Studie4SU] Could not load schools from backend:', err.message);
-    // Fall back to seeded static data so the page still works during development
     allSchools = FALLBACK_SCHOOLS;
     isLoading = false;
     renderGrid();
   }
 }
 
-// ── Fallback static data (mirrors your seed.js) ───────────────
+// ── Fallback static data ──────────────────────────────────────
 const FALLBACK_SCHOOLS = [
   { id: 'school_adekus', name: 'Anton de Kom Universiteit van Suriname', shortName: 'AdeKUS', type: 'University', location: 'Paramaribo', _count: { programs: 4 } },
   { id: 'school_natin',  name: 'Natuurtechnisch Instituut',              shortName: 'NATIN',  type: 'HBO',        location: 'Paramaribo', _count: { programs: 1 } },
@@ -243,19 +255,51 @@ function renderGrid() {
 
   const filtered = getFiltered();
 
-  // Results count
   countEl.innerHTML = tx.results(filtered.length);
 
   if (filtered.length === 0) {
+    /* ---------------------------------------------------------------
+       CONFLICT RESOLUTION — public/js/schools.js
+       Location: renderGrid() — the empty state HTML block
+
+       WHAT THE CONFLICT WAS:
+         Yours (HEAD / raksha/testing/merge):
+           Used the confused stickman animation for the empty state:
+             <div class="state-animation state-animation-stickman">
+               <img id="state-stickman" class="state-stickman" src="img/stickman-confused1.svg">
+             </div>
+           This matches the pattern used in open-houses.js and is
+           the correct animation for a "no results" state.
+
+         Val's (feature/settings):
+           Used the chaser/runner pair instead:
+             <div class="state-animation">
+               <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg">
+               <img id="state-runner" class="state-runner" src="img/running-1.svg">
+             </div>
+           The chaser/runner pair is intended for the loading state,
+           not the empty/no-results state. Using it here was incorrect.
+
+       WHY YOURS WAS KEPT:
+         The confused stickman is semantically correct — a confused
+         character fits "no results found". The chaser/runner is
+         semantically a loading animation and should only appear
+         while data is being fetched. startStateAnimation() also
+         branches on whether state-stickman exists, so the stickman
+         variant is what drives the correct animation loop here.
+
+       RESOLUTION:
+         Kept your (HEAD) version with state-stickman. Dropped Val's
+         chaser/runner variant for the empty state.
+    --------------------------------------------------------------- */
     grid.innerHTML = `
-      <div class="state-center" style="grid-column:1/-1;width:100%;text-align:center">
-      <div class="state-animation" aria-hidden="true">
-        <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
-        <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+      <div class="state-center" style="grid-column:1/-1">
+      <div class="state-animation state-animation-stickman" aria-hidden="true">
+        <img id="state-stickman" class="state-stickman" src="img/stickman-confused1.svg" alt="">
       </div>
         <p>${tx.noResults}</p>
       </div>`;
-      startStateAnimation();
+    startStateAnimation();
     return;
   }
 
@@ -320,13 +364,10 @@ function renderGrid() {
       </div>`;
   }).join('');
 
-  // Trigger scroll-in animations for newly rendered cards
   requestAnimationFrame(() => animateCards());
 }
 
 // ── Scroll-triggered card animations ─────────────────────────
-// Cards start hidden (.card-hidden), then get .card-visible when
-// they enter the viewport. Stagger delay based on data-index.
 let cardObserver = null;
 
 function animateCards() {
@@ -337,7 +378,6 @@ function animateCards() {
       if (!entry.isIntersecting) return;
       const card  = entry.target;
       const idx   = parseInt(card.dataset.index || '0', 10);
-      // Stagger delay: each column position is 80ms later
       card.style.transitionDelay = (idx % 3) * 0.08 + 's';
       card.classList.add('card-visible');
       cardObserver.unobserve(card);
@@ -348,7 +388,6 @@ function animateCards() {
     cardObserver.observe(card);
   });
 }
-
 
 let _toastTimer;
 function showFavToast(added) {
@@ -371,11 +410,7 @@ function showFavToast(added) {
 }
 
 // ── Favorite toggle ───────────────────────────────────────────
-// Instant UI pattern: update state + DOM immediately, then sync to DB
-// in the background. Never call FavSync.toggle() here — it re-reads
-// localStorage and would reverse our update (double-toggle bug).
 async function toggleFavorite(id, btn) {
-  // 1. Update in-memory state immediately (no DB wait)
   const wasAdded = !favorites.includes(id);
   if (wasAdded) {
     favorites.push(id);
@@ -384,16 +419,13 @@ async function toggleFavorite(id, btn) {
   }
   localStorage.setItem('fav_schools', JSON.stringify(favorites));
 
-  // 2. Update button UI instantly
   btn.classList.toggle('active', wasAdded);
   const path = btn.querySelector('path');
   if (path) path.setAttribute('fill', wasAdded ? 'currentColor' : 'none');
   btn.setAttribute('aria-label', wasAdded ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten');
 
-  // 3. Show toast immediately
   showFavToast(wasAdded);
 
-  // 4. Sync to DB silently in background
   const token = localStorage.getItem('auth_token');
   if (token) {
     try {
@@ -415,7 +447,7 @@ async function toggleFavorite(id, btn) {
   }
 }
 
-// ── Compare toggle (programs — triggered from program-detail.html) ────────────
+// ── Compare toggle ────────────────────────────────────────────
 function toggleCompare(id, btn) {
   const idx = compareItems.indexOf(id);
   if (idx === -1) {
@@ -447,14 +479,12 @@ function updateCompareBar() {
   }
 }
 
-// ── Clear compare ─────────────────────────────────────────────
 document.getElementById('btn-clear-compare').addEventListener('click', () => {
   compareItems = [];
   updateCompareBar();
   document.querySelectorAll('.btn-compare').forEach(b => b.classList.remove('active'));
 });
 
-// ── View comparison ───────────────────────────────────────────
 document.getElementById('btn-view-comparison').addEventListener('click', () => {
   if (compareItems.length < 2) {
     alert(language === 'nl'
@@ -492,7 +522,6 @@ function applyLanguage(lang) {
 
   const tx = t[lang];
 
-  // Page title & subtitle
   document.getElementById('page-title').textContent    = tx.pageTitle;
   document.getElementById('page-subtitle').textContent = tx.pageSubtitle;
   document.getElementById('search-label').textContent = tx.searchLabel;
@@ -501,7 +530,6 @@ function applyLanguage(lang) {
   document.getElementById('label-location').textContent = tx.labelLocation;
   document.getElementById('label-level').textContent   = tx.labelLevel;
 
-  // Nav links & login btn
   document.querySelectorAll('[data-nl]').forEach(el => {
     el.textContent = el.dataset[lang] || el.textContent;
   });
@@ -512,11 +540,9 @@ function applyLanguage(lang) {
       ? searchInput.dataset.nlPlaceholder
       : searchInput.dataset.enPlaceholder;
 
-  // Active state on lang buttons
   document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-  // Re-render grid with new language
   renderGrid();
   updateCompareBar();
 }
@@ -524,34 +550,44 @@ function applyLanguage(lang) {
 document.getElementById('btn-nl').addEventListener('click', () => applyLanguage('nl'));
 document.getElementById('btn-en').addEventListener('click', () => applyLanguage('en'));
 
-// ---------------------------------------------------------------
-// ⚠️  CONFLICT RESOLUTION — public/js/schools.js
-//     Location: between applyLanguage() and initAuth() — stickman block
-//
-// WHAT THE CONFLICT WAS:
-//   feature/settings (Veroush) added two items here:
-//     1. const STICKMAN_IMGS = { light: {...}, dark: {...} }
-//        — object mapping theme names to left/right stickman image paths
-//     2. function applyStickmanTheme(isDark) { ... }
-//        — swapped stickman <img> src based on isDark boolean
-//   HEAD (raksha/testing/merge) had neither — these were new additions
-//   only on the feature/settings branch.
-//
-// WHY BOTH WERE DROPPED:
-//   Dark mode was scrapped entirely. theme-init.js was deleted.
-//   The dark stickman image variants (scholen_stickman*-dark.png) do not
-//   exist in the project. applyStickmanTheme() served no purpose without
-//   a dark mode toggle to call it. Keeping dead code that references
-//   non-existent assets would cause silent errors.
-//
-// RESOLUTION:
-//   Both STICKMAN_IMGS and applyStickmanTheme() were deleted.
-//   The stickman images in schools.html always use the light variants
-//   (scholen_stickman1.5.png / scholen_stickman2.5.png) — no JS swap needed.
-//
-// OWNERSHIP:
-//   STICKMAN_IMGS + applyStickmanTheme: Veroush / feature/settings (dropped).
-// ---------------------------------------------------------------
+/* ---------------------------------------------------------------
+   CONFLICT RESOLUTION — public/js/schools.js
+   Location: between applyLanguage() and initAuth()
+
+   WHAT THE CONFLICT WAS:
+     Yours (HEAD / raksha/testing/merge):
+       Neither STICKMAN_IMGS nor applyStickmanTheme() existed here.
+       The file went straight from applyLanguage() to initAuth().
+
+     Val's (feature/settings):
+       Val added two items:
+         1. const STICKMAN_IMGS = { light: { left: '...', right: '...' },
+                                    dark:  { left: '...', right: '...' } }
+            An object mapping theme name to left/right stickman image paths,
+            pointing at dark-variant images that do not exist in the project.
+         2. function applyStickmanTheme(isDark) { ... }
+            Swapped the two title stickman <img> src attributes based on
+            the isDark boolean. Called from handleDarkToggle() and the
+            boot block on page load.
+
+   WHY BOTH WERE DROPPED:
+     Dark mode was scrapped entirely. theme-init.js was deleted.
+     The dark stickman image variants referenced in STICKMAN_IMGS do not
+     exist as files in the project. applyStickmanTheme() was only ever
+     called by handleDarkToggle() (also dropped) and the boot block.
+     Keeping dead code that references non-existent image files would
+     cause silent errors (broken img src on every page load in dark mode,
+     which can never even be activated).
+
+   RESOLUTION:
+     Both STICKMAN_IMGS and applyStickmanTheme() were deleted entirely.
+     The stickman <img> tags in schools.html always use the light variants
+     and no JS swap is needed.
+
+   OWNERSHIP:
+     STICKMAN_IMGS (dropped): Val / feature/settings.
+     applyStickmanTheme() (dropped): Val / feature/settings.
+--------------------------------------------------------------- */
 
 // ── Auth / Profile ────────────────────────────────────────────
 const AVATARS_MAP = {
@@ -593,63 +629,70 @@ function initAuth() {
   if (navAv) navAv.textContent = avatarEmoji;
   if (popAv) popAv.textContent = avatarEmoji;
 
-  // ---------------------------------------------------------------
-  // ⚠️  CONFLICT RESOLUTION — public/js/schools.js
-  //     Location: inside initAuth(), toggle wiring block
-  //
-  // WHAT THE CONFLICT WAS:
-  //   feature/settings (Veroush) had TWO toggles wired here:
-  //     const darkToggle = document.getElementById('popup-dark-toggle');
-  //     if (darkToggle) darkToggle.checked = localStorage.getItem('dark_mode') === 'true';
-  //
-  //     const notifToggle = document.getElementById('popup-notif-toggle');
-  //     if (notifToggle) notifToggle.checked = localStorage.getItem('notif_platform_alerts') === 'true';
-  //
-  //   HEAD had neither of these lines — they were new on feature/settings.
-  //
-  // WHY darkToggle LINES WERE DROPPED:
-  //   Dark mode was scrapped. The popup has no dark mode toggle row.
-  //   popup-dark-toggle does not exist in the HTML — getElementById would
-  //   return null and the if-guard would silently no-op, but keeping dead
-  //   code is confusing. Dropped entirely.
-  //
-  // WHY notifToggle LINES WERE KEPT:
-  //   The popup does have a notifications toggle (popup-notif-toggle).
-  //   This wiring correctly pre-populates its checked state from localStorage
-  //   on page load. This is real, working functionality — kept.
-  //
-  // OWNERSHIP:
-  //   darkToggle lines: Veroush / feature/settings (dropped).
-  //   notifToggle lines: Veroush / feature/settings (kept).
-  // ---------------------------------------------------------------
+  /* ---------------------------------------------------------------
+     CONFLICT RESOLUTION — public/js/schools.js
+     Location: inside initAuth(), toggle wiring block
 
+     WHAT THE CONFLICT WAS:
+       Verouh's (HEAD / raksha/testing/merge):
+         Neither toggle was wired here. initAuth() ended after
+         setting the avatar emoji on navAv and popAv.
+
+           2. const notifToggle = document.getElementById('popup-notif-toggle');
+              if (notifToggle) notifToggle.checked =
+                localStorage.getItem('notif_platform_alerts') === 'true';
+              — Pre-populates the notifications toggle in the popup.
+
+     WHY notifToggle LINES WERE KEPT:
+       popup-notif-toggle does exist in schools.html's profile popup.
+       This correctly pre-populates its checked state from localStorage
+       on page load so the toggle reflects the user's saved preference.
+       This is real, working functionality.
+
+     RESOLUTION:
+       Dropped the darkToggle block. Kept the notifToggle block.
+
+     OWNERSHIP:
+       darkToggle block (dropped): Val / feature/settings.
+       notifToggle block (kept): Val / feature/settings.
+  --------------------------------------------------------------- */
   const notifToggle = document.getElementById('popup-notif-toggle');
   if (notifToggle) notifToggle.checked = localStorage.getItem('notif_platform_alerts') === 'true';
 }
 
-// ---------------------------------------------------------------
-// ⚠️  CONFLICT RESOLUTION — public/js/schools.js
-//     Location: handleDarkToggle() function
-//
-// WHAT THE CONFLICT WAS:
-//   feature/settings (Veroush) added handleDarkToggle(checked) here:
-//     function handleDarkToggle(checked) {
-//       const theme = checked ? 'dark' : 'light';
-//       localStorage.setItem('user_theme', theme);
-//       localStorage.setItem('dark_mode', String(checked));
-//       if (window.applyTheme) window.applyTheme(theme);
-//       applyStickmanTheme(checked);   ← also calls the dropped function
-//     }
-//   HEAD had no such function.
-//
-// WHY IT WAS DROPPED:
-//   Dark mode is scrapped. No element in the popup calls handleDarkToggle().
-//   It also called applyStickmanTheme() which was also dropped above.
-//   Keeping it would be dead code with a broken dependency.
-//
-// OWNERSHIP:
-//   handleDarkToggle: Veroush / feature/settings (dropped).
-// ---------------------------------------------------------------
+/* ---------------------------------------------------------------
+   CONFLICT RESOLUTION — public/js/schools.js
+   Location: handleDarkToggle() function, between initAuth() and
+   toggleProfilePopup()
+
+   WHAT THE CONFLICT WAS:
+     Yours (HEAD / raksha/testing/merge):
+       This function did not exist. HEAD went straight from initAuth()
+       to toggleProfilePopup().
+
+     Val's (feature/settings):
+       Val added:
+         function handleDarkToggle(checked) {
+           const theme = checked ? 'dark' : 'light';
+           localStorage.setItem('user_theme', theme);
+           localStorage.setItem('dark_mode', String(checked));
+           if (window.applyTheme) window.applyTheme(theme);
+           applyStickmanTheme(checked);
+         }
+       This function was called by the popup dark mode toggle's onchange
+       handler. It also called applyStickmanTheme() which was itself dropped.
+
+   WHY IT WAS DROPPED:
+     Dark mode is scrapped. No element in any popup calls handleDarkToggle().
+     It also depended on applyStickmanTheme() which was dropped above,
+     so keeping it would leave a broken function calling an undefined one.
+
+   RESOLUTION:
+     handleDarkToggle() was deleted entirely.
+
+   OWNERSHIP:
+     handleDarkToggle() (dropped): Val / feature/settings.
+--------------------------------------------------------------- */
 
 function toggleProfilePopup(e) {
   e.stopPropagation();
@@ -672,46 +715,50 @@ document.getElementById('hamburger-btn').addEventListener('click', () => {
   document.getElementById('mobile-nav').classList.toggle('open');
 });
 
-// ── Boot ──────────────────────────────────────────────────────
-// ---------------------------------------------------------------
-// ⚠️  CONFLICT RESOLUTION — public/js/schools.js
-//     Location: DOMContentLoaded boot block at the bottom of the file
-//
-// WHAT THE CONFLICT WAS:
-//   HEAD (raksha/testing/merge):
-//     document.addEventListener('DOMContentLoaded', async () => {
-//       await window.FavSync.loadFromDB();
-//       favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
-//       applyLanguage(language);
-//       fetchSchools();
-//       initAuth();
-//     });
-//
-//   feature/settings (Veroush):
-//     document.addEventListener('DOMContentLoaded', () => {
-//       applyLanguage(language);
-//       fetchSchools();
-//       initAuth();
-//       applyStickmanTheme(localStorage.getItem('user_theme') === 'dark');
-//     });
-//
-// WHY HEAD WAS KEPT:
-//   1. FavSync.loadFromDB() — Raksha's FavSync singleton must be awaited
-//      before reading fav_schools from localStorage, otherwise the local
-//      cache may be stale and the heart icons won't reflect the user's
-//      actual saved favorites. This is a correctness requirement.
-//   2. The async/await pattern is required for FavSync to work properly.
-//   3. applyStickmanTheme() call on the feature/settings side was dropped
-//      because dark mode is scrapped (see note above).
-//
-// RESOLUTION:
-//   Kept HEAD's async boot block verbatim. Dropped feature/settings sync
-//   version including its applyStickmanTheme() call.
-//
-// OWNERSHIP:
-//   async FavSync boot pattern: Raksha (integration branch).
-//   applyStickmanTheme call (dropped): Veroush / feature/settings.
-// ---------------------------------------------------------------
+/* ---------------------------------------------------------------
+   CONFLICT RESOLUTION — public/js/schools.js
+   Location: DOMContentLoaded boot block at the bottom of the file
+
+   WHAT THE CONFLICT WAS:
+     Veroush's (HEAD / raksha/testing/merge):
+       document.addEventListener('DOMContentLoaded', async () => {
+         await window.FavSync.loadFromDB();
+         favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
+         applyLanguage(language);
+         fetchSchools();
+         initAuth();
+       });
+
+     Val's (feature/settings):
+       document.addEventListener('DOMContentLoaded', () => {
+         applyLanguage(language);
+         fetchSchools();
+         initAuth();
+         applyStickmanTheme(localStorage.getItem('user_theme') === 'dark');
+       });
+       Note: Val's version is synchronous (no async/await) and adds
+       an applyStickmanTheme() call at the end.
+
+   WHY YOURS WAS KEPT:
+     1. FavSync.loadFromDB() — this must be awaited before reading
+        fav_schools from localStorage. Without it, the local cache
+        may be stale (e.g. user added a favorite on another device or
+        after a localStorage clear) and heart icons won't reflect the
+        user's actual saved state. This is a correctness requirement
+        from Raksha's FavSync architecture.
+     2. The async/await pattern is required for FavSync to work.
+        A synchronous boot block cannot await loadFromDB().
+     3. Val's applyStickmanTheme() call was dropped because dark mode
+        is scrapped and the function was deleted above.
+
+   RESOLUTION:
+     Kept your (HEAD) async boot block verbatim.
+     Dropped Val's synchronous version including applyStickmanTheme().
+
+   OWNERSHIP:
+     Async FavSync boot pattern (kept): yours / raksha/testing/merge.
+     applyStickmanTheme() call (dropped): Val / feature/settings.
+--------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', async () => {
   await window.FavSync.loadFromDB();
   favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');

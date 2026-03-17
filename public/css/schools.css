@@ -338,7 +338,6 @@ body {
   transition: box-shadow .25s, transform .25s;
   display: flex;
   flex-direction: column;
-  /* Animation handled by IntersectionObserver — cards start invisible */
 }
 .school-card:hover {
   box-shadow: var(--shadow-xl);
@@ -346,7 +345,6 @@ body {
 }
 
 /* ─── SCROLL-IN ANIMATION ──────────────────────────────────── */
-/* Cards start hidden and tilted slightly, then spring into place */
 .card-hidden {
   opacity: 0;
   transform: translateY(40px) rotate(var(--card-tilt, 0deg)) scale(.95);
@@ -354,7 +352,6 @@ body {
               transform .5s cubic-bezier(.22,1,.36,1);
   will-change: opacity, transform;
 }
-/* Alternate tilt direction per column for a lively stagger feel */
 .card-hidden:nth-child(3n+1) { --card-tilt:  1.5deg; }
 .card-hidden:nth-child(3n+2) { --card-tilt: -1.5deg; }
 .card-hidden:nth-child(3n)   { --card-tilt:  1deg;   }
@@ -371,7 +368,6 @@ body {
   overflow: hidden;
   flex-shrink: 0;
 }
-/* Dark gradient overlay when a real photo is present */
 .card-img-overlay {
   position: absolute;
   inset: 0;
@@ -382,12 +378,10 @@ body {
   );
   z-index: 0;
 }
-/* Ensure badge sits above the overlay — btn-favorite keeps position:absolute from its own rule */
 .card-header > .card-type-badge {
   position: relative;
   z-index: 1;
 }
-/* Decorative circles removed — cards now use real school photos */
 .card-school-icon {
   position: absolute;
   inset: 0;
@@ -398,7 +392,6 @@ body {
 }
 .card-school-icon svg { width: 48px; height: 48px; }
 
-/* Type badge overlaid on header */
 .card-type-badge {
   position: absolute;
   bottom: 12px;
@@ -409,13 +402,12 @@ body {
   font-weight: 600;
   letter-spacing: .03em;
   backdrop-filter: blur(8px);
-  z-index: 2; /* must sit above .card-img-overlay */
+  z-index: 2;
 }
 .badge-university { background: rgba(255,255,255,.25); color: #fff; }
 .badge-hbo        { background: rgba(255,255,255,.25); color: #fff; }
 .badge-mbo        { background: rgba(255,255,255,.25); color: #fff; }
 
-/* Favorite button */
 .btn-favorite {
   position: absolute;
   top: 16px; right: 16px;
@@ -428,13 +420,12 @@ body {
   display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow-lg);
   transition: background .2s, transform .2s;
-  z-index: 2; /* must sit above .card-img-overlay */
+  z-index: 2;
 }
 .btn-favorite:hover { background: #fff; transform: scale(1.1); }
 .btn-favorite svg { width: 18px; height: 18px; color: var(--gray-600); transition: color .2s; pointer-events: none; }
 .btn-favorite.active svg { color: var(--red-600); fill: var(--red-600); }
 
-/* Card content */
 .card-content {
   padding: 20px 24px 24px;
   display: flex;
@@ -486,7 +477,6 @@ body {
   color: var(--gray-600);
   line-height: 1.55;
   margin-bottom: 16px;
-  /* 2-line clamp */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -552,8 +542,6 @@ body {
 }
 
 /* ─── LOADING / ERROR / EMPTY STATES ──────────────────────── */
-/* When the grid holds only a state-center, center it instantly —
-   no layout shift or delayed margin resolution.                 */
 .schools-grid:has(.state-center) {
   display: flex;
   justify-content: center;
@@ -593,6 +581,21 @@ body {
 }
 .state-chaser { left: 30px; }
 .state-runner { left: 170px; }
+
+.state-animation-stickman {
+  width: min(100%, 100px);
+  height: auto;
+  overflow: visible;
+}
+
+.state-animation-stickman::after {
+  content: none;
+}
+
+.state-stickman {
+  display: block;
+}
+
 @media (max-width: 480px) {
   .state-animation { height: 140px; }
   .state-runner,
@@ -816,35 +819,42 @@ body {
 .popup-logout:hover { background: #fee2e2; }
 
 /* ---------------------------------------------------------------
-   ⚠️  CONFLICT RESOLUTION — public/css/schools.css
-       Location: end of file, after the second @keyframes spinInRight block
+   CONFLICT RESOLUTION — public/css/schools.css
+   Location: end of file, after the closing } of @keyframes spinInRight
 
    WHAT THE CONFLICT WAS:
-     HEAD (raksha/testing/merge): file ended cleanly after the closing }
-     of the second @keyframes spinInRight block.
+     Yours (HEAD / raksha/testing/merge):
+       The file ended cleanly right after the closing } of
+       @keyframes spinInRight. Nothing followed it.
 
-     feature/settings (Veroush): added a large "DARK MODE" block below it —
-     roughly 90 lines of html.theme-dark { ... } selectors covering body,
-     search, filter panel, school cards, badges, buttons, profile popup, etc.
-     This block was applied via the html.theme-dark class set by theme-init.js.
+     Val's (feature/settings):
+       Val added two things after that closing }:
+         1. A duplicate pair of @keyframes spinInLeft and @keyframes
+            spinInRight — identical to the ones already defined earlier
+            in this file. These were redundant.
+         2. A large "DARK MODE" block — roughly 90 lines of
+            html.theme-dark { ... } selectors covering body, search,
+            filter panel, school cards, badges, buttons, and the profile
+            popup. This block was applied via the html.theme-dark class
+            set by theme-init.js.
 
-   WHY HEAD WAS KEPT (dark mode block dropped entirely):
-     Dark mode was scrapped as a feature this project cycle. The decision was
-     made to remove theme-init.js entirely and never apply html.theme-dark.
-     Keeping the dark mode CSS would be dead weight — it references a class
-     that is never set, and theme-init.js no longer exists in the project.
-     The duplicate @keyframes spinInLeft / spinInRight that appeared just
-     before the dark mode block (also from the feature/settings side) were
-     also dropped as they were redundant — the identical keyframes already
-     appear earlier in this file.
+   WHY VAL'S ADDITIONS WERE DROPPED:
+     Dark mode was scrapped as a feature this project cycle.
+     theme-init.js was deleted and is no longer loaded by any page.
+     The html.theme-dark class is never set anywhere, so the entire
+     dark mode CSS block would be dead code — selectors that never match.
+     The duplicate @keyframes were also dropped because the identical
+     definitions already exist earlier in this file. Keeping duplicates
+     would be confusing and serve no purpose.
 
    RESOLUTION:
-     Kept everything up to and including the closing } of the second
-     @keyframes spinInRight block (HEAD's end-of-file). Dropped the entire
-     dark mode CSS block that followed on the feature/settings side.
-     No light-mode styles were lost — only dead dark-mode code was removed.
+     Kept everything from HEAD (your version) verbatim.
+     Dropped Val's duplicate @keyframes block and the entire dark mode
+     CSS block that followed it.
+     No light-mode styles were lost — only dead dark-mode code removed.
 
    OWNERSHIP:
-     Light-mode styles: Veroush (original) + Raksha (integration branch).
-     Dark-mode block (dropped): Veroush / feature/settings branch.
+     All light-mode styles in this file: shared (both branches).
+     Duplicate @keyframes (dropped): Val / feature/settings.
+     Dark mode CSS block (dropped): Val / feature/settings.
 --------------------------------------------------------------- */
