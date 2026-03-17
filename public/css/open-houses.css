@@ -244,6 +244,7 @@ button { font-family: inherit; cursor: pointer; }
   margin-top: 64px;
 }
 .site-footer a { color: #e8b84b; text-decoration: none; }
+#footer-about-link { color: var(--gold); }
 
 /* ============================================================
    FILTER & VIEW TOGGLE BAR

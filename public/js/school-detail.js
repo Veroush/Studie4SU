@@ -41,6 +41,8 @@ const T = {
     errorTitle:      'School niet gevonden',
     errorSub:        'Controleer of de URL correct is en de server actief.',
     online:          'Online',
+    footerTagline:   'Studiekeuze voor Surinaamse studenten',
+    footerAbout:     'Over ons',
   },
   en: {
     back:            '← Back to schools',
@@ -69,6 +71,8 @@ const T = {
     email:           'Email',
     website:         'Website',
     online:          'Online',
+    footerTagline:   'Study guidance for Surinamese students',
+    footerAbout:     'About us',
   }
 };
 
@@ -223,6 +227,88 @@ function formatDate(dateStr) {
     return d.toLocaleDateString(language === 'nl' ? 'nl-NL' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   } catch { return dateStr; }
 }
+
+// ADDED: images for open house cards, keyed by school ID.
+// Same Unsplash URLs used in open-houses.js SCHOOL_IMAGES map for consistency.
+const OH_IMAGES = {
+  school_adekus: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',
+  school_natin:  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',
+  school_iol:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',
+  school_covab:  'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',
+  school_imeao:  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
+  school_ptc:    'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',
+  school_igsr:   'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',
+  school_fhr:    'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',
+};
+
+// ADDED: cluster metadata used to enrich program cards in the slider.
+// accent = top strip colour, emoji = pill icon, label NL/EN, sparks = short
+// career-teaser lines shown instead of the raw description text.
+const CLUSTER_META = {
+  TECH: {
+    accent: '#3b82f6',
+    emoji:  '💻',
+    label:  { nl: 'Technologie', en: 'Technology' },
+    sparks: {
+      nl: ['Bouw software en systemen', 'Werk aan netwerken & AI', 'Los technische problemen op'],
+      en: ['Build software & systems', 'Work on networks & AI', 'Solve technical challenges'],
+    },
+  },
+  BUS: {
+    accent: '#f59e0b',
+    emoji:  '📈',
+    label:  { nl: 'Business', en: 'Business' },
+    sparks: {
+      nl: ['Leid projecten en teams', 'Analyseer markten & cijfers', 'Start je eigen onderneming'],
+      en: ['Lead projects and teams', 'Analyse markets & numbers', 'Start your own business'],
+    },
+  },
+  SCI: {
+    accent: '#10b981',
+    emoji:  '🔬',
+    label:  { nl: 'Wetenschap', en: 'Science' },
+    sparks: {
+      nl: ['Onderzoek de wereld om je heen', 'Ontdek nieuwe verbanden', 'Draag bij aan kennisgroei'],
+      en: ['Research the world around you', 'Discover new connections', 'Contribute to knowledge'],
+    },
+  },
+  MED: {
+    accent: '#ef4444',
+    emoji:  '🩺',
+    label:  { nl: 'Gezondheidszorg', en: 'Healthcare' },
+    sparks: {
+      nl: ['Zorg voor mensen op hun kwetsbaarst', 'Werk in een ziekenhuis of kliniek', 'Maak levensreddend verschil'],
+      en: ['Care for people at their most vulnerable', 'Work in hospitals or clinics', 'Make a life-saving difference'],
+    },
+  },
+  SOC: {
+    accent: '#8b5cf6',
+    emoji:  '🤝',
+    label:  { nl: 'Sociale wetenschappen', en: 'Social Sciences' },
+    sparks: {
+      nl: ['Begrijp menselijk gedrag', 'Werk met gemeenschappen', 'Maak maatschappelijk impact'],
+      en: ['Understand human behaviour', 'Work with communities', 'Create social impact'],
+    },
+  },
+  EDU: {
+    accent: '#f97316',
+    emoji:  '📚',
+    label:  { nl: 'Onderwijs', en: 'Education' },
+    sparks: {
+      nl: ['Inspireer de volgende generatie', 'Geef vorm aan de toekomst', 'Werk in het onderwijs'],
+      en: ['Inspire the next generation', 'Shape the future', 'Work in education'],
+    },
+  },
+  LAW: {
+    accent: '#64748b',
+    emoji:  '⚖️',
+    label:  { nl: 'Rechten', en: 'Law' },
+    sparks: {
+      nl: ['Verdedig rechten van mensen', 'Werk in rechtspraak of beleid', 'Navigeer complexe wetgeving'],
+      en: ['Defend people\'s rights', 'Work in courts or policy', 'Navigate complex legislation'],
+    },
+  },
+};
 
 // ── Fetch school from backend ─────────────────────────────────
 async function loadSchool() {
@@ -388,20 +474,33 @@ function renderPage() {
     </div>`).join('');
 
   // ── OPEN HOUSES ──────────────────────────────────────────
+  // CHANGED: wrapped cards in .oh-events-grid (adds oh-multi class when >1),
+  // added image header with zoom+overlay on hover, moved text into .oh-body.
+  // Removed .slice(0, 2) cap so all open houses for the school are shown.
+  // Register button now lives inside the overlay and fades in on image hover.
+  const ohImg = OH_IMAGES[schoolId] || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop';
   const openHousesHTML = currentOpenHouses.length === 0
     ? `<p class="oh-empty">${tx.noOpenHouses}</p>`
-    : currentOpenHouses.slice(0, 2).map(oh => `
-      <div class="oh-event">
-        <div class="oh-date">${formatDate(oh.date)}</div>
-        <div class="oh-meta">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          ${oh.isOnline ? tx.online : (oh.location || school.location || 'Suriname')}
-        </div>
-        ${oh.description ? `<p class="oh-desc">${oh.description}</p>` : ''}
-        <button class="btn-register" onclick="registerOH('${oh.id}', '${oh.title?.replace(/'/g,"\\'")}')">
-          ${tx.registerBtn}
-        </button>
-      </div>`).join('');
+    : `<div class="oh-events-grid${currentOpenHouses.length > 1 ? ' oh-multi' : ''}">
+        ${currentOpenHouses.map(oh => `
+          <div class="oh-event">
+            <div class="oh-img-wrap">
+              <img src="${ohImg}" alt="${oh.title || school.name}" loading="lazy">
+              <div class="oh-img-overlay">
+                <button class="btn-register" onclick="registerOH('${oh.id}', '${oh.title?.replace(/'/g,"\\'")}')">
+                  ${tx.registerBtn}
+                </button>
+              </div>
+            </div>
+            <div class="oh-body">
+              <div class="oh-date">${formatDate(oh.date)}</div>
+              <div class="oh-meta">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                ${oh.isOnline ? tx.online : (oh.location || school.location || 'Suriname')}
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`;
 
   // ── CONTACT ──────────────────────────────────────────────
   const contact = local.contact || {};
@@ -574,32 +673,53 @@ function renderPage() {
                   ? tuition.slice(0, 30).trimEnd() + '…'
                   : tuition;
                 const tuitionOverflows = tuition && tuition.length > 30;
+
+                // CHANGED: use CLUSTER_META for emoji, label, sparks.
+                // Accent strip is locked to #10b981 (SCI/Natuurkunde colour) for
+                // visual consistency across all cards regardless of cluster.
+                const meta   = CLUSTER_META[p.cluster] || {};
+                const accent = '#10b981';
+                const emoji  = meta.emoji  || '🎓';
+                const clusterLabel = (meta.label?.[language] || p.cluster || '').toUpperCase();
+                const sparks = meta.sparks?.[language] || [];
+
                 return `
                 <div class="slider-card">
                   <div class="slider-card-inner">
-                    <div class="slider-cluster-tag">${p.cluster || ''}</div>
-                    <h3 class="slider-program-name">${p.name}</h3>
-                    <div class="slider-badges">
-                      ${p.duration ? `<span class="badge-duration">${p.duration}</span>` : ''}
-                      ${tuition
-                        ? `<span class="badge-tuition badge-tuition--compact" title="${tuition}">${tuitionShort}${tuitionOverflows ? ` <a href="program-detail.html?id=${p.id}" class="badge-more-link">${language === 'nl' ? 'meer' : 'more'} →</a>` : ''}</span>`
-                        : `<span class="badge-tuition">${tx.free}</span>`}
+                    <div class="slider-card-accent" style="background:${accent}"></div>
+                    <div class="slider-card-body">
+                      <div class="slider-cluster-tag">${emoji} ${clusterLabel}</div>
+                      <h3 class="slider-program-name">${p.name}</h3>
+                      <div class="slider-badges">
+                        ${p.duration ? `<span class="badge-duration">${p.duration}</span>` : ''}
+                        ${tuition
+                          ? `<span class="badge-tuition badge-tuition--compact" title="${tuition}">${tuitionShort}${tuitionOverflows ? ` <a href="program-detail.html?id=${p.id}" class="badge-more-link">${language === 'nl' ? 'meer' : 'more'} →</a>` : ''}</span>`
+                          : `<span class="badge-tuition">${tx.free}</span>`}
+                      </div>
+                      <div class="slider-sparks">
+                        ${sparks.slice(0, 3).map(s => `<span class="slider-spark">${s}</span>`).join('')}
+                      </div>
+                      <div class="slider-cta-wrap">
+                        <a href="program-detail.html?id=${p.id}" class="slider-link">
+                          ${language === 'nl' ? 'Ontdek opleiding' : 'Discover program'} →
+                        </a>
+                      </div>
                     </div>
-                    ${p.description ? `<p class="slider-desc">${p.description.replace(/\s*\|\s*Niveau:[^|]*/i,'').replace(/^Vakkenpakket:\s*/i,'').trim().slice(0, 110)}${p.description.length > 110 ? '…' : ''}</p>` : ''}
-                    <a href="program-detail.html?id=${p.id}" class="slider-link">
-                      ${language === 'nl' ? 'Bekijk opleiding' : 'View program'} →
-                    </a>
                   </div>
                 </div>`;
               }).join('')}
             </div>
             ${programs.length > 1 ? `
-            <button class="slider-arrow slider-arrow-left"  id="slider-prev" aria-label="Vorige">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <button class="slider-arrow slider-arrow-right" id="slider-next" aria-label="Volgende">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>` : ''}
+            <div class="slider-arrow-zone slider-arrow-zone--left">
+              <button class="slider-arrow" id="slider-prev" aria-label="Vorige">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+            </div>
+            <div class="slider-arrow-zone slider-arrow-zone--right">
+              <button class="slider-arrow" id="slider-next" aria-label="Volgende">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>` : ''}
           </div>`
       }
     </section>`;
@@ -688,6 +808,22 @@ function showFavToast(added) {
     ? `${msg} &nbsp;<a href="favorites.html" class="toast-fav-link">${language === 'nl' ? 'Bekijk favorieten →' : 'View favourites →'}</a>`
     : msg;
   el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ADDED: generic showToast used by registerOH — same self-creating pattern
+// as showFavToast above so no HTML changes are needed on school-detail.html.
+function showToast(msg, type) {
+  let el = document.getElementById('fav-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fav-toast';
+    el.className = 'fav-toast';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = msg;
+  el.className = 'fav-toast show' + (type ? ' ' + type : '');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
 }
@@ -810,27 +946,87 @@ function pickProgramForCompare(programId) {
 }
 
 // ── Open House registration ───────────────────────────────────
-function registerOH(id, title) {
-  const name  = prompt(language === 'nl' ? 'Jouw naam:' : 'Your name:');
-  if (!name) return;
-  const email = prompt(language === 'nl' ? 'Jouw e-mailadres:' : 'Your email:');
-  if (!email) return;
+// CHANGED: replaced old prompt()/alert() flow with the same pattern used on
+// open-houses.js — JWT auth check, POST to backend, Google Calendar redirect,
+// toast notification. No browser prompts or alerts.
+async function registerOH(id, title) {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    showToast(language === 'nl' ? 'Log in om je aan te melden' : 'Log in to register', '');
+    setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+    return;
+  }
 
-  fetch(`/openhouses/${id}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email }),
-  }).then(res => {
-    if (res.ok) {
-      alert(language === 'nl' ? `✅ Je bent aangemeld voor: ${title}` : `✅ Registered for: ${title}`);
-      const reg = JSON.parse(localStorage.getItem('oh_registered') || '[]');
-      if (!reg.includes(id)) { reg.push(id); localStorage.setItem('oh_registered', JSON.stringify(reg)); }
-    } else {
-      alert(language === 'nl' ? 'Aanmelding mislukt. Probeer opnieuw.' : 'Registration failed. Please try again.');
+  // Find the open house in the already-loaded list so we can pass it to Google Calendar
+  const oh = currentOpenHouses.find(e => e.id === id);
+
+  try {
+    const res = await fetch(`/openhouses/${id}/register`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    // Mirror the open-houses.js Google Calendar flow exactly
+    if (oh) {
+      // Build start/end datetimes from the oh.date ISO string
+      const toGCal = (dateStr, timeStr) =>
+        dateStr.replace(/-/g, '') + 'T' + timeStr.replace(':', '') + '00';
+
+      const dateStr = oh.date ? oh.date.slice(0, 10) : '';
+      let startDT, endDT;
+
+      if (dateStr) {
+        // Use time from oh.time if present, otherwise fall back to all-day
+        const rangeMatch  = oh.time && oh.time.match(/(\d{2}:\d{2})\s*[–—-]\s*(\d{2}:\d{2})/);
+        const singleMatch = !rangeMatch && oh.time && oh.time.match(/(\d{2}:\d{2})/);
+
+        if (rangeMatch) {
+          startDT = toGCal(dateStr, rangeMatch[1]);
+          endDT   = toGCal(dateStr, rangeMatch[2]);
+        } else if (singleMatch) {
+          const [h, m] = singleMatch[1].split(':').map(Number);
+          const endH = String(Math.floor((h * 60 + m + 60) / 60) % 24).padStart(2, '0');
+          const endM = String((m + 60) % 60).padStart(2, '0');
+          startDT = toGCal(dateStr, singleMatch[1]);
+          endDT   = toGCal(dateStr, endH + ':' + endM);
+        } else {
+          // All-day event — end date is next day
+          const [y, mo, d] = dateStr.split('-').map(Number);
+          const next = new Date(y, mo - 1, d + 1);
+          const pad  = n => String(n).padStart(2, '0');
+          startDT = dateStr.replace(/-/g, '');
+          endDT   = `${next.getFullYear()}${pad(next.getMonth()+1)}${pad(next.getDate())}`;
+        }
+
+        const details = [oh.description, 'Toegevoegd via Studie4SU — studie4su.sr']
+          .filter(Boolean).join('\n\n');
+
+        const calUrl = 'https://calendar.google.com/calendar/render'
+          + '?action=TEMPLATE'
+          + '&text='     + encodeURIComponent('Open Dag – ' + (oh.title || title))
+          + '&dates='    + startDT + '%2F' + endDT
+          + '&details='  + encodeURIComponent(details)
+          + '&location=' + encodeURIComponent(oh.location || '')
+          + '&sf=true';
+
+        window.open(calUrl, '_blank', 'noopener,noreferrer');
+      }
     }
-  }).catch(() => {
-    alert(language === 'nl' ? 'Server niet bereikbaar.' : 'Server unreachable.');
-  });
+
+    // Save to oh_registered in localStorage (keeps existing behaviour)
+    const reg = JSON.parse(localStorage.getItem('oh_registered') || '[]');
+    if (!reg.includes(id)) { reg.push(id); localStorage.setItem('oh_registered', JSON.stringify(reg)); }
+
+    showToast(language === 'nl' ? 'Succesvol aangemeld!' : 'Successfully registered!', 'success');
+
+  } catch (err) {
+    console.error('[registerOH]', err);
+    showToast(language === 'nl' ? 'Aanmelden mislukt. Probeer opnieuw.' : 'Registration failed. Please try again.', '');
+  }
 }
 
 // ── Language toggle ───────────────────────────────────────────
@@ -839,6 +1035,15 @@ function applyLanguage(lang) {
   localStorage.setItem('language', lang);
   document.getElementById('btn-nl').classList.toggle('active', lang === 'nl');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  // Apply nav translations (data-nl / data-en attributes on header links)
+  document.querySelectorAll('[data-nl]').forEach(el => {
+    el.textContent = lang === 'nl' ? el.dataset.nl : el.dataset.en;
+  });
+  // Footer bilingual text
+  const ftTagline = document.getElementById('footer-tagline');
+  const ftAbout   = document.getElementById('footer-about-link');
+  if (ftTagline) ftTagline.textContent = T[lang].footerTagline;
+  if (ftAbout)   ftAbout.textContent   = T[lang].footerAbout;
   if (currentSchool) renderPage();
 }
 

@@ -602,6 +602,8 @@ body {
 }
 .site-footer a { color: var(--gold); text-decoration: none; }
 
+#footer-about-link { color: var(--gold); }
+
 /* ═══════════════════════════════════════════════════════════
    ANIMATIONS — both branches combined
 ═══════════════════════════════════════════════════════════ */

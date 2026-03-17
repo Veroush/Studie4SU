@@ -168,6 +168,11 @@ function updateStaticText() {
   document.getElementById('results-subtitle').textContent = t.resultsSubtitle;
   document.getElementById('badge-text').textContent = t.quizCompleted;
   document.getElementById('retake-btn').textContent = t.retake;
+
+  // Apply nav translations (data-nl / data-en attributes on header links)
+  document.querySelectorAll('[data-nl]').forEach(el => {
+    el.textContent = currentLang === 'nl' ? el.dataset.nl : el.dataset.en;
+  });
 }
 
 /* ============================================================
@@ -502,7 +507,7 @@ function renderResults(programs) {
       changes needed inside the template literal.
     ────────────────────────────────────────────────────────────────────────── */
   list.innerHTML = programs.map((rec, i) => `
-    <div class="rec-card">
+    <div class="rec-card" data-slide="${i % 2 === 0 ? 'left' : 'right'}">
       <div class="rec-layout">
         <div class="rank-badge" aria-label="Rank ${i + 1}">#${i + 1}</div>
         <div class="rec-content">

@@ -42,6 +42,68 @@ const T = {
 };
 
 let lang = localStorage.getItem('language') || 'nl';
+// ── Auth / Profile popup ──────────────────────────────────────
+// Mirrors the pattern used on schools.js, school-detail.js etc.
+const AVATARS_MAP = {
+  graduate: '🎓', student: '📖', laptop: '💻', owl: '🦉', fox: '🦊',
+  panda: '🐼', cat: '🐱', robot: '🤖', dog: '🐶', science: '🔬',
+  art: '🎨', rocket: '🚀', star: '⭐', book: '📚', trophy: '🏆', globe: '🌍',
+};
+
+function decodeToken(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); }
+  catch { return null; }
+}
+
+function initAuth() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    localStorage.removeItem('auth_token');
+    return;
+  }
+  document.getElementById('login-btn').style.display      = 'none';
+  document.getElementById('profile-btn').style.display    = 'flex';
+  document.getElementById('mobile-login').style.display   = 'none';
+  document.getElementById('mobile-profile').style.display = 'block';
+
+  const displayName = localStorage.getItem('user_display_name') || payload.name || 'Profiel';
+  const avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+  const avatarEmoji = AVATARS_MAP[avatarId] || '🎓';
+
+  document.getElementById('profile-name-label').textContent = displayName;
+  document.getElementById('nav-avatar-display').textContent  = avatarEmoji;
+  document.getElementById('popup-avatar-lg').textContent     = avatarEmoji;
+  document.getElementById('popup-name').textContent          = displayName;
+  document.getElementById('popup-email').textContent         = payload.email || '';
+
+  const notifToggle = document.getElementById('popup-notif-toggle');
+  if (notifToggle) {
+    notifToggle.checked = localStorage.getItem('user_notif_general') === 'true';
+    notifToggle.addEventListener('change', () => {
+      localStorage.setItem('user_notif_general', notifToggle.checked);
+    });
+  }
+}
+
+function toggleProfilePopup(e) {
+  e.stopPropagation();
+  document.getElementById('profile-popup').classList.toggle('open');
+}
+
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.reload();
+}
+
+document.addEventListener('click', (e) => {
+  const popup = document.getElementById('profile-popup');
+  const wrap  = document.getElementById('profile-btn');
+  if (popup && wrap && !wrap.contains(e.target)) popup.classList.remove('open');
+});
+
+
 
 function applyLang(l) {
   lang = l;
@@ -104,5 +166,6 @@ document.querySelectorAll('.mobile-nav a').forEach(a => {
   });
 });
 
+initAuth();
 applyLang(lang);
 initRevealAnimation();

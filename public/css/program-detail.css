@@ -12,6 +12,13 @@
 .is-logged-in #login-btn   { display: none  !important; }
 .is-logged-in #profile-btn { display: flex  !important; }
 
+/* FIX: the HTML `hidden` attribute sets display:none via the browser's default
+   stylesheet, but that has lower specificity than any class rule (e.g.
+   .page-error { display:flex } was overriding it, flashing "Opleiding niet
+   gevonden" for a split second on every load before JS ran). This rule
+   re-establishes hidden as !important so no class can ever override it. */
+[hidden] { display: none !important; }
+
 :root {
   --green-600: #16a34a;
   --green-700: #15803d;
@@ -706,6 +713,7 @@ a { text-decoration: none; color: inherit; }
 }
 .site-footer a { color: rgba(255,255,255,.6); }
 .site-footer a:hover { color: #fff; }
+#footer-about-link { color: var(--gold); }
 
 /* ── RESPONSIVE ──────────────────────────────────────────────── */
 @media (max-width: 768px) {

@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/about.css" />
+  <!-- settings.css needed for rich profile popup styles -->
+  <link rel="stylesheet" href="css/settings.css" />
 </head>
 <body>
 <header class="site-header">
@@ -25,6 +27,41 @@
       <button class="lang-btn" id="btn-en">EN</button>
       <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
 
+      <!-- Profile button (shown when logged in) -->
+      <div class="profile-wrap" id="profile-btn" style="display:none">
+        <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+          <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+          <span id="profile-name-label">Profiel</span>
+        </button>
+        <div class="profile-popup" id="profile-popup">
+          <div class="popup-top">
+            <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+            <div class="popup-name"  id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+          </div>
+          <hr class="popup-divider"/>
+          <div class="popup-actions">
+            <div class="popup-action-row">
+              <span class="popup-action-icon">🔔</span>
+              <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="popup-notif-toggle"/>
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <a href="settings.html" class="popup-action-row popup-action-link">
+              <span class="popup-action-icon">⚙️</span>
+              <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+              <span class="popup-action-arrow">›</span>
+            </a>
+          </div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">
+            <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+          </button>
+        </div>
+      </div>
+
       <button class="hamburger" id="hamburger-btn" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="6" x2="21" y2="6"/>
@@ -41,8 +78,31 @@
     <a href="quiz.html" data-nl="Quiz" data-en="Quiz">Quiz</a>
     <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Houses">Open Dagen</a>
     <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+    <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
   </nav>
 </header>
+
+<!-- Auth flash fix: mirrors schools.html pattern exactly -->
+<script>
+  (function () {
+    if (!localStorage.getItem('auth_token')) return;
+    document.documentElement.classList.add('is-logged-in');
+    var name = localStorage.getItem('user_display_name');
+    if (name) {
+      var nameEl = document.getElementById('profile-name-label');
+      if (nameEl) nameEl.textContent = name;
+    }
+    var AVATARS = {
+      graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+      panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+      art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+    };
+    var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+    var avatarEmoji = AVATARS[avatarId] || '🎓';
+    var navAv = document.getElementById('nav-avatar-display');
+    if (navAv) navAv.textContent = avatarEmoji;
+  })();
+</script>
 
 <main class="about-page">
   <section class="about-hero reveal">

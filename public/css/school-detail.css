@@ -217,8 +217,11 @@ body {
 /* ─── FULL-BLEED PROGRAMS SLIDER ───────────────────────────── */
 .programs-section {
   background: var(--bg-dark);
-  padding: 48px 0 56px;
-  overflow: hidden;
+  /* overflow:hidden removed — it was clipping the card translateY(-6px) lift on
+     hover, causing the whole section background to visually shift/jump. Cards
+     now lift freely upward. The slider-viewport still has overflow:hidden to
+     clip horizontal scroll, which is all that's needed. */
+  padding: 48px 0 64px; /* extra 8px bottom so lifted cards don't clip at edge */
 }
 
 .programs-section-header {
@@ -255,11 +258,16 @@ body {
   padding: 0 32px;
 }
 
-/* Viewport clips the sliding track */
+/* Viewport clips the sliding track horizontally but allows vertical overflow
+   so the card lift animation isn't cut off by the section background. */
 .slider-viewport {
   position: relative;
   overflow: hidden;
+  /* Allow cards to lift above the viewport top without being clipped */
+  overflow-x: hidden;
+  overflow-y: visible;
   cursor: grab;
+  padding-bottom: 10px; /* room for shadow on lifted cards */
 }
 .slider-viewport:active { cursor: grabbing; }
 
@@ -269,7 +277,8 @@ body {
   will-change: transform;
 }
 
-/* Individual card */
+/* Individual card — REDESIGNED: lift on hover, accent strip, career sparks,
+   gold CTA pill that reveals on hover instead of always-visible plain link */
 .slider-card {
   flex-shrink: 0;
   padding: 0 10px;
@@ -277,36 +286,69 @@ body {
 }
 
 .slider-card-inner {
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 16px;
-  padding: 24px;
+  position: relative;
+  border-radius: 18px;
+  padding: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: background .2s, border-color .2s;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,.25);
+  cursor: pointer;
 }
 .slider-card-inner:hover {
-  background: rgba(255,255,255,.1);
-  border-color: rgba(232,184,75,.4);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
 }
 
+/* Coloured accent strip at the top keyed to cluster */
+.slider-card-accent {
+  height: 5px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Card body sits below the accent strip */
+.slider-card-body {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-top: none;
+  border-radius: 0 0 18px 18px;
+  padding: 20px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  transition: background .2s, border-color .2s;
+}
+.slider-card-inner:hover .slider-card-body {
+  background: rgba(255,255,255,.11);
+  border-color: rgba(255,255,255,.18);
+}
+
+/* Cluster pill — readable label + emoji instead of raw code */
 .slider-cluster-tag {
-  font-size: .7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .68rem;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--gold);
-  opacity: .85;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.75);
+  width: fit-content;
 }
 
 .slider-program-name {
   font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.08rem;
+  font-weight: 700;
   color: #fff;
-  line-height: 1.3;
+  line-height: 1.28;
 }
 
 .slider-badges {
@@ -315,34 +357,95 @@ body {
   gap: 6px;
 }
 
-.slider-desc {
-  font-size: .82rem;
-  color: rgba(255,255,255,.55);
-  line-height: 1.55;
+/* Career sparks — short punchy lines replacing dry description text */
+.slider-sparks {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   flex: 1;
+  padding-top: 2px;
+}
+.slider-spark {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: .78rem;
+  color: rgba(255,255,255,.65);
+  line-height: 1.45;
+}
+.slider-spark::before {
+  content: '→';
+  color: var(--gold);
+  font-size: .72rem;
+  margin-top: 1px;
+  flex-shrink: 0;
+  opacity: .8;
 }
 
+/* Gold CTA pill — hidden at rest, slides in on card hover */
+.slider-cta-wrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .3s ease, opacity .3s ease;
+  opacity: 0;
+}
+.slider-card-inner:hover .slider-cta-wrap {
+  max-height: 60px;
+  opacity: 1;
+}
 .slider-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--gold);
+  gap: 6px;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--bg-dark);
+  background: var(--gold);
   text-decoration: none;
-  margin-top: auto;
-  padding-top: 4px;
-  border-bottom: 1px solid transparent;
-  transition: border-color .2s;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-top: 8px;
+  transition: opacity .15s;
 }
-.slider-link:hover { border-bottom-color: var(--gold); }
+.slider-link:hover { opacity: .88; }
 
-/* Arrow buttons */
-.slider-arrow {
+/* Arrow buttons
+   FIX: previously the arrows were position:absolute directly inside the
+   viewport, overlapping the card area. Moving the pointer toward the button
+   briefly put the cursor over the card underneath, making the card's :hover
+   lift animation flicker repeatedly. The fix wraps each arrow in a
+   .slider-arrow-zone that covers the edge of the viewport. The zone itself has
+   pointer-events:none (the gradient fade doesn't intercept card hover), and
+   only the button inside it has pointer-events:auto. This means the browser
+   never sees the card as hovered while the pointer is crossing the fade zone
+   toward the button, eliminating the glitch entirely. */
+.slider-arrow-zone {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  width: 72px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.slider-arrow-zone--left {
+  left: 0;
+  justify-content: flex-start;
+  padding-left: 12px;
+  background: linear-gradient(to right, rgba(13,43,31,.55) 0%, transparent 100%);
+}
+.slider-arrow-zone--right {
+  right: 0;
+  justify-content: flex-end;
+  padding-right: 12px;
+  background: linear-gradient(to left, rgba(13,43,31,.55) 0%, transparent 100%);
+}
+.slider-arrow {
+  position: static;
+  transform: none;
+  z-index: auto;
+  flex-shrink: 0;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -355,13 +458,12 @@ body {
   justify-content: center;
   backdrop-filter: blur(4px);
   transition: background .15s, border-color .15s;
+  pointer-events: auto;
 }
 .slider-arrow:hover {
   background: var(--green-600);
   border-color: var(--green-600);
 }
-.slider-arrow-left  { left: 12px; }
-.slider-arrow-right { right: 12px; }
 
 /* Badge styles (reused inside slider) */
 .badge-duration {
@@ -496,6 +598,8 @@ body {
 .deadline-date  { font-size: .8rem; color: var(--gray-600); margin-top: 2px; }
 
 /* ─── OPEN HOUSES SIDEBAR CARD ──────────────────────────────── */
+/* CHANGED: open houses now lay out side-by-side when there are multiple.
+   Each card gets an image header with a zoom + dark overlay on hover. */
 .open-houses-card {
   background: linear-gradient(135deg, var(--green-600), var(--green-700));
   color: #fff; border-radius: 16px; padding: 24px; box-shadow: var(--shadow-lg);
@@ -506,21 +610,72 @@ body {
   display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
 }
 .open-houses-heading svg { width: 20px; height: 20px; }
+
+/* Grid: 1 column on mobile, 2 columns when there are multiple cards */
+.oh-events-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.oh-events-grid.oh-multi {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 480px) {
+  .oh-events-grid.oh-multi { grid-template-columns: 1fr; }
+}
+
 .oh-event {
   background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
-  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  border-radius: 10px; overflow: hidden;
+  display: flex; flex-direction: column;
 }
-.oh-event:last-child { margin-bottom: 0; }
-.oh-date { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
-.oh-meta { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: rgba(255,255,255,.85); margin-bottom: 8px; }
-.oh-meta svg { width: 14px; height: 14px; }
-.oh-desc { font-size: .8rem; color: rgba(255,255,255,.85); line-height: 1.5; margin-bottom: 12px; }
+
+/* Image container — smaller height, button appears on hover */
+.oh-img-wrap {
+  position: relative;
+  height: 72px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.oh-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+.oh-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.1), rgba(13,43,31,.5));
+  transition: background .35s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+.oh-event:hover .oh-img-wrap img { transform: scale(1.08); }
+.oh-event:hover .oh-img-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,.35), rgba(13,43,31,.78));
+}
+
+/* Register button lives on the overlay, hidden until hover */
 .btn-register {
-  width: 100%; padding: 10px 16px; border-radius: 8px; border: none;
+  padding: 7px 14px; border-radius: 7px; border: none;
   background: #fff; color: var(--green-700); font-family: 'DM Sans', sans-serif;
-  font-size: .875rem; font-weight: 600; cursor: pointer; transition: background .2s;
+  font-size: .78rem; font-weight: 700; cursor: pointer;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .25s ease, transform .25s ease, background .15s;
+  white-space: nowrap;
+}
+.oh-event:hover .btn-register {
+  opacity: 1; transform: translateY(0);
 }
 .btn-register:hover { background: var(--gray-100); }
+
+/* Card body below the image — compact, just date + location */
+.oh-body { padding: 10px 12px; }
+
+.oh-date { font-family: 'Playfair Display', serif; font-size: .85rem; font-weight: 600; margin-bottom: 4px; }
+.oh-meta { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: rgba(255,255,255,.8); }
+.oh-meta svg { width: 12px; height: 12px; flex-shrink: 0; }
+/* Description hidden — cards are compact, info is in the tooltip on hover */
+.oh-desc { display: none; }
 .oh-empty { font-size: .875rem; color: rgba(255,255,255,.75); }
 
 /* ─── FOOTER ────────────────────────────────────────────────── */
@@ -530,6 +685,7 @@ body {
   font-size: .85rem; margin-top: 32px;
 }
 .site-footer a { color: var(--gold); text-decoration: none; }
+#footer-about-link { color: var(--gold); } /* matches Studie4SU link colour */
 /* ── PROFILE BUTTON & POPUP ─────────────────────────────────── */
 .profile-wrap { position: relative; }
 .profile-popup {
@@ -633,12 +789,11 @@ body {
   cursor: pointer;
 }
 .slider-card.cmp-selectable .slider-card-inner {
-  border: 2px solid transparent;
-  border-radius: 14px;
-  transition: border-color .15s, box-shadow .15s, transform .15s;
+  outline: 2px solid transparent;
+  transition: outline-color .15s, box-shadow .15s, transform .15s;
 }
 .slider-card.cmp-selectable:hover .slider-card-inner {
-  border-color: var(--green-600, #16a34a);
-  box-shadow: 0 0 0 4px rgba(22,163,74,.12);
-  transform: translateY(-2px);
+  outline-color: var(--green-600, #16a34a);
+  box-shadow: 0 0 0 4px rgba(22,163,74,.18);
+  transform: translateY(-4px);
 }

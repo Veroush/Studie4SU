@@ -866,6 +866,8 @@ Promise.all([
   loadEvents(),
   window.FavSync.loadFromDB(),
 ]).then(() => {
-  favorites = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+  favorites  = JSON.parse(localStorage.getItem('fav_openhouses') || '[]');
+  isLoading  = false; // FIX: was never set to false after data loaded — render() always
+                      // hit the isLoading branch and returned early, so events never appeared.
   render();
 });

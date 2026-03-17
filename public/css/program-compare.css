@@ -293,6 +293,7 @@ tbody td:not(:first-child) { text-align: center; }
 /* ─── FOOTER ────────────────────────────────────────────── */
 .site-footer { background: var(--bg-dark); color: rgba(255,255,255,.55); text-align: center; padding: 28px 24px; font-size: .85rem; margin-top: 32px; }
 .site-footer a { color: var(--gold); text-decoration: none; }
+#footer-about-link { color: var(--gold); }
 
 /* ─── ANIMATIONS ────────────────────────────────────────── */
 @keyframes spinInLeft {
@@ -437,7 +438,6 @@ tbody td:not(:first-child) { text-align: center; }
   padding: 3px 9px; border-radius: 999px;
   background: rgba(255,255,255,.15);
 }
-.pc-meta-pill--cost { }
 .pc-meta-pill--free { background: rgba(255,255,255,.2); font-weight: 600; }
 
 .pc-card-body { padding: 18px 20px 20px; }
