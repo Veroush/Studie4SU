@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+ <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instellingen — Studie4SU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <!-- theme-init.js intentionally removed — dark mode feature scrapped -->
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/settings.css"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">Studie<span>4SU</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
+      <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a></li>
+      <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+      <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Houses">Open Dagen</a></li>
+    </ul>
+    <div class="header-right">
+      <button class="lang-btn active" id="btn-nl">NL</button>
+      <button class="lang-btn"        id="btn-en">EN</button>
+      <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+      <div class="profile-wrap" id="profile-btn" style="display:none">
+        <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+          <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+          <span id="profile-name-label">Profiel</span>
+        </button>
+        <!-- UPGRADED DROPDOWN -->
+        <div class="profile-popup" id="profile-popup">
+          <div class="popup-top">
+            <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+            <div class="popup-name" id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+          </div>
+          <hr class="popup-divider"/>
+          <div class="popup-actions">
+            <!-- 🌙 Dark mode toggle row intentionally removed — feature scrapped -->
+            <div class="popup-action-row">
+              <span class="popup-action-icon">🔔</span>
+              <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="popup-notif-toggle" onchange="handleNotifToggle(this.checked)"/>
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <a href="settings.html" class="popup-action-row popup-action-link">
+              <span class="popup-action-icon">⚙️</span>
+              <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+              <span class="popup-action-arrow">›</span>
+            </a>
+          </div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">
+            <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+          </button>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+    <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+    <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+    <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Houses">Open Dagen</a>
+    <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+    <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+  </nav>
+</header>
+
+<!-- SETTINGS PAGE -->
+<main class="settings-main">
+  <div class="settings-container">
+
+    <!-- Page header -->
+    <div class="settings-page-header">
+      <div>
+        <div class="settings-breadcrumb"><a href="index.html" data-nl="Home" data-en="Home">Home</a> <span>›</span> <span data-nl="Instellingen" data-en="Settings">Instellingen</span></div>
+        <h1 class="settings-title" data-nl="Instellingen" data-en="Settings">Instellingen</h1>
+        <p class="settings-subtitle" data-nl="Pas je profiel en ervaring aan" data-en="Customize your profile and experience">Pas je profiel en ervaring aan</p>
+      </div>
+    </div>
+
+    <div class="settings-layout">
+
+      <!-- Sticky sidebar nav -->
+      <nav class="settings-sidenav">
+        <a href="#section-profile"       class="sidenav-item active" data-nl="Profiel"       data-en="Profile">👤 Profiel</a>
+        <a href="#section-notifications" class="sidenav-item"        data-nl="Meldingen"      data-en="Notifications">🔔 Meldingen</a>
+        <a href="#section-account"       class="sidenav-item"        data-nl="Account"        data-en="Account">🔐 Account</a>
+      </nav>
+
+      <div class="settings-content">
+
+        <!-- ═══ SECTION 1: PROFILE ═══ -->
+        <section class="settings-section" id="section-profile">
+          <div class="settings-section-header">
+            <h2 data-nl="Profiel" data-en="Profile">Profiel</h2>
+            <p data-nl="Pas je avatar en weergavenaam aan" data-en="Customize your avatar and display name">Pas je avatar en weergavenaam aan</p>
+          </div>
+
+          <div class="settings-card">
+            <div class="card-block">
+              <label class="card-label" data-nl="Avatar" data-en="Avatar">Avatar</label>
+              <p class="card-hint" data-nl="Kies een avatar die bij jou past" data-en="Choose an avatar that fits you">Kies een avatar die bij jou past</p>
+              <div class="avatar-grid" id="avatar-grid">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <div class="card-block">
+              <label class="card-label" for="display-name-input" data-nl="Jouw naam" data-en="Your Name">Jouw naam</label>
+              <p class="card-hint" data-nl="Kies een naam voor je account" data-en="Choose a name for your account">Kies een naam voor je account</p>
+              <div class="input-row">
+                <input type="text" id="display-name-input" class="settings-input" placeholder="Jouw naam"/>
+                <button class="btn-save-inline" id="save-name-btn" data-nl="Opslaan" data-en="Save">Opslaan</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ SECTION 3: NOTIFICATIONS ═══ -->
+        <section class="settings-section" id="section-notifications">
+          <div class="settings-section-header">
+            <h2 data-nl="Meldingen" data-en="Notifications">Meldingen</h2>
+            <p data-nl="Beheer hoe je op de hoogte wordt gehouden" data-en="Manage how you stay informed">Beheer hoe je op de hoogte wordt gehouden</p>
+          </div>
+
+          <div class="settings-card">
+            <div class="card-block">
+              <label class="card-label" data-nl="E-mailmeldingen" data-en="Email Notifications">E-mailmeldingen</label>
+              <div class="toggle-list">
+                <div class="toggle-item">
+                  <div class="toggle-text">
+                    <span class="toggle-name" data-nl="Aankondigingen" data-en="Announcements">Aankondigingen</span>
+                    <span class="toggle-desc" data-nl="Nieuws en updates van scholen" data-en="News and updates from schools">Nieuws en updates van scholen</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notif-email-announcements" onchange="saveNotifPref('email_announcements', this.checked)"/>
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-text">
+                    <span class="toggle-name" data-nl="Nieuwe materialen" data-en="New Resources">Nieuwe materialen</span>
+                    <span class="toggle-desc" data-nl="Nieuwe opleidingen en programma's" data-en="New programs and study guides">Nieuwe opleidingen en programma's</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notif-email-resources" onchange="saveNotifPref('email_resources', this.checked)"/>
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-text">
+                    <span class="toggle-name" data-nl="Belangrijke updates" data-en="Important Updates">Belangrijke updates</span>
+                    <span class="toggle-desc" data-nl="Urgente mededelingen" data-en="Urgent platform messages">Urgente mededelingen</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notif-email-important" onchange="saveNotifPref('email_important', this.checked)"/>
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <div class="card-block">
+              <label class="card-label" data-nl="Platformmeldingen" data-en="Platform Notifications">Platformmeldingen</label>
+              <div class="toggle-list">
+
+                <div class="toggle-item">
+                  <div class="toggle-text">
+                    <span class="toggle-name" data-nl="Updates" data-en="Updates">Updates</span>
+                    <span class="toggle-desc" data-nl="Open dag herinneringen en wijzigingen" data-en="Open house reminders and changes">Open dag herinneringen en wijzigingen</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notif-platform-updates" onchange="saveNotifPref('platform_updates', this.checked)"/>
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-text">
+                    <span class="toggle-name" data-nl="Waarschuwingen" data-en="Alerts">Waarschuwingen</span>
+                    <span class="toggle-desc" data-nl="Systeemmeldingen en waarschuwingen" data-en="System notices and alerts">Systeemmeldingen en waarschuwingen</span>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notif-platform-alerts" onchange="saveNotifPref('platform_alerts', this.checked)"/>
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ SECTION 4: ACCOUNT ═══ -->
+        <section class="settings-section" id="section-account">
+          <div class="settings-section-header">
+            <h2 data-nl="Account" data-en="Account">Account</h2>
+            <p data-nl="Beheer je accountbeveiliging" data-en="Manage your account security">Beheer je accountbeveiliging</p>
+          </div>
+
+          <div class="settings-card">
+            <div class="card-block">
+              <label class="card-label" data-nl="Wachtwoord wijzigen" data-en="Change Password">Wachtwoord wijzigen</label>
+              <div class="password-form">
+                <input type="password" id="pw-old"     class="settings-input" data-nl-placeholder="Huidig wachtwoord"  data-en-placeholder="Current password"  placeholder="Huidig wachtwoord"/>
+                <input type="password" id="pw-new"     class="settings-input" data-nl-placeholder="Nieuw wachtwoord"   data-en-placeholder="New password"       placeholder="Nieuw wachtwoord"/>
+                <input type="password" id="pw-confirm" class="settings-input" data-nl-placeholder="Bevestig wachtwoord" data-en-placeholder="Confirm password"   placeholder="Bevestig wachtwoord"/>
+                <button class="btn-save-inline" id="change-pw-btn" data-nl="Wachtwoord bijwerken" data-en="Update Password">Wachtwoord bijwerken</button>
+              </div>
+              <p class="pw-feedback" id="pw-feedback"></p>
+            </div>
+          </div>
+
+          <div class="settings-card settings-card-danger">
+            <div class="card-block">
+              <label class="card-label" data-nl="Uitloggen" data-en="Log Out">Uitloggen</label>
+              <p class="card-hint" data-nl="Log uit op dit apparaat" data-en="Sign out of this device">Log uit op dit apparaat</p>
+              <button class="btn-outline-danger" onclick="logout()" data-nl="Uitloggen" data-en="Log Out">🚪 Uitloggen</button>
+            </div>
+            <div class="card-divider"></div>
+            <div class="card-block">
+              <label class="card-label danger-label" data-nl="Account verwijderen" data-en="Delete Account">Account verwijderen</label>
+              <p class="card-hint" data-nl="Verwijder permanent je account en alle gegevens" data-en="Permanently delete your account and all data">Verwijder permanent je account en alle gegevens</p>
+              <button class="btn-danger" id="delete-account-btn" data-nl="Account verwijderen" data-en="Delete Account">🗑️ Account verwijderen</button>
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /settings-content -->
+    </div><!-- /settings-layout -->
+  </div><!-- /settings-container -->
+</main>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delete-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <h3 class="modal-title" data-nl="Account verwijderen?" data-en="Delete Account?">Account verwijderen?</h3>
+    <p class="modal-desc" data-nl="Deze actie kan niet ongedaan worden gemaakt. Al je gegevens worden permanent verwijderd." data-en="This action cannot be undone. All your data will be permanently deleted.">Deze actie kan niet ongedaan worden gemaakt. Al je gegevens worden permanent verwijderd.</p>
+    <div class="modal-actions">
+      <button class="btn-outline-cancel" onclick="closeDeleteModal()" data-nl="Annuleren" data-en="Cancel">Annuleren</button>
+      <button class="btn-danger" onclick="confirmDeleteAccount()" data-nl="Ja, verwijder" data-en="Yes, delete">Ja, verwijder</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="settings-toast" id="settings-toast"></div>
+
+<footer class="site-footer">
+  <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+</footer>
+
+<script src="js/settings.js"></script>
+</body>
+</html>

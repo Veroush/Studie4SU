@@ -9,6 +9,16 @@ let currentPage = 1;
 const PAGE_SIZE = 15;
 let myId        = null; // logged-in admin's own ID
 
+// ── Auth header helper ────────────────────────────────────────
+// ADDED BY RAKSHA: all /admin/* routes require a Bearer token. Use this helper
+// in every fetch() that hits an /admin/* endpoint.
+function authHeaders(extra = {}) {
+  return {
+    'Authorization': 'Bearer ' + localStorage.getItem('auth_token'),
+    ...extra,
+  };
+}
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   checkAdminAccess();
@@ -57,7 +67,10 @@ document.getElementById('sidebar-overlay').addEventListener('click', () => {
 // ── Load users ────────────────────────────────────────────────
 async function loadUsers() {
   try {
-    const res = await fetch('/admin/users');
+    // ADDED: Authorization header — /admin/users requires admin JWT
+    const res = await fetch('/admin/users', {
+      headers: authHeaders(),
+    });
     if (!res.ok) throw new Error('Failed to load');
     allUsers = await res.json();
     updateStats();
@@ -190,9 +203,10 @@ async function saveRole(userId) {
   saveBtn.disabled = true;
 
   try {
+    // ADDED BY RAKSHA: Authorization header — /admin/* routes require admin JWT
     const res = await fetch(`/admin/users/${userId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ role: newRole }),
     });
 
@@ -235,7 +249,11 @@ async function confirmDelete() {
   btn.disabled = true;
 
   try {
-    const res = await fetch(`/admin/users/${deleteTargetId}`, { method: 'DELETE' });
+    // ADDED: Authorization header — /admin/* routes require admin JWT
+    const res = await fetch(`/admin/users/${deleteTargetId}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
     if (!res.ok) throw new Error('Delete failed');
     allUsers = allUsers.filter(u => u.id !== deleteTargetId);
     closeDeleteModal();

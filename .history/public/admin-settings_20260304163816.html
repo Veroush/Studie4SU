@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings | Studie4SU Admin</title>
+  <link rel="stylesheet" href="css/admin-dashboard.css">
+  <link rel="stylesheet" href="css/admin-settings.css">
+</head>
+<body>
+
+  <aside class="sidebar" role="navigation" aria-label="Main navigation" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-title">Studie4SU</span>
+      <span class="logo-subtitle">Admin Panel</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="admin-dashboard.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+
+      <div class="nav-section-label">Manage</div>
+      <a class="nav-item" href="admin-schools.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Schools</span>
+      </a>
+      <a class="nav-item" href="admin-programs.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+        <span>Programs</span>
+      </a>
+      <a class="nav-item" href="admin-openhouses.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>Open Houses</span>
+      </a>
+      <a class="nav-item" href="admin-quiz.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span>Quiz</span>
+      </a>
+      <a class="nav-item" href="admin-users.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Users</span>
+      </a>
+
+      <div class="nav-section-label">Analytics</div>
+      <a class="nav-item" href="admin-statistics.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6"  y1="20" x2="6"  y2="14"/>
+        </svg>
+        <span>Statistics</span>
+      </a>
+
+      <div class="nav-section-label">System</div>
+      <a class="nav-item active" href="admin-settings.html" aria-current="page">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">Studie4SU © 2026</div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <div class="main-container">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open navigation menu" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6"  x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <h1 class="page-title">Settings</h1>
+      </div>
+
+      <div class="header-actions">
+        <div class="user-info" aria-label="Logged in as Admin">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+          <span class="user-name" id="admin-name">Admin User</span>
+        </div>
+        <button class="btn-logout" id="logout-btn" aria-label="Logout from admin panel">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area" id="content-area">
+      <div class="settings-container">
+
+        <!-- Page Header -->
+        <div class="settings-page-header">
+          <h2 class="settings-page-heading">System Settings</h2>
+          <span class="settings-unsaved-badge" id="unsaved-badge" aria-live="polite" hidden>Unsaved changes</span>
+        </div>
+
+        <!-- 1. Language Management -->
+        <section class="settings-card" aria-labelledby="lang-heading">
+          <h3 class="settings-card-title" id="lang-heading">Language Management</h3>
+          <div class="settings-card-body">
+
+            <div class="settings-field-group">
+              <span class="settings-field-label">Available Languages</span>
+              <div class="settings-checkbox-list" role="group" aria-label="Available languages">
+                <label class="settings-lang-check">
+                  <input type="checkbox" class="settings-check-input" id="lang-nl" name="lang-nl" checked>
+                  <span class="settings-check-label">Dutch (Nederlands)</span>
+                </label>
+                <label class="settings-lang-check">
+                  <input type="checkbox" class="settings-check-input" id="lang-en" name="lang-en" checked>
+                  <span class="settings-check-label">English</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-form-field">
+              <label class="settings-label" for="default-lang">Default Language</label>
+              <select class="settings-select" id="default-lang" name="defaultLanguage">
+                <option value="dutch">Dutch (Nederlands)</option>
+                <option value="english">English</option>
+              </select>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 2. Platform Configuration -->
+        <section class="settings-card" aria-labelledby="platform-heading">
+          <h3 class="settings-card-title" id="platform-heading">Platform Configuration</h3>
+          <div class="settings-card-body">
+
+            <div class="settings-form-field">
+              <label class="settings-label" for="platform-name">Platform Name</label>
+              <input type="text" class="settings-input" id="platform-name" name="platformName"
+                     placeholder="Studiekeuzegids Suriname" value="Studiekeuzegids Suriname">
+            </div>
+
+            <div class="settings-form-field">
+              <label class="settings-label" for="contact-email">Contact Email</label>
+              <input type="email" class="settings-input" id="contact-email" name="contactEmail"
+                     placeholder="contact@studie4su.sr">
+              <span class="settings-field-error" id="contact-email-error" aria-live="polite" hidden>Please enter a valid email address.</span>
+            </div>
+
+            <div class="settings-form-field">
+              <label class="settings-label" for="support-email">Support Email</label>
+              <input type="email" class="settings-input" id="support-email" name="supportEmail"
+                     placeholder="support@studie4su.sr">
+              <span class="settings-field-error" id="support-email-error" aria-live="polite" hidden>Please enter a valid email address.</span>
+            </div>
+
+            <div class="settings-form-field">
+              <label class="settings-label" for="platform-tagline">Platform Tagline</label>
+              <textarea class="settings-textarea" id="platform-tagline" name="platformTagline"
+                        rows="2" placeholder="Studiekeuze voor Surinaamse studenten"></textarea>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. User Features -->
+        <section class="settings-card" aria-labelledby="features-heading">
+          <h3 class="settings-card-title" id="features-heading">User Features</h3>
+          <div class="settings-card-body">
+
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" id="feat-favorites" name="enableFavorites" checked>
+              <div class="settings-toggle-content">
+                <div class="settings-toggle-title">Enable School Favorites</div>
+                <div class="settings-toggle-desc">Allow users to save and bookmark schools they're interested in</div>
+              </div>
+            </label>
+
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" id="feat-compare" name="enableComparison" checked>
+              <div class="settings-toggle-content">
+                <div class="settings-toggle-title">Enable Program Comparison</div>
+                <div class="settings-toggle-desc">Allow users to compare programs and schools side by side</div>
+              </div>
+            </label>
+
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" id="feat-quiz" name="enableQuiz" checked>
+              <div class="settings-toggle-content">
+                <div class="settings-toggle-title">Enable Study Quiz</div>
+                <div class="settings-toggle-desc">Show the quiz that matches students with study clusters</div>
+              </div>
+            </label>
+
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" id="feat-openhouse" name="enableOpenHouse" checked>
+              <div class="settings-toggle-content">
+                <div class="settings-toggle-title">Open House Registrations</div>
+                <div class="settings-toggle-desc">Allow users to register and save open house events</div>
+              </div>
+            </label>
+
+          </div>
+        </section>
+
+        <!-- 4. Notifications -->
+        <section class="settings-card" aria-labelledby="notif-heading">
+          <h3 class="settings-card-title" id="notif-heading">Notifications</h3>
+          <div class="settings-card-body">
+
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" id="notif-email" name="emailNotifications">
+              <div class="settings-toggle-content">
+                <div class="settings-toggle-title">Email Notifications</div>
+                <div class="settings-toggle-desc">Send email alerts for new user registrations and quiz completions</div>
+              </div>
+            </label>
+
+            <label class="settings-toggle">
+              <input type="checkbox" class="settings-toggle-input" id="notif-summary" name="dailySummary">
+              <div class="settings-toggle-content">
+                <div class="settings-toggle-title">Daily Activity Summary</div>
+                <div class="settings-toggle-desc">Receive a daily digest of platform activity at 08:00 AM</div>
+              </div>
+            </label>
+
+          </div>
+        </section>
+
+        <!-- 5. Data & Privacy -->
+        <section class="settings-card" aria-labelledby="privacy-heading">
+          <h3 class="settings-card-title" id="privacy-heading">Data &amp; Privacy</h3>
+          <div class="settings-card-body">
+
+            <div class="settings-privacy-notice" role="note">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="settings-privacy-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <p class="settings-privacy-text">
+                All user data is anonymized and aggregated. No personally identifiable information is stored. Quiz results are saved without user identification.
+              </p>
+            </div>
+
+            <div class="settings-form-field">
+              <label class="settings-label" for="data-retention">Data Retention Period</label>
+              <select class="settings-select" id="data-retention" name="retentionPeriod">
+                <option value="30">30 days</option>
+                <option value="60">60 days</option>
+                <option value="90" selected>90 days</option>
+                <option value="180">180 days</option>
+                <option value="365">1 year</option>
+                <option value="0">Keep indefinitely</option>
+              </select>
+              <span class="settings-field-hint">How long quiz result data is kept before automatic deletion.</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <div class="settings-actions">
+          <button class="settings-btn-primary" id="save-btn" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Save Settings
+          </button>
+          <button class="settings-btn-secondary" id="reset-btn" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.45"/>
+            </svg>
+            Reset to Defaults
+          </button>
+        </div>
+
+      </div><!-- /.settings-container -->
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <script src="js/admin-settings.js"></script>
+</body>
+</html>

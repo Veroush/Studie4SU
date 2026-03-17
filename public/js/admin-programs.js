@@ -21,6 +21,16 @@ const PAGE_SIZE  = 10;
 let editingId    = null; // null = adding new, string = editing existing
 let deleteTargetId = null;
 
+// ── Auth header helper ────────────────────────────────────────
+// ADDED BY RAKSHA: all /admin/* routes require a Bearer token. Use this helper
+// in every fetch() that hits an /admin/* endpoint.
+function authHeaders(extra = {}) {
+  return {
+    'Authorization': 'Bearer ' + localStorage.getItem('auth_token'),
+    ...extra,
+  };
+}
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initAuth();
@@ -64,7 +74,10 @@ async function loadData() {
 
 async function loadPrograms() {
   try {
-    const res = await fetch('/admin/programs');
+    // ADDED: Authorization header — /admin/programs requires admin JWT
+    const res = await fetch('/admin/programs', {
+      headers: authHeaders(),
+    });
     if (!res.ok) throw new Error('Failed to load');
     allPrograms = await res.json();
     applyFiltersAndRender();
@@ -79,7 +92,10 @@ async function loadPrograms() {
 
 async function loadSchools() {
   try {
-    const res = await fetch('/admin/schools');
+    // ADDED: Authorization header — /admin/schools requires admin JWT
+    const res = await fetch('/admin/schools', {
+      headers: authHeaders(),
+    });
     if (!res.ok) throw new Error('Failed to load schools');
     allSchools = await res.json();
     populateSchoolDropdowns();
@@ -317,7 +333,11 @@ async function confirmDelete() {
   btn.disabled = true;
 
   try {
-    const res = await fetch(`/admin/programs/${deleteTargetId}`, { method: 'DELETE' });
+    // ADDED: Authorization header — /admin/* routes require admin JWT
+    const res = await fetch(`/admin/programs/${deleteTargetId}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(data.error || data.message || 'Delete failed');
@@ -434,16 +454,18 @@ async function submitProgramForm() {
     let res;
 
     if (editingId) {
+      // ADDED: Authorization header — /admin/* routes require admin JWT
       res = await fetch(`/admin/programs/${editingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
       });
     } else {
       body.id = document.getElementById('field-id').value.trim();
+      // ADDED BY RAKSHA: Authorization header — /admin/* routes require admin JWT
       res = await fetch('/admin/programs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
       });
     }

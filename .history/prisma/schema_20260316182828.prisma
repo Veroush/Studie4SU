@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int                     @id @default(autoincrement())
+  email                 String                  @unique
+  password              String
+  createdAt             DateTime                @default(now())
+  name                  String
+  role                  String                  @default("student")
+  OpenHouseRegistration OpenHouseRegistration[]
+  PasswordResetToken    PasswordResetToken[]
+  favoriteSchools       FavoriteSchool[]
+  favoritePrograms      FavoriteProgram[]
+  favoriteOpenHouses    FavoriteOpenHouse[]
+}
+
+model School {
+  id         String           @id @default(cuid())
+  name       String
+  shortName  String?
+  type       String
+  website    String?
+  location   String?
+  createdAt  DateTime         @default(now())
+  openHouses OpenHouse[]
+  programs   StudyProgram[]
+  favoriteBy FavoriteSchool[]
+}
+
+model StudyProgram {
+  id            String            @id @default(cuid())
+  name          String
+  description   String?           @db.Text
+  cluster       String
+  duration      String?
+  levelRequired String?           @db.Text
+  tuitionCost   String?
+  careers       String?           @db.Text
+  createdAt     DateTime          @default(now())
+  schoolId      String
+  quizResults   QuizResult[]
+  school        School            @relation(fields: [schoolId], references: [id])
+  favoriteBy    FavoriteProgram[]
+
+  @@index([schoolId], map: "StudyProgram_schoolId_fkey")
+}
+
+model Question {
+  id         String         @id @default(cuid())
+  text       String
+  textEn     String?
+  type       String         @default("single")
+  orderIndex Int
+  isActive   Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  options    AnswerOption[]
+}
+
+model AnswerOption {
+  id         String   @id @default(cuid())
+  text       String
+  textEn     String?
+  weights    Json
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@index([questionId], map: "AnswerOption_questionId_fkey")
+}
+
+model Student {
+  id          String       @id @default(cuid())
+  name        String?
+  email       String?      @unique
+  schoolYear  String?
+  createdAt   DateTime     @default(now())
+  quizResults QuizResult[]
+}
+
+model QuizResult {
+  id                 String       @id @default(cuid())
+  createdAt          DateTime     @default(now())
+  programId          String
+  scores             Json
+  studentId          String?
+  topCluster         String
+  // ADDED onDelete: Cascade — deleting a program now removes its quiz results
+  recommendedProgram StudyProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  student            Student?     @relation(fields: [studentId], references: [id])
+
+  @@index([programId], map: "QuizResult_programId_fkey")
+  @@index([studentId], map: "QuizResult_studentId_fkey")
+}
+
+model OpenHouse {
+  id                    String                  @id @default(cuid())
+  title                 String
+  description           String?                 @db.Text
+  date                  DateTime
+  location              String?
+  isOnline              Boolean                 @default(false)
+  registrationUrl       String?
+  isActive              Boolean                 @default(true)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  schoolId              String
+  // ADDED onDelete: Cascade — deleting a school now removes its open houses
+  school                School                  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  OpenHouseRegistration OpenHouseRegistration[]
+  favoriteBy            FavoriteOpenHouse[]
+
+  @@index([schoolId], map: "OpenHouse_schoolId_fkey")
+}
+
+model QuizQuestion {
+  id        String       @id @default(cuid())
+  text      String
+  type      String
+  order     Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  answers   QuizAnswer[]
+}
+
+model QuizAnswer {
+  id          String       @id @default(cuid())
+  questionId  String
+  text        String
+  programLink String?
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  question    QuizQuestion @relation(fields: [questionId], references: [id])
+
+  @@index([questionId], map: "QuizAnswer_questionId_fkey")
+}
+
+model PasswordResetToken {
+  id        String   @id
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  // ADDED onDelete: Cascade — deleting a user removes their reset tokens
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "PasswordResetToken_userId_fkey")
+}
+
+model OpenHouseRegistration {
+  id          String    @id
+  userId      Int
+  openHouseId String
+  createdAt   DateTime  @default(now())
+  // ADDED onDelete: Cascade — deleting an open house removes its registrations
+  OpenHouse   OpenHouse @relation(fields: [openHouseId], references: [id], onDelete: Cascade)
+  // ADDED onDelete: Cascade — deleting a user removes their registrations
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, openHouseId])
+  @@index([openHouseId], map: "OpenHouseRegistration_openHouseId_fkey")
+}
+
+model FavoriteSchool {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  schoolId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, schoolId])
+}
+
+model FavoriteProgram {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  programId String
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program   StudyProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programId])
+}
+
+model FavoriteOpenHouse {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  openHouseId String
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  openHouse   OpenHouse @relation(fields: [openHouseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, openHouseId])
+}
+
+model AdminSettings {
+  id            Int      @id @default(autoincrement())
+  language      Json     @default("{\"available\":[\"dutch\",\"english\"],\"default\":\"dutch\"}")
+  platform      Json     @default("{\"name\":\"Studiekeuzegids Suriname\",\"contactEmail\":\"\",\"supportEmail\":\"\",\"tagline\":\"\"}")
+  features      Json     @default("{\"enableFavorites\":true,\"enableComparison\":true,\"enableQuiz\":true,\"enableOpenHouse\":true}")
+  notifications Json     @default("{\"email\":false,\"dailySummary\":false}")
+  data          Json     @default("{\"retentionPeriod\":\"90\"}")
+  updatedAt     DateTime @updatedAt
+}

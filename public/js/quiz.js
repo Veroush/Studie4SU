@@ -61,305 +61,62 @@ const translations = {
    Each question has an id, type ('multiple'|'single'),
    and translations for question text + options.
 ============================================================ */
-const questionsData = {
-  nl: [
-    {
-      id: 'diplomas',
-      type: 'multiple',
-      question: 'Welke diploma\'s heb jij behaald?',
-      instruction: 'Selecteer alle die van toepassing zijn',
-      options: ['MULO', 'LBO / LTO', 'HAVO', 'VWO', 'MBO', 'HBO', 'Universitair diploma', 'NATIN diploma', 'Geen diploma']
-    },
-    {
-      id: 'certificates',
-      type: 'multiple',
-      question: 'Heb je certificaten of extra opleidingen gevolgd?',
-      instruction: 'Selecteer alle die van toepassing zijn',
-      options: ['ICT certificaten (bijv. CISCO, CompTIA)', 'Talenopleidingen (bijv. Engels, Spaans)', 'Bedrijfskunde / Management cursus', 'Gezondheidszorg cursus', 'Technische cursus (bijv. lassen, elektra)', 'Landbouw / Natuur cursus', 'Juridische / Bestuurskunde cursus', 'Onderwijscursus / Pedagogie', 'Geen certificaten']
-    },
-    {
-      id: 'educationStatus',
-      type: 'single',
-      question: 'Wat is jouw huidige situatie?',
-      instruction: 'Selecteer één optie',
-      options: ['Ik studeer momenteel', 'Ik heb mijn studie net afgerond', 'Ik werk en wil verder studeren', 'Ik ben op zoek naar mijn eerste studie', 'Ik wil wisselen van studierichting']
-    },
-    {
-      id: 'interests',
-      type: 'multiple',
-      question: 'Wat zijn jouw interesses?',
-      instruction: 'Selecteer alle die van toepassing zijn',
-      options: ['Technologie en computers', 'Gezondheidszorg en medisch', 'Economie en business', 'Onderwijs en jongeren', 'Natuur en milieu', 'Recht en bestuur', 'Kunst en creatief', 'Landbouw en biologie', 'Sociale wetenschappen en hulpverlening']
-    },
-    {
-      id: 'subjectStrengths',
-      type: 'multiple',
-      question: 'In welke vakken ben jij sterk?',
-      instruction: 'Selecteer alle die van toepassing zijn',
-      options: ['Wiskunde', 'Informatica / Computer Science', 'Biologie', 'Scheikunde', 'Natuur- en Scheikunde', 'Economie', 'Geschiedenis', 'Talen (Nederlands, Engels)', 'Aardrijkskunde', 'Maatschappijleer']
-    },
-    {
-      id: 'learningStyle',
-      type: 'single',
-      question: 'Hoe leer jij het liefst?',
-      instruction: 'Selecteer één optie',
-      options: ['Praktisch: met mijn handen werken en direct toepassen', 'Theoretisch: lezen, schrijven en analyseren', 'Mix van theorie en praktijk', 'Door samenwerken in groepsverband', 'Door opdrachten zelfstandig uit te voeren']
-    },
-    {
-      id: 'preferredField',
-      type: 'single',
-      question: 'In welk werkveld wil jij later werken?',
-      instruction: 'Selecteer één optie',
-      options: ['ICT en Technologie', 'Gezondheidszorg en Medisch', 'Business en Economie', 'Onderwijs en Pedagogie', 'Natuur- en Milieuwetenschappen', 'Recht en Bestuur', 'Landbouw en Biologie', 'Sociale Wetenschappen']
-    },
-    {
-      id: 'careerDirection',
-      type: 'single',
-      question: 'Wat is voor jou het belangrijkst in je toekomstige carrière?',
-      instruction: 'Selecteer één optie',
-      options: ['Hoog salaris en carrièremogelijkheden', 'Mensen helpen en sociaal werk doen', 'Creatief en innovatief werk', 'Maatschappelijke impact maken', 'Stabiliteit en zekerheid', 'Ondernemerschap en vrijheid']
-    }
-  ],
-  en: [
-    {
-      id: 'diplomas',
-      type: 'multiple',
-      question: 'Which diplomas have you completed?',
-      instruction: 'Select all that apply',
-      options: ['MULO', 'LBO / LTO', 'HAVO', 'VWO', 'MBO', 'HBO', 'University degree', 'NATIN diploma', 'No diploma']
-    },
-    {
-      id: 'certificates',
-      type: 'multiple',
-      question: 'Do you have any certificates or extra training?',
-      instruction: 'Select all that apply',
-      options: ['ICT certificates (e.g. CISCO, CompTIA)', 'Language courses (e.g. English, Spanish)', 'Business / Management course', 'Healthcare course', 'Technical course (e.g. welding, electrical)', 'Agriculture / Nature course', 'Legal / Public Administration course', 'Education course / Pedagogy', 'No certificates']
-    },
-    {
-      id: 'educationStatus',
-      type: 'single',
-      question: 'What is your current situation?',
-      instruction: 'Select one option',
-      options: ['I am currently studying', 'I recently finished my studies', 'I am working and want to continue studying', 'I am looking for my first study program', 'I want to change my field of study']
-    },
-    {
-      id: 'interests',
-      type: 'multiple',
-      question: 'What are your interests?',
-      instruction: 'Select all that apply',
-      options: ['Technology and computers', 'Healthcare and medical', 'Economics and business', 'Education and youth', 'Nature and environment', 'Law and governance', 'Art and creative work', 'Agriculture and biology', 'Social sciences and welfare']
-    },
-    {
-      id: 'subjectStrengths',
-      type: 'multiple',
-      question: 'Which subjects are you strong in?',
-      instruction: 'Select all that apply',
-      options: ['Mathematics', 'Computer Science / ICT', 'Biology', 'Chemistry', 'Physics', 'Economics', 'History', 'Languages (Dutch, English)', 'Geography', 'Social Studies']
-    },
-    {
-      id: 'learningStyle',
-      type: 'single',
-      question: 'How do you prefer to learn?',
-      instruction: 'Select one option',
-      options: ['Practically: hands-on and direct application', 'Theoretically: reading, writing and analysis', 'Mix of theory and practice', 'Through collaboration in groups', 'By completing tasks independently']
-    },
-    {
-      id: 'preferredField',
-      type: 'single',
-      question: 'Which field do you want to work in?',
-      instruction: 'Select one option',
-      options: ['ICT and Technology', 'Healthcare and Medical', 'Business and Economics', 'Education and Pedagogy', 'Natural and Environmental Sciences', 'Law and Governance', 'Agriculture and Biology', 'Social Sciences']
-    },
-    {
-      id: 'careerDirection',
-      type: 'single',
-      question: 'What matters most to you in your future career?',
-      instruction: 'Select one option',
-      options: ['High salary and career opportunities', 'Helping people and social work', 'Creative and innovative work', 'Making a social impact', 'Stability and security', 'Entrepreneurship and freedom']
-    }
-  ]
-};
+// CHANGED: questionsData is no longer hardcoded.
+// Populated by fetchQuestions() on page load.
+let questionsData = { nl: [], en: [] };
 
 /* ============================================================
-   PROGRAMS DATA
-   These match your actual seeded programs.
-   field and keywords drive the scoring algorithm.
+   FETCH QUESTIONS FROM DB
+   ADDED: loads questions from /api/quiz/questions and transforms
+   the DB shape into the same {nl:[], en:[]} shape the rest of
+   quiz.js expects, so nothing else needs to change.
 ============================================================ */
-const programsData = {
-  nl: [
-    {
-      id: 'program_technology',
-      title: 'HBO Informatica / Software Engineering',
-      school: 'NATIN',
-      description: 'Geavanceerde opleiding in softwareontwikkeling, netwerken en IT-infrastructuur. Je leert programmeren, databases beheren en IT-systemen bouwen.',
-      requiredDiploma: 'HAVO/VWO/NATIN',
-      field: 'ICT en Technologie',
-      keywords: ['technologie', 'computers', 'wiskunde', 'informatica', 'ict'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_medical',
-      title: 'Geneeskunde & Gezondheidswetenschappen',
-      school: 'Anton de Kom Universiteit (AdeKUS)',
-      description: 'Opleiding tot arts of gezondheidsspecialist. Gericht op biologie, scheikunde en het helpen van patiënten.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Gezondheidszorg en Medisch',
-      keywords: ['gezondheidszorg', 'medisch', 'biologie', 'scheikunde', 'mensen helpen'],
-      level: 'Universiteit'
-    },
-    {
-      id: 'program_business',
-      title: 'Bedrijfskunde / Business Administration',
-      school: 'Anton de Kom Universiteit (AdeKUS)',
-      description: 'Leer bedrijven leiden, financiën beheren en strategieën ontwikkelen. Ideaal voor toekomstige managers en ondernemers.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Business en Economie',
-      keywords: ['economie', 'business', 'management', 'hoog salaris', 'ondernemen'],
-      level: 'Universiteit'
-    },
-    {
-      id: 'program_social_work',
-      title: 'Sociaal Werk',
-      school: 'Anton de Kom Universiteit (AdeKUS)',
-      description: 'Help kwetsbare groepen in de samenleving. Leer sociale problemen analyseren en oplossingen bieden voor individuen en gemeenschappen.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Sociale Wetenschappen',
-      keywords: ['sociaal', 'mensen helpen', 'maatschappij', 'welzijn', 'jongeren'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_education',
-      title: 'Lerarenopleiding',
-      school: 'Instituut voor de Opleiding van Leraren (IOL)',
-      description: 'Word een gecertificeerde leraar voor het basis- of voortgezet onderwijs. Leer lesgeven, didactiek en pedagogiek.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Onderwijs en Pedagogie',
-      keywords: ['onderwijs', 'jongeren', 'talen', 'pedagogie', 'maatschappijleer'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_science',
-      title: 'Agronomie & Natuurwetenschappen',
-      school: 'COVAB',
-      description: 'Bestudeer landbouw, ecologie en biologische wetenschappen. Werk aan voedselzekerheid en milieubeheer in Suriname.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Natuur- en Milieuwetenschappen',
-      keywords: ['natuur', 'landbouw', 'biologie', 'milieu', 'scheikunde', 'aardrijkskunde'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_law',
-      title: 'Rechten & Bestuurskunde',
-      school: 'Anton de Kom Universiteit (AdeKUS)',
-      description: 'Leer de juridische en bestuurlijke grondslagen van Suriname. Werk als advocaat, rechter of overheidsambtenaar.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Recht en Bestuur',
-      keywords: ['recht', 'bestuur', 'maatschappijleer', 'geschiedenis', 'talen'],
-      level: 'Universiteit'
-    }
-  ],
-  en: [
-    {
-      id: 'program_technology',
-      title: 'HBO Computer Science / Software Engineering',
-      school: 'NATIN',
-      description: 'Advanced training in software development, networking, and IT infrastructure. You will learn programming, database management, and building IT systems.',
-      requiredDiploma: 'HAVO/VWO/NATIN',
-      field: 'ICT and Technology',
-      keywords: ['technology', 'computers', 'mathematics', 'computer science', 'ict'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_medical',
-      title: 'Medicine & Health Sciences',
-      school: 'Anton de Kom University (AdeKUS)',
-      description: 'Training to become a doctor or health specialist. Focused on biology, chemistry and helping patients.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Healthcare and Medical',
-      keywords: ['healthcare', 'medical', 'biology', 'chemistry', 'helping people'],
-      level: 'University'
-    },
-    {
-      id: 'program_business',
-      title: 'Business Administration',
-      school: 'Anton de Kom University (AdeKUS)',
-      description: 'Learn to manage businesses, handle finances and develop strategies. Ideal for future managers and entrepreneurs.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Business and Economics',
-      keywords: ['economics', 'business', 'management', 'high salary', 'entrepreneurship'],
-      level: 'University'
-    },
-    {
-      id: 'program_social_work',
-      title: 'Social Work',
-      school: 'Anton de Kom University (AdeKUS)',
-      description: 'Help vulnerable groups in society. Learn to analyse social problems and provide solutions for individuals and communities.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Social Sciences',
-      keywords: ['social', 'helping people', 'society', 'welfare', 'youth'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_education',
-      title: 'Teacher Training',
-      school: 'Instituut voor de Opleiding van Leraren (IOL)',
-      description: 'Become a certified teacher for primary or secondary education. Learn teaching methods, didactics, and pedagogy.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Education and Pedagogy',
-      keywords: ['education', 'youth', 'languages', 'pedagogy', 'social studies'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_science',
-      title: 'Agronomy & Natural Sciences',
-      school: 'COVAB',
-      description: 'Study agriculture, ecology and biological sciences. Work on food security and environmental management in Suriname.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Natural and Environmental Sciences',
-      keywords: ['nature', 'agriculture', 'biology', 'environment', 'chemistry', 'geography'],
-      level: 'HBO'
-    },
-    {
-      id: 'program_law',
-      title: 'Law & Governance',
-      school: 'Anton de Kom University (AdeKUS)',
-      description: 'Learn the legal and administrative foundations of Suriname. Work as a lawyer, judge, or civil servant.',
-      requiredDiploma: 'HAVO/VWO',
-      field: 'Law and Governance',
-      keywords: ['law', 'governance', 'social studies', 'history', 'languages'],
-      level: 'University'
-    }
-  ]
-};
+async function fetchQuestions() {
+  try {
+    const res = await fetch('/api/quiz/questions');
+    if (!res.ok) throw new Error('Failed to fetch questions');
+    const data = await res.json();
 
-/* ============================================================
-   SCHOOL ID MAP
-   Maps quiz program IDs to real DB school IDs for linking
-============================================================ */
-const PROGRAM_SCHOOL_MAP = {
-  program_technology:  'school_natin',
-  program_medical:     'school_adekus',
-  program_business:    'school_adekus',
-  program_social_work: 'school_adekus',
-  program_education:   'school_iol',
-  program_science:     'school_covab',
-  program_law:         'school_adekus',
-};
+    // CHANGED: map DB id to camelCase key that matches quizState.answers
+    const keyMap = {
+      'q_diplomas':         'diplomas',
+      'q_certificates':     'certificates',
+      'q_educationstatus':  'educationStatus',
+      'q_interests':        'interests',
+      'q_subjectstrengths': 'subjectStrengths',
+      'q_learningstyle':    'learningStyle',
+      'q_preferredfield':   'preferredField',
+      'q_careerdirection':  'careerDirection',
+    };
 
-/* ============================================================
-   PROGRAM ID MAP
-   Maps quiz program IDs to real seeded DB program IDs.
-   Used to link "Bekijk Programma" button to program-detail.html
-============================================================ */
-const PROGRAM_ID_MAP = {
-  program_technology:  'prog_aa6',   // Electrotechniek — AdekUS
-  program_medical:     'prog_aa8',   // Geneeskunde — AdekUS
-  program_business:    'prog_aa2',   // Bedrijfskunde — AdekUS
-  program_social_work: 'prog_aa17',  // Psychologie — AdekUS
-  program_education:   'prog_aa16',  // Onderwijs- en Pedagogische Wetenschappen — AdekUS
-  program_science:     'prog_aa3',   // Biologie — AdekUS
-  program_law:         'prog_aa20',  // Rechtswetenschappen — AdekUS
-};
+    questionsData.nl = data.map(q => ({
+      id:          keyMap[q.id] || q.id.replace(/^q_/, ''),
+      type:        q.type,
+      question:    q.text,
+      instruction: q.type === 'multiple'
+        ? translations.nl.selectMultiple
+        : translations.nl.selectOne,
+      options: q.options.map(o => o.text),
+    }));
+
+    questionsData.en = data.map(q => ({
+      id:          keyMap[q.id] || q.id.replace(/^q_/, ''),
+      type:        q.type,
+      question:    q.textEn || q.text,
+      instruction: q.type === 'multiple'
+        ? translations.en.selectMultiple
+        : translations.en.selectOne,
+      options: q.options.map(o => o.textEn || o.text),
+    }));
+
+  } catch (err) {
+    console.error('Could not load questions from DB:', err);
+  }
+}
+
+//raksha removed programs data
+
+//raksha removed school id map and program id map
 
 /* ============================================================
    QUIZ STATE
@@ -589,14 +346,17 @@ function isLoggedIn() {
   }
 }
 
+//raksha removed buildClusterScores function
+//raksha deleted entire calculateRecommendations()
+
 /* ============================================================
-   SUBMIT TO BACKEND (optional — falls back gracefully)
+   SUBMIT TO BACKEND
+   CHANGED: removed local calculateRecommendations().
+   Now sends answers to /api/quiz/recommend and gets real
+   programs back from the DB, scored by cluster match.
 ============================================================ */
 async function submitAndShowResults() {
   // ── LOGIN GATE ──────────────────────────────────────────────
-  // If the user is not logged in, save their answers and redirect
-  // to the login page. After login/register they'll be sent back
-  // here with ?showResults=true and the answers will be restored.
   if (!isLoggedIn()) {
     localStorage.setItem('quiz_pending_answers', JSON.stringify(quizState.answers));
     localStorage.setItem('quiz_pending_lang', currentLang);
@@ -604,144 +364,77 @@ async function submitAndShowResults() {
     return;
   }
 
-  // User is logged in — show results immediately
-  renderResults();
+  // Show loading state
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('results-container').style.display = 'block';
+  document.getElementById('recommendations-list').innerHTML = `
+    <div class="no-results">
+      <p>Aanbevelingen worden geladen...</p>
+    </div>`;
 
-  // Also try to save to backend (fire-and-forget, won't break the page)
   try {
-    const recs = calculateRecommendations();
-    if (recs.length > 0) {
-      const topProgramId = recs[0].id;
+    const response = await fetch('/api/quiz/recommend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+      },
+      body: JSON.stringify({
+        answers: quizState.answers,
+        lang: currentLang
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Server returned ' + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data.success || !data.results) {
+      throw new Error('Invalid response from server');
+    }
+
+    // Save scores to backend (fire and forget)
+    try {
       await fetch('/api/quiz/submit-profile', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+        },
         body: JSON.stringify({
           answers: quizState.answers,
-          topProgramId: topProgramId,
-          scores: buildClusterScores(recs)
+          topProgramId: data.results[0]?.id || '',
+          scores: data.scores
         })
       });
+    } catch (e) {
+      // Silent fail — results already shown
     }
+
+    renderResults(data.results);
+
   } catch (err) {
-    // Silent fail — results are already shown locally
-    console.log('Backend save skipped:', err.message);
+    console.error('Quiz recommend error:', err);
+    const t = translations[currentLang];
+    document.getElementById('recommendations-list').innerHTML = `
+      <div class="no-results">
+        <p>${t.noResults}</p>
+      </div>`;
   }
-}
-
-// Helper: build rough cluster scores from recommendation matches
-function buildClusterScores(recs) {
-  const clusterMap = {
-    'program_technology': 'TECH',
-    'program_medical':    'MED',
-    'program_business':   'BUS',
-    'program_social_work':'SOC',
-    'program_education':  'EDU',
-    'program_science':    'SCI',
-    'program_law':        'LAW'
-  };
-  const scores = { TECH:0, MED:0, BUS:0, SOC:0, EDU:0, SCI:0, LAW:0 };
-  recs.forEach(r => {
-    const cluster = clusterMap[r.id];
-    if (cluster) scores[cluster] = r.match;
-  });
-  return scores;
-}
-
-/* ============================================================
-   SCORING ALGORITHM
-============================================================ */
-function calculateRecommendations() {
-  const programs = programsData[currentLang];
-  const t = translations[currentLang];
-  const a = quizState.answers;
-
-  // 1. Determine user's education level
-  const highLevelKeywords = ['HAVO', 'VWO', 'HBO', 'Universit', 'NATIN'];
-  const hasHighLevel = a.diplomas.some(d =>
-    highLevelKeywords.some(k => d.toUpperCase().includes(k.toUpperCase()))
-  );
-  const midLevelKeywords = ['MULO', 'LBO', 'LTO', 'MBO'];
-  const hasMidLevel = a.diplomas.some(d =>
-    midLevelKeywords.some(k => d.toUpperCase().includes(k.toUpperCase()))
-  );
-
-  // 2. Filter eligible programs
-  const eligible = programs.filter(p => {
-    const req = p.requiredDiploma.toUpperCase();
-    if (req.includes('HAVO') || req.includes('VWO')) return hasHighLevel;
-    return hasMidLevel || hasHighLevel; // MBO-level programs open to all
-  });
-
-  if (eligible.length === 0) return [];
-
-  // 3. Score each program
-  const scored = eligible.map(p => {
-    let score = 0;
-    const reasons = [];
-
-    // Preferred field (30 pts)
-    if (a.preferredField && p.field.toLowerCase().includes(a.preferredField.toLowerCase().split(' ')[0])) {
-      score += 30;
-      reasons.push(t.reason_field);
-    }
-
-    // Interest match (25 pts)
-    const interestMatch = a.interests.some(interest =>
-      p.keywords.some(kw => interest.toLowerCase().includes(kw) || kw.includes(interest.toLowerCase().split(' ')[0]))
-    );
-    if (interestMatch) { score += 25; reasons.push(t.reason_interest); }
-
-    // Subject strengths (20 pts)
-    const subjectMatch = a.subjectStrengths.some(subj =>
-      p.keywords.some(kw => subj.toLowerCase().includes(kw) || kw.includes(subj.toLowerCase().split(' ')[0]))
-    );
-    if (subjectMatch) { score += 20; reasons.push(t.reason_subjects); }
-
-    // Certificates (15 pts)
-    const certMatch = a.certificates.some(cert =>
-      p.keywords.some(kw => cert.toLowerCase().includes(kw) || kw.includes(cert.toLowerCase().split(' ')[0]))
-    );
-    if (certMatch) { score += 15; reasons.push(t.reason_certificates); }
-
-    // Learning style (10 pts)
-    if (a.learningStyle && a.learningStyle.toLowerCase().includes('praktisch') || (a.learningStyle && a.learningStyle.toLowerCase().includes('hands'))) {
-      if (p.level === 'HBO' || p.level === 'MBO') {
-        score += 10; reasons.push(t.reason_learning_style);
-      }
-    }
-
-    // Career direction (10 pts)
-    if (a.careerDirection && (a.careerDirection.toLowerCase().includes('salaris') || a.careerDirection.toLowerCase().includes('salary'))) {
-      if (p.keywords.some(k => k.includes('business') || k.includes('ict') || k.includes('management') || k.includes('economie'))) {
-        score += 10; reasons.push(t.reason_career);
-      }
-    }
-
-    const finalScore = Math.min(95, score + 40);
-
-    return {
-      ...p,
-      match: finalScore,
-      reasons: reasons.length > 0 ? reasons : [t.reason_default]
-    };
-  });
-
-  // 4. Sort by score, take top 5
-  return scored.sort((a, b) => b.match - a.match).slice(0, 5);
 }
 
 /* ============================================================
    RENDER RESULTS
+   CHANGED: now receives programs array from backend instead
+   of calculating locally from hardcoded data.
 ============================================================ */
-function renderResults() {
+function renderResults(programs) {
   const t = translations[currentLang];
-  const recs = calculateRecommendations();
 
-  // Hide quiz, show results
   document.getElementById('quiz-section').style.display = 'none';
   document.getElementById('results-container').style.display = 'block';
-
-  // Update header text
   document.getElementById('results-title').textContent = t.resultsTitle;
   document.getElementById('results-subtitle').textContent = t.resultsSubtitle;
   document.getElementById('badge-text').textContent = t.quizCompleted;
@@ -749,7 +442,7 @@ function renderResults() {
 
   const list = document.getElementById('recommendations-list');
 
-  if (recs.length === 0) {
+  if (!programs || programs.length === 0) {
     list.innerHTML = `
       <div class="no-results">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -758,12 +451,58 @@ function renderResults() {
     return;
   }
 
-  list.innerHTML = recs.map((rec, i) => {
-    const schoolId  = PROGRAM_SCHOOL_MAP[rec.id] || '';
-    const programId = PROGRAM_ID_MAP[rec.id] || '';
-    const slideDir  = i % 2 === 0 ? 'left' : 'right';
-    return `
-    <div class="rec-card" data-slide="${slideDir}">
+  /*
+    ── CONFLICT RESOLUTION — quiz.js — renderResults() map block ──────────────
+    Location: the opening line of the programs.map() call
+
+    WHAT THE CONFLICT WAS:
+
+      Your side (HEAD / raksha/testing/merge):
+        list.innerHTML = recs.map((rec, i) => {
+          const schoolId  = PROGRAM_SCHOOL_MAP[rec.id] || '';
+          const programId = PROGRAM_ID_MAP[rec.id] || '';
+          const slideDir  = i % 2 === 0 ? 'left' : 'right';
+          return `
+          <div class="rec-card" data-slide="${slideDir}">
+
+        Used the old variable name `recs` (from the pre-Raksha version of the
+        function that calculated results locally). Also read from
+        PROGRAM_SCHOOL_MAP and PROGRAM_ID_MAP, both of which Raksha deleted
+        when he removed the hardcoded programs data. Reading from deleted
+        variables would throw a ReferenceError and crash renderResults entirely.
+        Also added a data-slide attribute alternating left/right per card.
+
+      Raksha's side (93a4ae2):
+        list.innerHTML = programs.map((rec, i) => `
+          <div class="rec-card">
+
+        Used the correct parameter name `programs` (matching the function
+        signature `function renderResults(programs)`). No map lookups —
+        the backend now supplies schoolId directly on each result object.
+        No data-slide attribute.
+
+    WHY RAKSHA'S VARIABLE NAME WAS KEPT:
+      `recs` would be undefined here — the function parameter is `programs`.
+      PROGRAM_SCHOOL_MAP and PROGRAM_ID_MAP no longer exist in the file.
+      Using your side as-is would crash with ReferenceError on page load.
+      Raksha's side is the only version that works with the current backend.
+
+    WHY data-slide WAS DROPPED:
+      The alternating data-slide attribute requires CSS rules targeting
+      [data-slide="left"] and [data-slide="right"] to do anything. Those
+      rules do not exist in quiz.css. Without them the attribute is inert.
+      It was dropped to keep the HTML clean and avoid confusion.
+      If you want alternating slide directions in the future, add the CSS
+      rules to quiz.css and restore data-slide="${i % 2 === 0 ? 'left' : 'right'}".
+
+    RESOLUTION:
+      Took Raksha's opening line (`programs.map((rec, i) => \``).
+      Dropped `recs`, PROGRAM_SCHOOL_MAP, PROGRAM_ID_MAP, and data-slide.
+      The rest of the card HTML is identical on both sides — no further
+      changes needed inside the template literal.
+    ────────────────────────────────────────────────────────────────────────── */
+  list.innerHTML = programs.map((rec, i) => `
+    <div class="rec-card">
       <div class="rec-layout">
         <div class="rank-badge" aria-label="Rank ${i + 1}">#${i + 1}</div>
         <div class="rec-content">
@@ -784,7 +523,7 @@ function renderResults() {
           <p class="rec-desc">${rec.description}</p>
 
           <div class="info-box">
-            <p class="info-box-label"><strong>${t.requiredLevel}</strong> ${rec.requiredDiploma}</p>
+            <p class="info-box-label"><strong>${t.requiredLevel}</strong> ${rec.requiredLevel}</p>
             <p class="reasons-heading">${t.whyRecommended}</p>
             <ul class="reasons-list">
               ${rec.reasons.map(r => `
@@ -796,20 +535,62 @@ function renderResults() {
           </div>
 
           <div class="action-row">
-            <button class="btn-primary" onclick="window.location.href='school-detail.html?id=${schoolId}'">${t.viewSchool}</button>
-            <button class="btn-secondary" onclick="window.location.href='program-detail.html?id=${programId}'" ${!programId ? 'disabled' : ''}>${t.viewProgram}</button>
+            <button class="btn-primary" onclick="window.location.href='school-detail.html?id=${rec.schoolId}'">${t.viewSchool}</button>
+            <button class="btn-secondary" onclick="window.location.href='program-detail.html?id=${rec.id}'">${t.viewProgram}</button>
           </div>
         </div>
       </div>
     </div>
-  `;}
-  ).join('');
+  `).join('');
 
-  // Clean up pending answers from localStorage now that we've shown results
   localStorage.removeItem('quiz_pending_answers');
   localStorage.removeItem('quiz_pending_lang');
 
-  // Scroll-triggered slide-in for each rec-card
+  /*
+    ── CONFLICT RESOLUTION — quiz.js — scroll animation block ─────────────────
+    Location: after localStorage.removeItem calls, before scrollToTop()
+
+    WHAT THE CONFLICT WAS:
+
+      Your side (HEAD / raksha/testing/merge):
+        Added an IntersectionObserver block that watches every .rec-card
+        element and adds the class `rec-card-visible` when the card
+        scrolls into the viewport (threshold: 0.12). This creates a
+        scroll-triggered slide-in reveal animation on the result cards.
+        The `rec-card-visible` class must be defined in quiz.css to
+        produce the actual visual effect (e.g. opacity + transform).
+
+      Raksha's side (93a4ae2):
+        No animation block. Went straight from localStorage.removeItem
+        to scrollToTop() with nothing in between.
+
+    WHY YOUR VERSION WAS KEPT:
+      You explicitly confirmed you want the scroll animation on the
+      result cards. The IntersectionObserver pattern is correct and
+      safe — it only adds a class, it does not modify any data or state.
+      Raksha's side simply omitted it; there was no technical reason
+      to drop it, just a difference in what each branch had added.
+
+    NOTE:
+      For this animation to be visible, quiz.css must have a rule for
+      .rec-card and .rec-card-visible. A typical pattern would be:
+        .rec-card {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .rec-card-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      If quiz.css already has these rules from your branch, no action
+      needed. If not, add them to make the animation work.
+
+    RESOLUTION:
+      Kept your IntersectionObserver block in full.
+      Placed it between the localStorage.removeItem calls and scrollToTop()
+      exactly as it appeared in your side of the conflict.
+    ────────────────────────────────────────────────────────────────────────── */
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -905,7 +686,6 @@ function initAuth() {
   document.getElementById('profile-name-label').textContent = displayName;
   document.getElementById('popup-name').textContent          = displayName;
   document.getElementById('popup-email').textContent         = payload.email || '';
-  // popup-role removed — not present in the rich popup
   const navAv = document.getElementById('nav-avatar-display');
   const popAv = document.getElementById('popup-avatar-lg');
   if (navAv) navAv.textContent = avatarEmoji;
@@ -935,10 +715,13 @@ document.addEventListener('click', (e) => {
      back here after logging in. Restore their saved answers
      and go straight to results.
 ============================================================ */
-(function init() {
+(async function init() {
   initAuth();
   updateLangButtons();
   updateStaticText();
+
+  // CHANGED: fetch questions from DB before rendering
+  await fetchQuestions();
 
   const params = new URLSearchParams(window.location.search);
 
@@ -961,7 +744,7 @@ document.addEventListener('click', (e) => {
     }
 
     quizState.showResults = true;
-    renderResults();
+    submitAndShowResults();
   } else {
     // Add card-enter before renderQuestion so the card animates in on first paint
     const card = document.getElementById('question-card');

@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ── Raksha: added favoriteSchools, favoritePrograms, favoriteOpenHouses relations ──
 model User {
   id                    Int                     @id @default(autoincrement())
   email                 String                  @unique
@@ -32,7 +31,6 @@ model School {
   createdAt  DateTime         @default(now())
   openHouses OpenHouse[]
   programs   StudyProgram[]
-  // Raksha: added favoriteBy relation for FavoriteSchool
   favoriteBy FavoriteSchool[]
 }
 
@@ -49,7 +47,6 @@ model StudyProgram {
   schoolId      String
   quizResults   QuizResult[]
   school        School            @relation(fields: [schoolId], references: [id])
-  // Raksha: added favoriteBy relation for FavoriteProgram
   favoriteBy    FavoriteProgram[]
 
   @@index([schoolId], map: "StudyProgram_schoolId_fkey")
@@ -58,6 +55,8 @@ model StudyProgram {
 model Question {
   id         String         @id @default(cuid())
   text       String
+  textEn     String?
+  type       String         @default("single")
   orderIndex Int
   isActive   Boolean        @default(true)
   createdAt  DateTime       @default(now())
@@ -67,6 +66,7 @@ model Question {
 model AnswerOption {
   id         String   @id @default(cuid())
   text       String
+  textEn     String?
   weights    Json
   questionId String
   question   Question @relation(fields: [questionId], references: [id])
@@ -90,14 +90,14 @@ model QuizResult {
   scores             Json
   studentId          String?
   topCluster         String
-  recommendedProgram StudyProgram @relation(fields: [programId], references: [id])
+  // ADDED onDelete: Cascade — deleting a program now removes its quiz results
+  recommendedProgram StudyProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
   student            Student?     @relation(fields: [studentId], references: [id])
 
   @@index([programId], map: "QuizResult_programId_fkey")
   @@index([studentId], map: "QuizResult_studentId_fkey")
 }
 
-// Raksha: added favoriteBy and index
 model OpenHouse {
   id                    String                  @id @default(cuid())
   title                 String
@@ -110,7 +110,8 @@ model OpenHouse {
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   schoolId              String
-  school                School                  @relation(fields: [schoolId], references: [id])
+  // ADDED onDelete: Cascade — deleting a school now removes its open houses
+  school                School                  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   OpenHouseRegistration OpenHouseRegistration[]
   favoriteBy            FavoriteOpenHouse[]
 
@@ -127,7 +128,6 @@ model QuizQuestion {
   answers   QuizAnswer[]
 }
 
-// Raksha: added question relation and index
 model QuizAnswer {
   id          String       @id @default(cuid())
   questionId  String
@@ -141,7 +141,6 @@ model QuizAnswer {
   @@index([questionId], map: "QuizAnswer_questionId_fkey")
 }
 
-// Raksha: introspected from real DB — do not remove
 model PasswordResetToken {
   id        String   @id
   token     String   @unique
@@ -149,25 +148,26 @@ model PasswordResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
-  User      User     @relation(fields: [userId], references: [id])
+  // ADDED onDelete: Cascade — deleting a user removes their reset tokens
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "PasswordResetToken_userId_fkey")
 }
 
-// Raksha: introspected from real DB — do not remove
 model OpenHouseRegistration {
   id          String    @id @default(cuid())
   userId      Int
   openHouseId String
   createdAt   DateTime  @default(now())
-  OpenHouse   OpenHouse @relation(fields: [openHouseId], references: [id])
-  User        User      @relation(fields: [userId], references: [id])
+  // ADDED onDelete: Cascade — deleting an open house removes its registrations
+  OpenHouse   OpenHouse @relation(fields: [openHouseId], references: [id], onDelete: Cascade)
+  // ADDED onDelete: Cascade — deleting a user removes their registrations
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, openHouseId])
   @@index([openHouseId], map: "OpenHouseRegistration_openHouseId_fkey")
 }
 
-// Raksha: new model for school favorites DB sync
 model FavoriteSchool {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -179,7 +179,6 @@ model FavoriteSchool {
   @@unique([userId, schoolId])
 }
 
-// Raksha: new model for program favorites DB sync
 model FavoriteProgram {
   id        Int          @id @default(autoincrement())
   userId    Int
@@ -191,7 +190,6 @@ model FavoriteProgram {
   @@unique([userId, programId])
 }
 
-// Raksha: new model for open house favorites DB sync
 model FavoriteOpenHouse {
   id          Int       @id @default(autoincrement())
   userId      Int
@@ -203,7 +201,6 @@ model FavoriteOpenHouse {
   @@unique([userId, openHouseId])
 }
 
-// Raksha: new model for admin settings panel
 model AdminSettings {
   id            Int      @id @default(autoincrement())
   language      Json     @default("{\"available\":[\"dutch\",\"english\"],\"default\":\"dutch\"}")

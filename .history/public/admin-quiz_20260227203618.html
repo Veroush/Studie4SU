@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz | Studie4SU Admin</title>
+  <link rel="stylesheet" href="css/admin-dashboard.css">
+  <link rel="stylesheet" href="css/admin-quiz.css">
+</head>
+<body>
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <aside class="sidebar" role="navigation" aria-label="Main navigation" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-title">Studie4SU</span>
+      <span class="logo-subtitle">Admin Panel</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="admin-dashboard.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="nav-section-label">Manage</div>
+      <a class="nav-item" href="admin-schools.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Schools</span>
+      </a>
+      <a class="nav-item" href="admin-programs.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        <span>Programs</span>
+      </a>
+      <a class="nav-item" href="admin-openhouses.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Open Houses</span>
+      </a>
+      <a class="nav-item active" href="admin-quiz.html" aria-current="page">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Quiz</span>
+      </a>
+      <a class="nav-item" href="admin-users.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Users</span>
+      </a>
+      <div class="nav-section-label">Analytics</div>
+      <a class="nav-item" href="admin-statistics.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Statistics</span>
+      </a>
+      <div class="nav-section-label">System</div>
+      <a class="nav-item" href="admin-settings.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">Studie4SU © 2026</div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- ── MAIN ────────────────────────────────────────────── -->
+  <div class="main-container">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open navigation menu" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="page-title">Quiz</h1>
+      </div>
+      <div class="header-actions">
+        <div class="user-info">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span class="user-name" id="admin-name">Admin</span>
+        </div>
+        <button class="btn-logout" id="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- ── QUESTIONS LIST ──────────────────────────────── -->
+      <section aria-label="Quiz questions list">
+
+        <div class="page-header">
+          <div>
+            <h2 class="quiz-heading">Quiz Questions</h2>
+            <p class="quiz-subheading" id="quiz-count-label">Loading...</p>
+          </div>
+          <button class="btn-add add-question-btn" id="btn-add-question">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Question
+          </button>
+        </div>
+
+        <!-- Questions list -->
+        <div class="questions-list" id="questions-list">
+          <div class="questions-loading" id="questions-loading">
+            Loading questions...
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── QUESTION EDITOR ─────────────────────────────── -->
+      <section aria-label="Question editor" id="editor-section" style="display:none;">
+
+        <div class="editor-card" id="editor-card">
+          <h3 class="editor-title" id="editor-title">Question Editor</h3>
+
+          <div class="editor-fields">
+
+            <!-- Question text -->
+            <div class="form-field">
+              <label class="field-label" for="question-text">Question Text <span class="required">*</span></label>
+              <textarea
+                id="question-text"
+                class="field-textarea"
+                rows="3"
+                placeholder="Enter your question..."
+                aria-required="true"
+              ></textarea>
+              <p class="field-hint">Write a clear, concise question that helps students identify their interests.</p>
+              <div class="field-error" id="err-question-text"></div>
+            </div>
+
+            <!-- Question type -->
+            <div class="form-field">
+              <label class="field-label" for="question-type">Question Type <span class="required">*</span></label>
+              <select id="question-type" class="field-select" aria-required="true">
+                <option value="">Select type...</option>
+                <option value="single">Single Choice</option>
+                <option value="multiple">Multiple Choice</option>
+              </select>
+              <p class="field-hint">
+                <strong>Single Choice:</strong> Students select one answer &nbsp;|&nbsp;
+                <strong>Multiple Choice:</strong> Students can select multiple answers
+              </p>
+              <div class="field-error" id="err-question-type"></div>
+            </div>
+
+            <!-- Answer options -->
+            <div class="form-field">
+              <label class="field-label">Answer Options <span class="required">*</span></label>
+              <div class="answer-options-list" id="answer-options-list"></div>
+              <button type="button" class="btn-secondary add-answer-btn" id="add-answer-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Answer Option
+              </button>
+              <div class="field-error" id="err-answers"></div>
+            </div>
+
+          </div><!-- /editor-fields -->
+
+          <div class="form-actions">
+            <button class="btn-primary save-question-btn" id="save-question-btn">Save Question</button>
+            <button class="btn-secondary" id="cancel-editor-btn">Cancel</button>
+          </div>
+
+        </div><!-- /editor-card -->
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ── DELETE CONFIRMATION MODAL ──────────────────────── -->
+  <div class="modal-overlay" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="delete-modal-title">Delete Question</h3>
+        <button class="modal-close" id="delete-modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong id="modal-question-preview"></strong>? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="delete-modal-cancel">Cancel</button>
+        <button class="btn-delete-confirm" id="delete-modal-confirm">Delete Question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MANAGE ANSWERS MODAL ───────────────────────────── -->
+  <div class="modal-overlay" id="answers-modal" role="dialog" aria-modal="true" aria-labelledby="answers-modal-title" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title" id="answers-modal-title">Manage Answers</h3>
+        <button class="modal-close" id="answers-modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-question-text" id="modal-question-text"></p>
+        <div class="modal-answers-list" id="modal-answers-list"></div>
+        <button type="button" class="btn-secondary" id="modal-add-answer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Answer
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="answers-modal-cancel">Cancel</button>
+        <button class="btn-add form-submit-btn" id="answers-modal-save">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST CONTAINER ────────────────────────────────── -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/admin-quiz.js"></script>
+</body>
+</html>

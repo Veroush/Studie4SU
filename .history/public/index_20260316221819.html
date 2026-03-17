@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+ <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Studie4SU — Jouw Studiegids in Suriname</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/settings.css"/>
+ <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
+  <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     CINEMATIC PARALLAX ICON STAGE
+     4 depth layers, populated entirely by floating-icons.js
+     Keep HTML minimal — JS injects all icon nodes
+════════════════════════════════════════════════════════════ -->
+<div class="fi-stage" id="fi-stage" aria-hidden="true">
+  <div class="fi-layer" id="fi-l1" data-layer="1"></div>
+  <div class="fi-layer" id="fi-l2" data-layer="2"></div>
+  <div class="fi-layer" id="fi-l3" data-layer="3"></div>
+  <div class="fi-layer" id="fi-l4" data-layer="4"></div>
+  <div class="fi-text-shield" aria-hidden="true"></div>
+</div><!-- /fi-stage -->
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER — matches schools.html exactly
+════════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">Studie<span>4SU</span></a>
+
+    <ul class="nav-links">
+      <li><a href="index.html"       class="active" data-nl="Home"       data-en="Home">Home</a></li>
+      <li><a href="schools.html"                    data-nl="Scholen"    data-en="Schools">Scholen</a></li>
+      <li><a href="quiz.html"                       data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+      <li><a href="open-houses.html"                data-nl="Open Dagen" data-en="Open Houses">Open Dagen</a></li>
+    </ul>
+
+    <div class="header-right">
+      <button class="lang-btn active" id="btn-nl">NL</button>
+      <button class="lang-btn"        id="btn-en">EN</button>
+
+      <!-- Login button (shown when logged out) -->
+      <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+      <!-- Profile button (shown when logged in) -->
+      <div class="profile-wrap" id="profile-btn" style="display:none">
+        <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+          <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+          <span id="profile-name-label">Profiel</span>
+        </button>
+        <div class="profile-popup" id="profile-popup">
+          <div class="popup-top">
+            <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+            <div class="popup-name"  id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+          </div>
+          <hr class="popup-divider"/>
+          <div class="popup-actions">
+            <!-- 🌙 Dark mode toggle row intentionally removed — feature scrapped -->
+            <div class="popup-action-row">
+              <span class="popup-action-icon">🔔</span>
+              <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="popup-notif-toggle"/>
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <a href="settings.html" class="popup-action-row popup-action-link">
+              <span class="popup-action-icon">⚙️</span>
+              <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+              <span class="popup-action-arrow">›</span>
+            </a>
+          </div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">
+            <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+    <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+    <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+    <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Houses">Open Dagen</a>
+    <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+    <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge-wrap">
+        <span class="hero-badge">✦ <span id="hero-badge-text">Jouw toekomst begint hier</span></span>
+      </div>
+      <h1 id="hero-heading">Vind Jouw <span>Studierichting</span><br/>in Suriname</h1>
+      <p class="hero-sub" id="hero-sub">
+        Ontdek alle scholen, opleidingen en open dagen in Suriname.
+        Weet je nog niet wat je wil studeren? Doe onze gratis quiz en vind je match in 2 minuten.
+      </p>
+      <div class="hero-cta-wrap">
+        <div class="hero-cta-glow"></div>
+        <a href="quiz.html" class="btn-gold-hero" id="hero-cta">✨ Doe de Studie Quiz</a>
+      </div>
+      <div class="hero-actions">
+        <a href="#schools" class="btn-ghost-hero" id="hero-explore">🏫 Verken Scholen</a>
+        <a href="#events"  class="btn-ghost-hero" id="hero-openhouses">📅 Open Dagen</a>
+        <a href="favorites.html" class="btn-ghost-hero" id="hero-fav">❤️ <span id="hero-fav-text">Mijn Favorieten</span></a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-number">7+</div>
+        <div class="stat-label" id="stat-schools">Scholen</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">76</div>
+        <div class="stat-label" id="stat-programs">Opleidingen</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">Free</div>
+        <div class="stat-label" id="stat-quiz">Gratis Quiz</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════════════════════ -->
+<section class="features-section fade-in">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label" id="features-label">Wat Wij Bieden</div>
+      <h2 class="section-heading">Alles wat je nodig hebt om de<br/><span>Juiste Keuze te Maken</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon icon-green">🏫</div>
+        <h3 id="feat-schools-title">Scholen & Instituten</h3>
+        <p id="feat-schools-desc">Verken AdeKUS, NATIN, IOL, COVAB, IMEAO en alle andere scholen in Suriname.</p>
+        <a href="schools.html" class="feature-link" id="feat-schools-link">Ontdek scholen →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-gold">📚</div>
+        <h3 id="feat-programs-title">Studierichtingen</h3>
+        <p id="feat-programs-desc">Bekijk alle beschikbare opleidingen — van Geneeskunde en Rechten tot ICT en Landbouw.</p>
+        <a href="schools.html" class="feature-link" id="feat-programs-link">Bekijk opleidingen →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-teal">📅</div>
+        <h3 id="feat-openhouses-title">Open Dagen</h3>
+        <p id="feat-openhouses-desc">Bezoek scholen en ervaar opleidingen in het echt voordat je beslist.</p>
+        <a href="open-houses.html" class="feature-link" id="feat-openhouses-link">Bekijk open dagen →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCHOOLS PREVIEW
+════════════════════════════════════════════════════════════ -->
+<section class="schools-section fade-in" id="schools">
+  <div class="container">
+    <div class="section-header-row">
+      <div>
+        <div class="section-label" id="schools-label">Uitgelichte Scholen</div>
+        <h2 class="section-heading">Scholen in <span>Suriname</span></h2>
+      </div>
+      <a href="schools.html" class="view-all" id="schools-viewall">Alle scholen →</a>
+    </div>
+    <div class="schools-preview-grid" id="schools-grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVENTS PREVIEW
+════════════════════════════════════════════════════════════ -->
+<section class="events-section fade-in" id="events">
+  <div class="container">
+    <div class="section-header-row">
+      <div>
+        <div class="section-label" id="events-label">Aankomende Evenementen</div>
+        <h2 class="section-heading">Open <span>Dagen</span></h2>
+      </div>
+      <a href="open-houses.html" class="view-all" id="events-viewall">Alle evenementen →</a>
+    </div>
+    <div class="events-preview-grid" id="events-grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     QUIZ BANNER
+════════════════════════════════════════════════════════════ -->
+<section class="quiz-banner fade-in">
+  <div class="container">
+    <div class="quiz-banner-inner">
+      <span class="hero-badge" style="margin-bottom:20px">✦ <span id="quiz-banner-badge">Gratis &amp; Duurt 2 Minuten</span></span>
+      <h2 class="section-heading">Nog Niet Zeker <span>Wat Je Wil Studeren?</span></h2>
+      <p class="hero-sub" id="quiz-banner-sub">Beantwoord 10 korte vragen en wij matchen jou met het juiste programma.</p>
+      <div class="hero-cta-wrap" style="margin-top:32px">
+        <div class="hero-cta-glow"></div>
+        <a href="quiz.html" class="btn-gold-hero" id="quiz-banner-cta">✨ Start de Studie Quiz</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER — matches schools.html exactly
+════════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+</footer>
+
+<script src="js/index.js"></script>
+<script src="js/floating-icons.js"></script>
+</body>
+</html>

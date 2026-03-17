@@ -6,7 +6,40 @@
   <title>Mijn Favorieten — Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/favorites.css" />
+
+  <!--
+    ── CONFLICT RESOLUTION — favorites.html — <head> stylesheet block ──────────
+    Location: after the favorites.css link, before </head>
+
+    WHAT THE CONFLICT WAS:
+
+      Veroush's side (HEAD / raksha/testing/merge):
+        <link rel="stylesheet" href="css/settings.css" />
+
+        Had settings.css loaded here. settings.css is required on every
+        page that uses the rich profile popup — it provides the emoji
+        avatar styles, display name, toggle switches, and popup layout.
+        Without it the popup is completely unstyled.
+
+      Raksha's side (93a4ae2):
+        <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
+
+        Had only the favicon link. The favicon gives the browser tab the
+        correct SVG icon. Raksha did not include settings.css here.
+
+    WHY BOTH WERE KEPT:
+      These are not mutually exclusive — they are two different things.
+      settings.css is needed for the popup to render correctly.
+      The favicon is needed for the browser tab icon.
+      Dropping either one would cause a regression.
+      Both lines are kept, favicon placed after settings.css.
+
+    RESOLUTION:
+      Kept your settings.css link AND Raksha's favicon link.
+      No code was dropped from either side.
+    ────────────────────────────────────────────────────────────────────────── -->
   <link rel="stylesheet" href="css/settings.css" />
+  <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
 </head>
 <body>
 
@@ -116,71 +149,6 @@
 <!-- ── MAIN ─────────────────────────────────────────────────── -->
 <main class="page-container">
 
-  <!--
-    CONFLICT RESOLUTION — public/favorites.html
-    Location: inside <main>, the page title and painter scene block
-
-    WHAT THE CONFLICT WAS:
-      Veroush's (HEAD / raksha/testing/merge):
-        Had the page title section as a standalone block BEFORE .page-header,
-        and .page-header only contained the painter scene:
-
-          <div class="page-title-section">
-            <h1 id="page-title">Mijn <span>Favorieten</span></h1>
-            <p id="page-subtitle">...</p>
-            <span id="badge-text" style="display:none">...</span>
-          </div>
-
-          <div class="page-header">
-            [painter scene only — .scene div with stickman + painting parts]
-          </div>
-
-      Val's (feature/settings):
-        Wrapped BOTH the title section AND the painter scene together
-        inside a single .page-header flex container, with .page-title-section
-        as the left column and .scene as the right column:
-
-          <div class="page-header">
-            <div class="page-title-section">
-              <h1>...</h1>
-              <p>...</p>
-              <span id="badge-text">...</span>
-              <div class="saved-badge">...</div>   ← Val also added this badge
-            </div>
-            <div class="scene" aria-hidden="true">
-              [painter scene]
-            </div>
-          </div>
-
-    WHY VAL'S VERSION WAS KEPT:
-      1. favorites.css defines .page-header as
-         display: flex; justify-content: space-between; align-items: center
-         — this only makes sense if BOTH .page-title-section AND .scene
-         are direct children of .page-header. Your version put them in
-         separate divs, so the CSS layout would not work correctly.
-      2. favorites.js references #badge-text-visual and .saved-badge
-         which only exist inside Val's .page-title-section structure.
-         Your version didn't have these elements, so JS would silently
-         fail to update the badge text on language change.
-      3. The painter animation (initPainterAnimation in favorites.js)
-         references #stickman and .paint elements which are inside
-         .scene — Val's structure places .scene correctly as a sibling
-         of .page-title-section inside .page-header.
-
-    RESOLUTION:
-      Kept Val's structure (the >>>>>>> 974636e side) verbatim.
-      Dropped your standalone .page-title-section block that preceded
-      a separate .page-header.
-
-      Also added the auth flash fix inline script (see above) which was
-      a PENDING item from the Session 4 handoff and was missing from
-      both conflict sides.
-
-    OWNERSHIP:
-      Standalone title + separate page-header (dropped): yours / HEAD.
-      Combined .page-header with title + scene (kept): Val / feature/settings.
-      Auth flash fix inline script (added): standard pattern from schools.html.
-  -->
   <div class="page-header">
     <div class="page-title-section">
       <h1 id="page-title">Mijn <span>Favorieten</span></h1>

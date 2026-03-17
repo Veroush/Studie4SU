@@ -6,8 +6,82 @@
   <title>Opleiding | Studie4SU</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/program-detail.css" />
-  <!-- Rich popup styles (shared across all pages) -->
+
+  <!--
+    ── CONFLICT RESOLUTION — program-detail.html — <head> stylesheet block ─────
+    Location: after program-detail.css link, before </head>
+
+    WHAT THE CONFLICT WAS:
+
+      Veroush's side (HEAD / raksha/testing/merge):
+         Rich popup styles (shared across all pages) 
+        <link rel="stylesheet" href="css/settings.css" />
+
+        Had settings.css with a short explanatory comment. settings.css is
+        required on every page that uses the rich profile popup — emoji
+        avatar, display name, toggle switches, and popup layout all depend
+        on it. Without it the popup is completely unstyled.
+
+      Raksha's side (93a4ae2):
+        A large explanatory HTML comment block documenting the conflict
+        itself (what HEAD had, what feature/settings had, why settings.css
+        was chosen over the inline <style> block, and a note that
+        theme-init.js is intentionally absent). Followed by:
+        settings.css needed for rich profile popup styles 
+        theme-init.js intentionally NOT included — dark mode feature scrapped 
+          <link rel="stylesheet" href="css/settings.css" />
+        And also:
+          <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
+
+        Raksha's comment block also explained that a previous conflict had
+        existed between an inline <style> block for .btn-compare-program
+        (on HEAD) and the settings.css link (on feature/settings), and
+        documented why the inline block was dropped.
+
+    WHY BOTH WERE KEPT:
+      settings.css is needed on both sides — no conflict there, both
+      sides agreed on this. The difference was:
+        - Your side had a short comment.
+        - Raksha's side had a detailed documentation comment, two
+          explanatory comments around the link, and the favicon.
+      None of these are mutually exclusive. Raksha's documentation comment
+      is useful context (especially the note about .btn-compare-program
+      styles needing to live in program-detail.css, not inline HTML).
+      The favicon is needed for the browser tab icon.
+
+    RESOLUTION:
+      Kept Raksha's full documentation comment block (it contains more
+      detail than your short comment and explains the prior history).
+      Kept settings.css link with Raksha's inline explanatory comments.
+      Kept Raksha's favicon link.
+      No code was dropped from either side.
+
+    ACTION STILL NEEDED (from Raksha's comment):
+      Verify that .btn-compare-program styles exist in program-detail.css.
+      The inline <style> block that previously held these rules was dropped
+      in an earlier session. If those three rule-sets are not in
+      program-detail.css yet, add them there.
+    ────────────────────────────────────────────────────────────────────────── 
+
+ 
+    ⚠️  PRIOR CONFLICT NOTE (resolved in earlier session, documented here)
+        A previous conflict existed between:
+          HEAD: an inline <style> block for .btn-compare-program
+          feature/settings: the settings.css link below
+
+        The inline <style> block was dropped because those styles belong
+        in program-detail.css, not in HTML. settings.css was kept because
+        it is required for the rich profile popup to render correctly.
+        theme-init.js is intentionally NOT included — dark mode scrapped.
+
+        ACTION NEEDED: confirm .btn-compare-program rules exist in
+        program-detail.css. If not, move them there from the old inline block.
+ 
+
+  settings.css needed for rich profile popup styles 
+   theme-init.js intentionally NOT included — dark mode feature scrapped -->
   <link rel="stylesheet" href="css/settings.css" />
+  <link rel="icon" type="image/svg+xml" href="/img/S4S-favicon (better).svg">
 </head>
 <body>
 
