@@ -481,7 +481,7 @@ function render() {
     calEl.style.display = 'none';
     emptyEl.style.display = 'none';
     loadingEl.style.display = 'block';
-    document.getElementById('loading-msg').textContent = t('loading');
+    document.getElementById('loading-msg').textContent = t('Loading...');
     startStateAnimation('loading');
     return;
   }

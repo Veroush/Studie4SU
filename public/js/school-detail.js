@@ -229,7 +229,7 @@ async function loadSchool() {
   if (!schoolId) { renderError(); return; }
 
   try {
-    const res = await fetch(`/admin/schools/${schoolId}`);
+    const res = await fetch(`/schools/${schoolId}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     currentSchool = data;
