@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studiekeuzequiz – Studie4SU</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/quiz.css" />
+  <!-- settings.css needed for rich profile popup styles -->
+  <!-- theme-init.js intentionally NOT included — dark mode feature scrapped -->
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+
+  <!-- ========== SITE HEADER ========== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Studie<span>4SU</span></a>
+
+      <ul class="nav-links">
+        <li><a href="index.html"       data-nl="Home"      data-en="Home">Home</a></li>
+        <li><a href="schools.html"     data-nl="Scholen"   data-en="Schools">Scholen</a></li>
+        <li><a href="quiz.html"        data-nl="Quiz"      data-en="Quiz" class="active">Quiz</a></li>
+        <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
+      </ul>
+
+      <div class="header-right">
+        <button class="lang-btn" id="btn-nl" onclick="setLanguage('nl')">NL</button>
+        <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
+
+        <!-- Login button (shown when logged out) -->
+        <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+        <!-- Profile button (shown when logged in) -->
+        <div class="profile-wrap" id="profile-btn" style="display:none">
+          <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+            <span class="nav-avatar-ring"><span id="nav-avatar-display">🎓</span></span>
+            <span id="profile-name-label">Profiel</span>
+          </button>
+          <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
+          <div class="profile-popup" id="profile-popup">
+            <div class="popup-top">
+              <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+              <div class="popup-name"  id="popup-name"></div>
+              <div class="popup-email" id="popup-email"></div>
+            </div>
+            <hr class="popup-divider"/>
+            <div class="popup-actions">
+              <div class="popup-action-row">
+                <span class="popup-action-icon">🔔</span>
+                <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="popup-notif-toggle"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <a href="settings.html" class="popup-action-row popup-action-link">
+                <span class="popup-action-icon">⚙️</span>
+                <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+                <span class="popup-action-arrow">›</span>
+              </a>
+            </div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">
+              <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+            </button>
+          </div>
+        </div>
+
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+      <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+      <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+      <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a>
+      <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+      <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+    </nav>
+  </header>
+
+  <!-- Screen-reader live region -->
+  <div id="sr-announcements" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- ========================================================
+       QUIZ SECTION
+  ======================================================== -->
+  <main>
+    <div class="page" id="quiz-section">
+
+      <!-- Page header -->
+      <header class="page-header">
+        <h1 id="page-title">Studiekeuzequiz</h1>
+        <p id="page-subtitle">Beantwoord deze vragen om jouw ideale studie te vinden</p>
+      </header>
+
+      <!-- Progress bar -->
+      <div class="progress-section" id="progress-section">
+        <div class="progress-info">
+          <span id="progress-text">Vraag 1 van 8</span>
+          <span id="percentage-text">13%</span>
+        </div>
+        <div class="progress-track"
+             role="progressbar"
+             aria-valuenow="13" aria-valuemin="0" aria-valuemax="100"
+             aria-label="Quiz voortgang">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Question card -->
+      <div class="question-card" id="question-card">
+        <h2 id="question-text"></h2>
+        <p class="question-instruction" id="question-instruction"></p>
+        <div class="options-list" id="options-list" role="group" aria-label="Antwoord opties"></div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-row">
+        <button class="btn-prev" id="prev-btn" onclick="handlePrevious()" disabled aria-label="Vorige vraag">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          <span id="prev-label">Vorige</span>
+        </button>
+        <button class="btn-next" id="next-btn" onclick="handleNext()" disabled aria-label="Volgende vraag">
+          <span id="next-label">Volgende</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+    </div><!-- /.page #quiz-section -->
+
+
+    <!-- ========================================================
+         RESULTS SECTION
+    ======================================================== -->
+    <div class="page results-mode" id="results-container">
+
+      <header class="results-header">
+        <div>
+          <div class="success-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span id="badge-text">Quiz voltooid!</span>
+          </div>
+        </div>
+        <h1 id="results-title">Jouw Gepersonaliseerde Aanbevelingen</h1>
+        <p id="results-subtitle">Op basis van jouw opleidingsniveau, certificaten en voorkeuren</p>
+      </header>
+
+      <div class="recommendations-list" id="recommendations-list"></div>
+
+      <div class="retake-row">
+        <button class="btn-secondary" onclick="retakeQuiz()" id="retake-btn">Quiz Opnieuw Doen</button>
+      </div>
+
+    </div><!-- /#results-container -->
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer">
+    <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten • <a href="about.html">Over ons/About us</a></p>
+  </footer>
+
+  <script src="js/quiz.js"></script>
+</body>
+</html>

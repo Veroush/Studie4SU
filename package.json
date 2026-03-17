@@ -1,0 +1,37 @@
+{
+  "name": "studie4su",
+  "version": "1.0.0",
+  "description": "Studie4SU is a website that allows Surinamese students to navigate schools, open houses, programs and even offers a quiz to help them decide.",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Veroush/Studie4SU.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Veroush/Studie4SU/issues"
+  },
+  "homepage": "https://github.com/Veroush/Studie4SU#readme",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^5.1.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.1",
+    "prisma": "^5.22.0",
+    "twilio": "^5.12.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}

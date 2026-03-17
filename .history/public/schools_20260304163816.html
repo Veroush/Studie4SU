@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scholen – Studie4SU</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/schools.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">Studie<span>4SU</span></a>
+
+    <ul class="nav-links">
+      <li><a href="index.html"     data-nl="Home"    data-en="Home">Home</a></li>
+      <li><a href="schools.html"   data-nl="Scholen" data-en="Schools" class="active">Scholen</a></li>
+      <li><a href="quiz.html"      data-nl="Quiz"    data-en="Quiz">Quiz</a></li>
+      <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
+    </ul>
+
+    <div class="header-right">
+      <button class="lang-btn" id="btn-nl">NL</button>
+      <button class="lang-btn" id="btn-en">EN</button>
+
+      <!-- Login button (shown when logged out) -->
+      <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+      <!-- Profile button (shown when logged in) -->
+      <div class="profile-wrap" id="profile-btn" style="display:none">
+        <button class="btn-login" onclick="toggleProfilePopup(event)">👤 <span id="profile-name-label">Profiel</span></button>
+        <div class="profile-popup" id="profile-popup">
+          <div class="popup-avatar">👤</div>
+          <div class="popup-name"  id="popup-name"></div>
+          <div class="popup-email" id="popup-email"></div>
+          <div class="popup-role"  id="popup-role"></div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">🚪 Uitloggen</button>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+    <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+    <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+    <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a>
+    <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+    <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+  </nav>
+</header>
+
+<main class="page-container">
+
+  <div class="page-title-section">
+    <h1 id="page-title">Alle Scholen</h1>
+    <p id="page-subtitle">Ontdek en vergelijk scholen in Suriname</p>
+  </div>
+
+  <div class="filter-panel">
+    <div class="filter-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--green-700)">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      </svg>
+      <h2 id="filter-heading">Filters</h2>
+    </div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label for="filter-type" id="label-type">Schooltype</label>
+        <select id="filter-type" class="filter-select">
+          <option value="all"        data-nl="Alle types"  data-en="All types">Alle types</option>
+          <option value="University" data-nl="Universiteit" data-en="University">Universiteit</option>
+          <option value="HBO"        data-nl="HBO"          data-en="HBO">HBO</option>
+          <option value="MBO"        data-nl="MBO"          data-en="MBO">MBO</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-location" id="label-location">Locatie</label>
+        <select id="filter-location" class="filter-select">
+          <option value="all"          data-nl="Alle locaties"   data-en="All locations">Alle locaties</option>
+          <option value="Paramaribo"   data-nl="Paramaribo"      data-en="Paramaribo">Paramaribo</option>
+          <option value="Lelydorp"     data-nl="Lelydorp"        data-en="Lelydorp">Lelydorp</option>
+          <option value="Nickerie"     data-nl="Nickerie"        data-en="Nickerie">Nickerie</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-level" id="label-level">Niveau</label>
+        <select id="filter-level" class="filter-select">
+          <option value="all"        data-nl="Alle niveaus" data-en="All levels">Alle niveaus</option>
+          <option value="University" data-nl="WO"           data-en="University">WO (Universiteit)</option>
+          <option value="HBO"        data-nl="HBO"          data-en="HBO">HBO</option>
+          <option value="MBO"        data-nl="MBO"          data-en="MBO">MBO</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <p class="results-count" id="results-count"></p>
+
+  <div class="schools-grid" id="schools-grid">
+    <div class="state-center" id="loading-state">
+      <div class="spinner"></div>
+      <p id="loading-text">Scholen laden...</p>
+    </div>
+  </div>
+</main>
+
+<div class="compare-bar" id="compare-bar" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="9 18 15 12 9 6"/>
+  </svg>
+  <span id="compare-count-text">0 scholen geselecteerd</span>
+  <button class="btn-compare-view" id="btn-view-comparison">Vergelijk</button>
+  <button class="btn-compare-clear" id="btn-clear-compare">Wis</button>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+</footer>
+
+<script src="js/schools.js"></script>
+</body>
+</html>

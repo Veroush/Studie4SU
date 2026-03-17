@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vergelijk Opleidingen – Studie4SU</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="img/school_compare_face1.png">
+  <link rel="preload" as="image" href="img/school_compare_face2.png">
+  <link rel="preload" as="image" href="img/chasing-1.svg">
+  <link rel="preload" as="image" href="img/running-1.svg">
+
+  <link rel="stylesheet" href="css/program-compare.css">
+  <!-- Rich popup styles (shared across all pages) -->
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Studie<span>4SU</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
+        <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a></li>
+        <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+        <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
+      </ul>
+      <div class="header-right">
+        <button class="lang-btn" id="btn-nl">NL</button>
+        <button class="lang-btn" id="btn-en">EN</button>
+
+        <!-- Login button (shown when logged out) -->
+        <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+        <!-- Profile button (shown when logged in) -->
+        <div class="profile-wrap" id="profile-btn" style="display:none">
+          <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+            <span class="nav-avatar-ring">
+              <span id="nav-avatar-display">🎓</span>
+            </span>
+            <span id="profile-name-label">Profiel</span>
+          </button>
+          <!-- Rich dropdown — dark mode row intentionally absent (feature scrapped) -->
+          <div class="profile-popup" id="profile-popup">
+            <div class="popup-top">
+              <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+              <div class="popup-name"  id="popup-name"></div>
+              <div class="popup-email" id="popup-email"></div>
+            </div>
+            <hr class="popup-divider"/>
+            <div class="popup-actions">
+              <div class="popup-action-row">
+                <span class="popup-action-icon">🔔</span>
+                <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="popup-notif-toggle"/>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <a href="settings.html" class="popup-action-row popup-action-link">
+                <span class="popup-action-icon">⚙️</span>
+                <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+                <span class="popup-action-arrow">›</span>
+              </a>
+            </div>
+            <hr class="popup-divider"/>
+            <button class="popup-logout" onclick="logout()">
+              <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+            </button>
+          </div>
+        </div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="index.html">Home</a>
+      <a href="schools.html">Scholen</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="open-houses.html">Open Dagen</a>
+      <a href="login.html" id="mobile-login">Inloggen</a>
+      <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+    </nav>
+  </header>
+
+  <!--
+    AUTH FLASH FIX — placed AFTER </header> so all header elements
+    exist in the DOM when getElementById runs.
+    Prevents login-btn / "Profiel" text flickering before JS loads.
+  -->
+  <script>
+    (function () {
+      if (!localStorage.getItem('auth_token')) return;
+      document.documentElement.classList.add('is-logged-in');
+      var name = localStorage.getItem('user_display_name');
+      if (name) {
+        var nameEl = document.getElementById('profile-name-label');
+        if (nameEl) nameEl.textContent = name;
+      }
+      var AVATARS = {
+        graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+        panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+        art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+      };
+      var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+      var avatarEmoji = AVATARS[avatarId] || '🎓';
+      var navAv = document.getElementById('nav-avatar-display');
+      if (navAv) navAv.textContent = avatarEmoji;
+    })();
+  </script>
+
+  <main id="main-content">
+    <div class="page-wrap">
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <p style="color:var(--gray-500)" id="loading-text">Laden...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten</p>
+  </footer>
+
+  <script src="js/program-compare.js"></script>
+</body>
+</html>

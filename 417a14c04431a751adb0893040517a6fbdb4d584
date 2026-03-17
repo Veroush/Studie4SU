@@ -1,0 +1,199 @@
+[33mcommit 417a14c04431a751adb0893040517a6fbdb4d584[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mraksha/testing/merge[m[33m)[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Wed Mar 11 14:50:43 2026 -0300
+
+    renamed registrations → OpenHouseRegistration to match Raksha's schema.
+
+[33mcommit 3733478a0b244f824df15f9e3d5558aac5138220[m
+Merge: 23cedee 961cd9b
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Wed Mar 11 02:09:07 2026 -0300
+
+    Merge branch 'sandbox' of https://github.com/Veroush/Studie4SU into raksha/testing/merge
+    
+    Merge Raksha's backend branch into frontend polish branch — resolve all conflicts
+    
+    Conflicts resolved (6 files)
+    prisma/schema.prisma
+    
+    Kept Raksha's User model with favoriteSchools, favoritePrograms, favoriteOpenHouses relations
+    Kept Raksha's OpenHouse model with favoriteBy relation and @@index([schoolId])
+    Kept Raksha's QuizAnswer with question relation and @@index([questionId])
+    Kept Raksha's new models: FavoriteSchool, FavoriteProgram, FavoriteOpenHouse, AdminSettings, PasswordResetToken, OpenHouseRegistration
+    
+    prisma/seed.js
+    
+    Kept original 3 schools and all 69 programs
+    Added Raksha's 5 extra schools: NATIN, IOL, COVAB, IMEAO, IGSR
+    Replaced 5 old open houses (numeric IDs) with Raksha's 8 open houses using stable string IDs (oh_adekus_march etc.) that match FALLBACK_EVENTS in open-houses.js
+    
+    public/js/favorites.js
+    
+    Kept initAuth() call from HEAD
+    Added Raksha's async DOMContentLoaded + FavSync.loadFromDB() before render
+    Favorites arrays refreshed from localStorage after DB sync
+    
+    public/js/open-houses.js
+    
+    Replaced numeric FALLBACK_EVENTS IDs ('1' through '8') with Raksha's stable string IDs
+    Removed duplicate let EVENTS = [] declaration from inside the STATE block (kept Raksha's top-level declaration)
+    Removed saveFavData() function and all calls to it (replaced by FavSync)
+    Merged init block: setLanguage() and initAuth() run first, then Promise.all([loadEvents(), FavSync.loadFromDB()]), then favorites refresh and render
+    
+    public/js/school-detail.js
+    
+    Replaced direct localStorage toggleFavorite() with Raksha's window.FavSync.toggle('schools', id), kept showFavToast() call
+    Merged boot block: Raksha's FavSync.loadFromDB() runs first, then loadSchool(), then the ?compare=1 auto-compare logic (from HEAD) inside the .then()
+    
+    public/favorites.html
+    
+    Kept all tab content blocks (schools, programs, openhouses) inside <main> from HEAD
+    Moved <footer> outside <main> (Raksha)
+    Added <script src="/js/favSync.js"> before favorites.js (Raksha)
+    
+    Added (Raksha's new files, no conflicts)
+    
+    controllers/adminSettings.js
+    controllers/favoritescontroller.js
+    public/js/favSync.js
+    routes/adminSettingsRoutes.js
+    routes/favoritesRoutes.js
+    prisma/migrations/20260304225458_init/migration.sql
+    
+    Modified (clean, no conflicts)
+    
+    src/app.js — registers favoritesRoutes and adminSettingsRoutes
+    public/js/program-detail.js — Raksha's FavSync integration
+    public/js/schools.js — Raksha's FavSync integration
+    public/open-houses.html — added favSync.js script tag
+    public/program-detail.html — Session 17 nav fixes
+    public/school-detail.html — added favSync.js script tag
+    public/schools.html — added favSync.js script tag
+    
+    Deleted
+    
+    routes/favorites.js — Raksha's duplicate routes file (references non-existent controller functions; superseded by routes/favoritesRoutes.js)
+
+[33mcommit 961cd9b899d16c8212f6ec436d1e8667e8c59ade[m[33m ([m[1;31morigin/sandbox[m[33m)[m
+Author: brownenderman <doergaraksha@gmail.com>
+Date:   Tue Mar 10 20:00:56 2026 -0300
+
+    school routes audit
+
+[33mcommit 5b34b3b2a61f10927c520ad91943622ecd21d451[m
+Author: brownenderman <doergaraksha@gmail.com>
+Date:   Tue Mar 10 18:48:50 2026 -0300
+
+    open houses werkt nu met db en ook met admin panel alleen op open-houses.html maar nog niet op home pagina
+
+[33mcommit 385745dd0c892ccf279b54b65022d8db1bee9927[m
+Author: brownenderman <doergaraksha@gmail.com>
+Date:   Tue Mar 10 16:53:01 2026 -0300
+
+    admin settings feature should work now
+
+[33mcommit 23cedee83d714e00fccb92b1ae6e2cf2957d9fae[m[33m ([m[1;31morigin/feature/program-compare[m[33m, [m[1;32mfeature/program-compare[m[33m, [m[1;32mfeature/playground[m[33m)[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Mon Mar 9 21:06:07 2026 -0300
+
+    school-compare is changed to program-compare
+
+[33mcommit a759ab832090d03b36ff96ae599bdc0d517a6ab9[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Mon Mar 9 19:18:09 2026 -0300
+
+    schools.css conflict resolved
+
+[33mcommit 47671ce74ec522208162a64fb71dae68a833eca1[m[33m ([m[1;31morigin/feature/playground[m[33m, [m[1;31morigin/clean-playground[m[33m, [m[1;32mmerge-testing[m[33m)[m
+Merge: da759d5 3db57db
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Sun Mar 8 23:00:06 2026 -0300
+
+    merge with Val's branch resolved
+
+[33mcommit da759d56f090cb4e7e0f5daf7fd5132dc93669ce[m
+Merge: 0c21ee2 48c8e4c
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Sun Mar 8 22:41:30 2026 -0300
+
+    Merge branch 'feature/playground' of https://github.com/Veroush/Studie4SU into merge-testing
+
+[33mcommit 0c21ee202d56bcb5de8f257b0f5d4c6f2a61458d[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Sun Mar 8 22:31:28 2026 -0300
+
+    used to test Val branch with playground
+
+[33mcommit d0cdfc584ed44ea6b6e6d4c13b3df1a218a6ee90[m
+Author: brownenderman <doergaraksha@gmail.com>
+Date:   Sun Mar 8 22:02:14 2026 -0300
+
+    removed locally stored favorites and added database storage for favorites
+
+[33mcommit 3db57db5d8f9d697fa520f13a4e86d03bfa6ff6e[m
+Author: LazyButSmartWeeb <valentino.amatsaleh@gmail.com>
+Date:   Sun Mar 8 21:48:49 2026 -0300
+
+    Added stickman loading animation to schools
+
+[33mcommit 48c8e4c36e8d67a2f797aeb9d693cd0af49edca3[m
+Merge: 1a92d55 f15f34c
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Sun Mar 8 14:33:08 2026 -0300
+
+    Merge forgot password changes into feature/playground
+
+[33mcommit f15f34c04b2b900a1af8fc15ca162c5f9aaa8bc1[m[33m ([m[1;32mfeature/password-forget[m[33m)[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Sun Mar 8 14:26:29 2026 -0300
+
+    Refactor auth: remove phone/WhatsApp, email-only forgot password
+    
+    - Remove phone field from User model (schema + db push)
+    - Remove WhatsApp reset option from forgot-password flow
+    - Remove phone field from registration form (login.html/js)
+    - Clean up authController register function
+    - Fix Google Calendar URL formatting in open-houses.js
+
+[33mcommit 1a92d555c12c2e832ccb431dd2ab717783c3c776[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Sat Mar 7 09:31:29 2026 -0300
+
+    added unregister fetaure to open-houses
+
+[33mcommit 8fefcb23dd539fcd72070038c441d1866a0e360f[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Fri Mar 6 17:24:04 2026 -0300
+
+    added forgot password feature
+
+[33mcommit 132a83ac80fc9b6a2bca53ee1f41479a94f36ee8[m
+Author: LazyButSmartWeeb <valentino.amatsaleh@gmail.com>
+Date:   Fri Mar 6 08:18:19 2026 -0300
+
+    Added running animation to the empty state in school-compare page
+
+[33mcommit 10039e1336615f7edd71c4c0811446a2520e8241[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Fri Mar 6 00:22:03 2026 -0300
+
+    reverted changes
+
+[33mcommit b97ba0be45454aa3bf03bcd469f7bc9bb3598e6e[m
+Author: Veroush <ramjiawanveroushka95@gmail.com>
+Date:   Thu Mar 5 23:04:08 2026 -0300
+
+    updated openhouses ui, fixed connection to real schools/programs
+
+[33mcommit a5b05d8eda0cf8dff5b067c613fc5ff5fc45353a[m
+Author: LazyButSmartWeeb <valentino.amatsaleh@gmail.com>
+Date:   Thu Mar 5 19:29:34 2026 -0300
+
+    Added painting animation in favorite page and added chasing and running animation in img folder
+
+[33mcommit 784ba428c28e663533af205c1b7e414b81855efa[m
+Merge: a5d76e6 744b2b1
+Author: LazyButSmartWeeb <valentino.amatsaleh@gmail.com>
+Date:   Thu Mar 5 13:51:15 2026 -0300
+
+    Added painting and painter svgs to

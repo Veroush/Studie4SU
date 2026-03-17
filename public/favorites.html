@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijn Favorieten — Studie4SU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/favorites.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+
+<!-- ── HEADER (rich popup — matches index.html / schools.html) ──────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">Studie<span>4SU</span></a>
+
+    <ul class="nav-links">
+      <li><a href="index.html"       data-nl="Home"       data-en="Home">Home</a></li>
+      <li><a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a></li>
+      <li><a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a></li>
+      <li><a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a></li>
+    </ul>
+
+    <div class="header-right">
+      <button class="lang-btn" id="btn-nl">NL</button>
+      <button class="lang-btn" id="btn-en">EN</button>
+
+      <a href="login.html" class="btn-login" id="login-btn" data-nl="Inloggen" data-en="Login">Inloggen</a>
+
+      <!-- Profile button (shown when logged in) -->
+      <div class="profile-wrap" id="profile-btn" style="display:none">
+        <button class="btn-profile-nav" onclick="toggleProfilePopup(event)">
+          <span class="nav-avatar-ring" id="nav-avatar-display">🎓</span>
+          <span id="profile-name-label">Profiel</span>
+        </button>
+        <div class="profile-popup" id="profile-popup">
+          <div class="popup-top">
+            <div class="popup-avatar-lg" id="popup-avatar-lg">🎓</div>
+            <div class="popup-name"  id="popup-name"></div>
+            <div class="popup-email" id="popup-email"></div>
+          </div>
+          <hr class="popup-divider"/>
+          <div class="popup-actions">
+            <!-- 🌙 Dark mode toggle row intentionally removed — feature scrapped -->
+            <div class="popup-action-row">
+              <span class="popup-action-icon">🔔</span>
+              <span class="popup-action-label" data-nl="Meldingen" data-en="Notifications">Meldingen</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="popup-notif-toggle"/>
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <a href="settings.html" class="popup-action-row popup-action-link">
+              <span class="popup-action-icon">⚙️</span>
+              <span class="popup-action-label" data-nl="Instellingen" data-en="Settings">Instellingen</span>
+              <span class="popup-action-arrow">›</span>
+            </a>
+          </div>
+          <hr class="popup-divider"/>
+          <button class="popup-logout" onclick="logout()">
+            <span>🚪</span> <span data-nl="Uitloggen" data-en="Log out">Uitloggen</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="index.html"       data-nl="Home"       data-en="Home">Home</a>
+    <a href="schools.html"     data-nl="Scholen"    data-en="Schools">Scholen</a>
+    <a href="quiz.html"        data-nl="Quiz"       data-en="Quiz">Quiz</a>
+    <a href="open-houses.html" data-nl="Open Dagen" data-en="Open Days">Open Dagen</a>
+    <a href="login.html" id="mobile-login" data-nl="Inloggen" data-en="Login">Inloggen</a>
+    <a href="#" id="mobile-profile" style="display:none" onclick="toggleProfilePopup(event)">👤 Profiel</a>
+  </nav>
+</header>
+
+<!--
+  AUTH FLASH FIX — inline script placed AFTER </header> so all header
+  elements exist in the DOM when getElementById runs.
+  Runs before DOMContentLoaded to prevent the login-btn flash.
+
+  NOTE: This was a PENDING item from Session 4 handoff (Section 10).
+  Added here as part of conflict resolution.
+-->
+<script>
+  (function () {
+    if (!localStorage.getItem('auth_token')) return;
+    document.documentElement.classList.add('is-logged-in');
+    var name = localStorage.getItem('user_display_name');
+    if (name) {
+      var nameEl = document.getElementById('profile-name-label');
+      if (nameEl) nameEl.textContent = name;
+    }
+    var AVATARS = {
+      graduate:'🎓', student:'📖', laptop:'💻', owl:'🦉', fox:'🦊',
+      panda:'🐼', cat:'🐱', robot:'🤖', dog:'🐶', science:'🔬',
+      art:'🎨', rocket:'🚀', star:'⭐', book:'📚', trophy:'🏆', globe:'🌍'
+    };
+    var avatarId    = localStorage.getItem('user_avatar') || 'graduate';
+    var avatarEmoji = AVATARS[avatarId] || '🎓';
+    var navAv = document.getElementById('nav-avatar-display');
+    if (navAv) navAv.textContent = avatarEmoji;
+  })();
+</script>
+
+<!-- ── MAIN ─────────────────────────────────────────────────── -->
+<main class="page-container">
+
+  <!--
+    CONFLICT RESOLUTION — public/favorites.html
+    Location: inside <main>, the page title and painter scene block
+
+    WHAT THE CONFLICT WAS:
+      Veroush's (HEAD / raksha/testing/merge):
+        Had the page title section as a standalone block BEFORE .page-header,
+        and .page-header only contained the painter scene:
+
+          <div class="page-title-section">
+            <h1 id="page-title">Mijn <span>Favorieten</span></h1>
+            <p id="page-subtitle">...</p>
+            <span id="badge-text" style="display:none">...</span>
+          </div>
+
+          <div class="page-header">
+            [painter scene only — .scene div with stickman + painting parts]
+          </div>
+
+      Val's (feature/settings):
+        Wrapped BOTH the title section AND the painter scene together
+        inside a single .page-header flex container, with .page-title-section
+        as the left column and .scene as the right column:
+
+          <div class="page-header">
+            <div class="page-title-section">
+              <h1>...</h1>
+              <p>...</p>
+              <span id="badge-text">...</span>
+              <div class="saved-badge">...</div>   ← Val also added this badge
+            </div>
+            <div class="scene" aria-hidden="true">
+              [painter scene]
+            </div>
+          </div>
+
+    WHY VAL'S VERSION WAS KEPT:
+      1. favorites.css defines .page-header as
+         display: flex; justify-content: space-between; align-items: center
+         — this only makes sense if BOTH .page-title-section AND .scene
+         are direct children of .page-header. Your version put them in
+         separate divs, so the CSS layout would not work correctly.
+      2. favorites.js references #badge-text-visual and .saved-badge
+         which only exist inside Val's .page-title-section structure.
+         Your version didn't have these elements, so JS would silently
+         fail to update the badge text on language change.
+      3. The painter animation (initPainterAnimation in favorites.js)
+         references #stickman and .paint elements which are inside
+         .scene — Val's structure places .scene correctly as a sibling
+         of .page-title-section inside .page-header.
+
+    RESOLUTION:
+      Kept Val's structure (the >>>>>>> 974636e side) verbatim.
+      Dropped your standalone .page-title-section block that preceded
+      a separate .page-header.
+
+      Also added the auth flash fix inline script (see above) which was
+      a PENDING item from the Session 4 handoff and was missing from
+      both conflict sides.
+
+    OWNERSHIP:
+      Standalone title + separate page-header (dropped): yours / HEAD.
+      Combined .page-header with title + scene (kept): Val / feature/settings.
+      Auth flash fix inline script (added): standard pattern from schools.html.
+  -->
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 id="page-title">Mijn <span>Favorieten</span></h1>
+      <p id="page-subtitle">Al jouw opgeslagen scholen, opleidingen en evenementen</p>
+      <span id="badge-text" style="display:none">Opgeslagen items</span>
+  
+      <div class="saved-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span id="badge-text-visual">Opgeslagen items</span>
+      </div>
+    </div>
+
+    <div class="scene" aria-hidden="true">
+      <div class="painting">
+        <img src="img/painting-1.svg" class="paint paint1" alt="">
+        <img src="img/painting-2.svg" class="paint paint2" alt="">
+        <img src="img/painting-3.svg" class="paint paint3" alt="">
+        <img src="img/painting-4.svg" class="paint paint4" alt="">
+      </div>
+      <img id="stickman" src="img/painter-1.svg" alt="">
+    </div>
+  </div>
+
+  <!-- Tab navigation -->
+  <div class="tab-nav-wrapper">
+    <div class="tab-nav">
+
+      <button class="tab-btn active" data-tab="schools" onclick="setActiveTab('schools')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+        <span id="tab-schools-label">Scholen</span>
+        <span class="count-badge" id="schools-count">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="programs" onclick="setActiveTab('programs')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+        </svg>
+        <span id="tab-programs-label">Opleidingen</span>
+        <span class="count-badge" id="programs-count">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="openhouses" onclick="setActiveTab('openhouses')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8"  y1="2" x2="8"  y2="6"/>
+          <line x1="3"  y1="10" x2="21" y2="10"/>
+        </svg>
+        <span id="tab-openhouses-label">Open Dagen</span>
+        <span class="count-badge" id="openhouses-count">0</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── SCHOOLS TAB ──────────────────────────────────────────── -->
+  <div class="tab-content" id="schools-content">
+    <div class="empty-state" id="schools-empty" hidden>
+      <div class="empty-icon">❤️</div>
+      <h3 id="empty-schools-heading">Geen favorieten</h3>
+      <p  id="empty-schools-msg">Je hebt nog geen scholen toegevoegd aan je favorieten</p>
+      <a href="schools.html" class="btn-primary" id="empty-schools-btn">Verken Scholen</a>
+    </div>
+    <div class="fav-grid" id="schools-grid"></div>
+  </div>
+
+  <!-- ── PROGRAMS TAB ─────────────────────────────────────────── -->
+  <div class="tab-content" id="programs-content" hidden>
+    <div class="empty-state" id="programs-empty" hidden>
+      <div class="empty-icon">📚</div>
+      <h3 id="empty-programs-heading">Geen favorieten</h3>
+      <p  id="empty-programs-msg">Je hebt nog geen opleidingen toegevoegd aan je favorieten</p>
+      <a href="schools.html" class="btn-primary" id="empty-programs-btn">Verken Opleidingen</a>
+    </div>
+    <div class="fav-grid" id="programs-grid"></div>
+  </div>
+
+  <!-- ── OPEN HOUSES TAB ──────────────────────────────────────── -->
+  <div class="tab-content" id="openhouses-content" hidden>
+    <div class="empty-state" id="openhouses-empty" hidden>
+      <div class="empty-icon">📅</div>
+      <h3 id="empty-openhouses-heading">Geen favorieten</h3>
+      <p  id="empty-openhouses-msg">Je hebt nog geen open dagen toegevoegd aan je favorieten</p>
+      <a href="open-houses.html" class="btn-primary" id="empty-openhouses-btn">Bekijk Open Dagen</a>
+    </div>
+    <div class="fav-grid fav-grid--2col" id="openhouses-grid"></div>
+  </div>
+
+</main>
+
+<!-- Raksha: footer moved outside <main> so it sits at the bottom of the page -->
+<footer class="site-footer">
+  <p>© 2026 <a href="index.html">Studie4SU</a> — Studiekeuze voor Surinaamse studenten • <a href="about.html">Over ons/About us</a></p>
+</footer>
+
+<!-- Raksha: favSync.js must load before favorites.js so window.FavSync is available -->
+<script src="/js/favSync.js"></script>
+<script src="js/favorites.js"></script>
+</body>
+</html>
