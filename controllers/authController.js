@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const { PrismaClient } = require("@prisma/client");
+const { SALT_ROUNDS, JWT_EXPIRES_IN, RESET_TOKEN_TTL_MS } = require("../src/constants");
 const prisma = new PrismaClient();
 
 // ── helpers ────────────────────────────────────────────────────────────────────
@@ -83,7 +84,7 @@ exports.register = async (req, res) => {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(409).json({ error: "Email already in use" });
 
-    const hashed = await bcrypt.hash(password, 12);
+    const hashed = await bcrypt.hash(password, SALT_ROUNDS);
     const user   = await prisma.user.create({
       data: { name, email, password: hashed },
     });
@@ -91,7 +92,7 @@ exports.register = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: JWT_EXPIRES_IN }
     );
     res.status(201).json({ token });
   } catch (err) {
@@ -117,7 +118,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: JWT_EXPIRES_IN }
     );
     res.json({ token });
   } catch (err) {
@@ -154,10 +155,15 @@ exports.forgotPassword = async (req, res) => {
     // Generate a secure random token
     const rawToken    = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
-    const expiresAt   = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    const expiresAt   = new Date(Date.now() + RESET_TOKEN_TTL_MS);
 
     await prisma.passwordResetToken.create({
-      data: { token: hashedToken, userId: user.id, expiresAt },
+      data: {
+        id:        crypto.randomBytes(16).toString("hex"), // required — no @default in schema
+        token:     hashedToken,
+        userId:    user.id,
+        expiresAt,
+      },
     });
 
     const baseUrl  = process.env.APP_URL || "http://localhost:3000";
@@ -200,7 +206,7 @@ exports.resetPassword = async (req, res) => {
     if (record.expiresAt < new Date())
       return res.status(400).json({ error: "This link has expired" });
 
-    const hashed = await bcrypt.hash(password, 12);
+    const hashed = await bcrypt.hash(password, SALT_ROUNDS);
 
     await prisma.user.update({
       where: { id: record.userId },

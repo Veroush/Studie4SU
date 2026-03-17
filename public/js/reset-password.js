@@ -63,7 +63,6 @@ function applyLang() {
   document.getElementById('page-heading').textContent   = t('pageHeading');
   document.getElementById('page-subtitle').textContent  = t('pageSubtitle');
   document.getElementById('loading-label').textContent  = t('loadingLabel');
-  document.getElementById('invalid-msg').textContent    = t('invalidMsg');
   document.getElementById('new-password-label').textContent = t('newPwLabel');
   document.getElementById('confirm-label').textContent      = t('confirmLabel');
   document.getElementById('submit-reset-label').textContent = t('submitLabel');
@@ -220,7 +219,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (valid) {
     showState('state-form');
   } else {
-    document.getElementById('invalid-msg').textContent    = t('invalidMsg');
     document.getElementById('new-link-label').textContent = t('newLinkLabel');
     showState('state-invalid');
   }
