@@ -208,5 +208,7 @@ model AdminSettings {
   features      Json     @default("{\"enableFavorites\":true,\"enableComparison\":true,\"enableQuiz\":true,\"enableOpenHouse\":true}")
   notifications Json     @default("{\"email\":false,\"dailySummary\":false}")
   data          Json     @default("{\"retentionPeriod\":\"90\"}")
+  // Added: stores about page content (hero paragraphs + team members) as JSON
+  aboutUs       Json     @default("{}")
   updatedAt     DateTime @updatedAt
 }

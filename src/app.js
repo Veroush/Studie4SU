@@ -11,10 +11,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
 // ── Auth middleware ───────────────────────────────────────────
-// requireAuth — blocks with 401 if token is missing or invalid
-// adminOnly   — blocks with 403 if user role is not 'admin'
-// Used together on all /admin/* routes to fully protect the admin panel
-const { requireAuth, adminOnly } = require("../middleware/auth.js"); // ADDED
+const { requireAuth, adminOnly } = require("../middleware/auth.js");
 
 // ── Routes ───────────────────────────────────────────────────
 const authRoutes          = require("../routes/authRoutes.js");
@@ -28,16 +25,32 @@ const adminSettingsRoutes = require("../routes/adminSettingsRoutes.js");
 
 app.use("/auth",             authRoutes);
 app.use("/api/quiz",         quizRoutes);
-app.use("/admin",            requireAuth, adminOnly, adminRoutes);         // CHANGED — protected
-app.use("/admin/settings",   requireAuth, adminOnly, adminSettingsRoutes); // CHANGED — protected
-// Open houses: public read routes at /openhouses (no auth)
-//              admin write routes at /admin/openhouses (protected)
-app.use("/openhouses",       openHouseRoutes);                             // unchanged — public
-app.use("/admin/openhouses", requireAuth, adminOnly, openHouseRoutes);     // CHANGED — protected
-
-// Public routes
+app.use("/admin",            requireAuth, adminOnly, adminRoutes);
+app.use("/admin/settings",   requireAuth, adminOnly, adminSettingsRoutes);
+app.use("/openhouses",       openHouseRoutes);
+app.use("/admin/openhouses", requireAuth, adminOnly, openHouseRoutes);
 app.use("/schools",          schoolRoutes);
 app.use("/programs",         programRoutes);
 app.use('/favorites',        favoritesRoutes);
+
+// ── Public about page content ─────────────────────────────────
+// Added: returns only the aboutUs field from AdminSettings.
+// No auth required — this is read-only public content.
+// The about.html page fetches this instead of using hardcoded text.
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
+app.get("/api/about", async (req, res) => {
+  try {
+    const settings = await prisma.adminSettings.findFirst();
+    if (!settings || !settings.aboutUs) {
+      return res.status(404).json({ error: "About content not found" });
+    }
+    res.json(settings.aboutUs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch about content" });
+  }
+});
 
 module.exports = app;
