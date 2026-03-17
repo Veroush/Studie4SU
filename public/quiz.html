@@ -100,8 +100,15 @@
 
       <!-- Page header -->
       <header class="page-header">
-        <h1 id="page-title">Studiekeuzequiz</h1>
-        <p id="page-subtitle">Beantwoord deze vragen om jouw ideale studie te vinden</p>
+        <div class="animated-header animation-right" id="quiz-header-layout">
+          <div class="header-copy">
+            <h1 id="page-title">Studiekeuzequiz</h1>
+            <p id="page-subtitle">Beantwoord deze vragen om jouw ideale studie te vinden</p>
+          </div>
+          <div class="stickman-slot" id="quiz-animation-slot" aria-hidden="true">
+            <img id="quiz-animation-frame" alt="" decoding="async" />
+          </div>
+        </div>
       </header>
 
       <!-- Progress bar -->
@@ -146,14 +153,22 @@
     <div class="page results-mode" id="results-container">
 
       <header class="results-header">
-        <div>
-          <div class="success-badge">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span id="badge-text">Quiz voltooid!</span>
+        <div class="animated-header animation-right" id="results-header-layout">
+          <div class="header-copy">
+            <div class="success-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span id="badge-text">Quiz voltooid!</span>
+            </div>
+            <h1 id="results-title">Jouw Gepersonaliseerde Aanbevelingen</h1>
+            <p id="results-subtitle">Op basis van jouw opleidingsniveau, certificaten en voorkeuren</p>
+          </div>
+          <div class="stickman-slot" id="results-animation-slot" aria-hidden="true">
+            <img id="results-animation-frame" alt="" decoding="async" />
           </div>
         </div>
-        <h1 id="results-title">Jouw Gepersonaliseerde Aanbevelingen</h1>
-        <p id="results-subtitle">Op basis van jouw opleidingsniveau, certificaten en voorkeuren</p>
       </header>
 
       <div class="recommendations-list" id="recommendations-list"></div>

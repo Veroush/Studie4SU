@@ -107,14 +107,14 @@ function getDescription(id) {
 
 // ── School Header Images ──────────────────────────────────────
 const SCHOOL_IMAGES = {
-  school_adekus: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',
+  school_adekus: '/img/anton de kom.jpg',
   school_natin:  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',
-  school_iol:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',
+  school_iol:    '/img/IOL thumbnail.png',
   school_covab:  'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',
   school_imeao:  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
-  school_ptc:    'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',
-  school_igsr:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',
-  school_fhr:    'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',
+  school_ptc:    '/img/PTC thumbnail-1.png',
+  school_igsr:   '/img/IGSR thumbnail-1.png',
+  school_fhr:    '/img/FHR thumbnail.png',
 };
 
 function getSchoolImage(id) {

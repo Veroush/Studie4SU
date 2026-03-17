@@ -364,6 +364,110 @@ const PROGRAM_ID_MAP = {
 /* ============================================================
    QUIZ STATE
 ============================================================ */
+
+
+/* ============================================================
+   STICKMAN HEADER ANIMATIONS
+============================================================ */
+const HEADER_ANIMATIONS = {
+  confused: [
+    'img/stickman-confused1.svg',
+    'img/stickman-confused2.svg',
+    'img/stickman-confused3.svg',
+    'img/stickman-confused4.svg'
+  ],
+  exploring: [
+    'img/stickman-exploring1.svg',
+    'img/stickman-exploring2.svg',
+    'img/stickman-exploring3.svg',
+    'img/stickman-exploring4.svg'
+  ],
+  following: [
+    'img/stickman-following1.svg',
+    'img/stickman-following2.svg',
+    'img/stickman-following3.svg',
+    'img/stickman-following4.svg',
+    'img/stickman-following5.svg',
+    'img/stickman-following6.svg'
+  ],
+  celebrating: [
+    'img/stickman-celebrating1.svg',
+    'img/stickman-celebrating2.svg',
+    'img/stickman-celebrating3.svg',
+    'img/stickman-celebrating4.svg',
+    'img/stickman-celebrating5.svg',
+    'img/stickman-celebrating6.svg',
+    'img/stickman-celebrating7.svg',
+    'img/stickman-celebrating8.svg'
+  ]
+};
+
+const QUIZ_ANIMATION_STEPS = [
+  { key: 'confused', position: 'right' },
+  { key: 'confused', position: 'right' },
+  { key: 'exploring', position: 'left' },
+  { key: 'exploring', position: 'left' },
+  { key: 'exploring', position: 'left' },
+  { key: 'following', position: 'right' },
+  { key: 'following', position: 'right' },
+  { key: 'following', position: 'right' }
+];
+
+class LoopingFrameAnimator {
+  constructor(imgSelector, fps = 8) {
+    this.imgEl = document.querySelector(imgSelector);
+    this.fps = fps;
+    this.timer = null;
+    this.frames = [];
+    this.index = 0;
+  }
+
+  play(frames) {
+    if (!this.imgEl || !Array.isArray(frames) || frames.length === 0) return;
+
+    const switchedSequence = this.frames !== frames;
+    this.frames = frames;
+
+    if (switchedSequence) this.index = 0;
+    this.imgEl.src = this.frames[this.index];
+
+    if (this.timer) return;
+
+    const frameDurationMs = Math.round(1000 / this.fps);
+    this.timer = setInterval(() => {
+      this.index = (this.index + 1) % this.frames.length;
+      this.imgEl.src = this.frames[this.index];
+    }, frameDurationMs);
+  }
+}
+
+let quizHeaderAnimator;
+let resultsHeaderAnimator;
+
+function preloadAnimationFrames() {
+  Object.values(HEADER_ANIMATIONS).flat().forEach(src => {
+    const image = new Image();
+    image.src = src;
+  });
+}
+
+function setHeaderPosition(layoutId, position) {
+  const layout = document.getElementById(layoutId);
+  if (!layout) return;
+  layout.classList.toggle('animation-left', position === 'left');
+  layout.classList.toggle('animation-right', position !== 'left');
+}
+
+function updateQuizHeaderAnimation() {
+  const animationStep = QUIZ_ANIMATION_STEPS[quizState.currentQuestion] || QUIZ_ANIMATION_STEPS[0];
+  setHeaderPosition('quiz-header-layout', animationStep.position);
+  quizHeaderAnimator.play(HEADER_ANIMATIONS[animationStep.key]);
+}
+
+function updateResultsHeaderAnimation() {
+  setHeaderPosition('results-header-layout', 'right');
+  resultsHeaderAnimator.play(HEADER_ANIMATIONS.celebrating);
+}
 const quizState = {
   currentQuestion: 0,
   showResults: false,
@@ -411,6 +515,12 @@ function updateStaticText() {
   document.getElementById('results-subtitle').textContent = t.resultsSubtitle;
   document.getElementById('badge-text').textContent = t.quizCompleted;
   document.getElementById('retake-btn').textContent = t.retake;
+
+  if (quizState.showResults) {
+    updateResultsHeaderAnimation();
+  } else {
+    updateQuizHeaderAnimation();
+  }
 }
 
 /* ============================================================
@@ -439,6 +549,8 @@ function renderQuestion(direction = 'forward') {
   const q   = questions[quizState.currentQuestion];
   const t   = translations[currentLang];
   const ans = quizState.answers[q.id];
+
+  updateQuizHeaderAnimation();
 
   const card = document.getElementById('question-card');
 
@@ -746,6 +858,7 @@ function renderResults() {
   document.getElementById('results-subtitle').textContent = t.resultsSubtitle;
   document.getElementById('badge-text').textContent = t.quizCompleted;
   document.getElementById('retake-btn').textContent = t.retake;
+  updateResultsHeaderAnimation();
 
   const list = document.getElementById('recommendations-list');
 
@@ -936,6 +1049,10 @@ document.addEventListener('click', (e) => {
      and go straight to results.
 ============================================================ */
 (function init() {
+  preloadAnimationFrames();
+  quizHeaderAnimator = new LoopingFrameAnimator('#quiz-animation-frame', 8);
+  resultsHeaderAnimator = new LoopingFrameAnimator('#results-animation-frame', 8);
+
   initAuth();
   updateLangButtons();
   updateStaticText();
