@@ -121,6 +121,117 @@ async function fetchQuestions() {
 /* ============================================================
    QUIZ STATE
 ============================================================ */
+
+
+/* ============================================================
+   STICKMAN HEADER ANIMATIONS
+   — ADDED BY VALENTINO —
+   Full looping frame animator system for the stickman character
+   that appears in the quiz header. Valentino added all of the
+   HEADER_ANIMATIONS map, QUIZ_ANIMATION_STEPS array,
+   LoopingFrameAnimator class, and all associated helper
+   functions. None of this existed on our branch.
+============================================================ */
+const HEADER_ANIMATIONS = {
+  confused: [
+    'img/stickman-confused1.svg',
+    'img/stickman-confused2.svg',
+    'img/stickman-confused3.svg',
+    'img/stickman-confused4.svg'
+  ],
+  exploring: [
+    'img/stickman-exploring1.svg',
+    'img/stickman-exploring2.svg',
+    'img/stickman-exploring3.svg',
+    'img/stickman-exploring4.svg'
+  ],
+  following: [
+    'img/stickman-following1.svg',
+    'img/stickman-following2.svg',
+    'img/stickman-following3.svg',
+    'img/stickman-following4.svg',
+    'img/stickman-following5.svg',
+    'img/stickman-following6.svg'
+  ],
+  celebrating: [
+    'img/stickman-celebrating1.svg',
+    'img/stickman-celebrating2.svg',
+    'img/stickman-celebrating3.svg',
+    'img/stickman-celebrating4.svg',
+    'img/stickman-celebrating5.svg',
+    'img/stickman-celebrating6.svg',
+    'img/stickman-celebrating7.svg',
+    'img/stickman-celebrating8.svg'
+  ]
+};
+
+const QUIZ_ANIMATION_STEPS = [
+  { key: 'confused', position: 'right' },
+  { key: 'confused', position: 'right' },
+  { key: 'exploring', position: 'left' },
+  { key: 'exploring', position: 'left' },
+  { key: 'exploring', position: 'left' },
+  { key: 'following', position: 'right' },
+  { key: 'following', position: 'right' },
+  { key: 'following', position: 'right' }
+];
+
+class LoopingFrameAnimator {
+  constructor(imgSelector, fps = 8) {
+    this.imgEl = document.querySelector(imgSelector);
+    this.fps = fps;
+    this.timer = null;
+    this.frames = [];
+    this.index = 0;
+  }
+
+  play(frames) {
+    if (!this.imgEl || !Array.isArray(frames) || frames.length === 0) return;
+
+    const switchedSequence = this.frames !== frames;
+    this.frames = frames;
+
+    if (switchedSequence) this.index = 0;
+    this.imgEl.src = this.frames[this.index];
+
+    if (this.timer) return;
+
+    const frameDurationMs = Math.round(1000 / this.fps);
+    this.timer = setInterval(() => {
+      this.index = (this.index + 1) % this.frames.length;
+      this.imgEl.src = this.frames[this.index];
+    }, frameDurationMs);
+  }
+}
+
+let quizHeaderAnimator;
+let resultsHeaderAnimator;
+
+function preloadAnimationFrames() {
+  Object.values(HEADER_ANIMATIONS).flat().forEach(src => {
+    const image = new Image();
+    image.src = src;
+  });
+}
+
+function setHeaderPosition(layoutId, position) {
+  const layout = document.getElementById(layoutId);
+  if (!layout) return;
+  layout.classList.toggle('animation-left', position === 'left');
+  layout.classList.toggle('animation-right', position !== 'left');
+}
+
+function updateQuizHeaderAnimation() {
+  const animationStep = QUIZ_ANIMATION_STEPS[quizState.currentQuestion] || QUIZ_ANIMATION_STEPS[0];
+  setHeaderPosition('quiz-header-layout', animationStep.position);
+  quizHeaderAnimator.play(HEADER_ANIMATIONS[animationStep.key]);
+}
+
+function updateResultsHeaderAnimation() {
+  setHeaderPosition('results-header-layout', 'right');
+  resultsHeaderAnimator.play(HEADER_ANIMATIONS.celebrating);
+}
+
 const quizState = {
   currentQuestion: 0,
   showResults: false,
@@ -159,6 +270,43 @@ function updateLangButtons() {
   document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
 }
 
+/* ============================================================
+   CONFLICT 1 OF 3 — updateStaticText()
+   ─────────────────────────────────────────────────────────────
+   LOCATION: the body of updateStaticText(), after the static
+   element assignments.
+
+   OUR SIDE (HEAD):
+     Added a document.querySelectorAll('[data-nl]').forEach loop
+     that applies currentLang to all nav links that carry
+     data-nl / data-en attributes. This was added as a bug fix
+     (Bug 5 in the session handoff) so the header nav translates
+     when the user switches language on the quiz page.
+
+   VALENTINO'S SIDE:
+     Added two calls at the end of updateStaticText():
+       if (quizState.showResults) {
+         updateResultsHeaderAnimation();
+       } else {
+         updateQuizHeaderAnimation();
+       }
+     These drive the stickman character — when the language
+     button is pressed, the stickman syncs to the correct
+     animation state for where the user is in the quiz.
+
+   WHY BOTH ARE KEPT:
+     The two additions are completely independent. Our loop
+     touches [data-nl] DOM elements in the nav. Valentino's
+     calls touch the stickman <img> element in the header.
+     They don't share any state or DOM nodes. Dropping either
+     one would break something — our side breaks nav translation,
+     Valentino's side breaks the animation sync on language swap.
+
+   RESOLUTION:
+     Kept our [data-nl] loop first, then appended Valentino's
+     animation sync block directly after it.
+   ─────────────────────────────────────────────────────────────
+*/
 function updateStaticText() {
   const t = translations[currentLang];
   document.getElementById('page-title').textContent = t.title;
@@ -169,10 +317,20 @@ function updateStaticText() {
   document.getElementById('badge-text').textContent = t.quizCompleted;
   document.getElementById('retake-btn').textContent = t.retake;
 
-  // Apply nav translations (data-nl / data-en attributes on header links)
+  // OUR CODE — Bug 5 fix: apply language to nav links that carry data-nl/data-en.
+  // Without this loop, clicking NL/EN did not update the header navigation text.
   document.querySelectorAll('[data-nl]').forEach(el => {
     el.textContent = currentLang === 'nl' ? el.dataset.nl : el.dataset.en;
   });
+
+  // VALENTINO'S CODE — sync stickman animation state when language is toggled.
+  // Ensures the correct animation frame and position are shown for the current
+  // quiz step after a language switch, not just on question navigation.
+  if (quizState.showResults) {
+    updateResultsHeaderAnimation();
+  } else {
+    updateQuizHeaderAnimation();
+  }
 }
 
 /* ============================================================
@@ -201,6 +359,8 @@ function renderQuestion(direction = 'forward') {
   const q   = questions[quizState.currentQuestion];
   const t   = translations[currentLang];
   const ans = quizState.answers[q.id];
+
+  updateQuizHeaderAnimation();
 
   const card = document.getElementById('question-card');
 
@@ -444,6 +604,7 @@ function renderResults(programs) {
   document.getElementById('results-subtitle').textContent = t.resultsSubtitle;
   document.getElementById('badge-text').textContent = t.quizCompleted;
   document.getElementById('retake-btn').textContent = t.retake;
+  updateResultsHeaderAnimation();
 
   const list = document.getElementById('recommendations-list');
 
@@ -456,56 +617,57 @@ function renderResults(programs) {
     return;
   }
 
-  /*
-    ── CONFLICT RESOLUTION — quiz.js — renderResults() map block ──────────────
-    Location: the opening line of the programs.map() call
+  /* ============================================================
+     CONFLICT 2 OF 3 — renderResults() programs.map() opening line
+     ─────────────────────────────────────────────────────────────
+     LOCATION: the opening line of the programs.map() template
+     that builds the result cards HTML.
 
-    WHAT THE CONFLICT WAS:
+     OUR SIDE (HEAD):
+       list.innerHTML = recs.map((rec, i) => {
+         const schoolId  = PROGRAM_SCHOOL_MAP[rec.id] || '';
+         const programId = PROGRAM_ID_MAP[rec.id] || '';
+         const slideDir  = i % 2 === 0 ? 'left' : 'right';
+         return `
+         <div class="rec-card" data-slide="${slideDir}">
 
-      Your side (HEAD / raksha/testing/merge):
-        list.innerHTML = recs.map((rec, i) => {
-          const schoolId  = PROGRAM_SCHOOL_MAP[rec.id] || '';
-          const programId = PROGRAM_ID_MAP[rec.id] || '';
-          const slideDir  = i % 2 === 0 ? 'left' : 'right';
-          return `
-          <div class="rec-card" data-slide="${slideDir}">
+       Used the old variable name `recs` and read from
+       PROGRAM_SCHOOL_MAP and PROGRAM_ID_MAP. Both maps were
+       deleted by Raksha when he removed the hardcoded data.
+       This would throw a ReferenceError and crash renderResults.
+       It also included the data-slide attribute for the
+       alternating scroll-in animation (which we wanted).
 
-        Used the old variable name `recs` (from the pre-Raksha version of the
-        function that calculated results locally). Also read from
-        PROGRAM_SCHOOL_MAP and PROGRAM_ID_MAP, both of which Raksha deleted
-        when he removed the hardcoded programs data. Reading from deleted
-        variables would throw a ReferenceError and crash renderResults entirely.
-        Also added a data-slide attribute alternating left/right per card.
+     RAKSHA'S SIDE:
+       list.innerHTML = programs.map((rec, i) => `
+         <div class="rec-card">
 
-      Raksha's side (93a4ae2):
-        list.innerHTML = programs.map((rec, i) => `
-          <div class="rec-card">
+       Used the correct parameter name `programs` matching the
+       function signature. No map lookups (backend supplies
+       schoolId directly on each result object). No data-slide.
 
-        Used the correct parameter name `programs` (matching the function
-        signature `function renderResults(programs)`). No map lookups —
-        the backend now supplies schoolId directly on each result object.
-        No data-slide attribute.
+     WHY WE WENT WITH RAKSHA'S VARIABLE NAME:
+       `recs` is undefined — the parameter is named `programs`.
+       PROGRAM_SCHOOL_MAP and PROGRAM_ID_MAP no longer exist.
+       Using our side as-is would crash the page with a
+       ReferenceError on every quiz submission.
 
-    WHY RAKSHA'S VARIABLE NAME WAS KEPT:
-      `recs` would be undefined here — the function parameter is `programs`.
-      PROGRAM_SCHOOL_MAP and PROGRAM_ID_MAP no longer exist in the file.
-      Using your side as-is would crash with ReferenceError on page load.
-      Raksha's side is the only version that works with the current backend.
+     WHY data-slide WAS RESTORED:
+       The alternating slide animation (Bug 8 fix from the
+       handoff) is intentional and the CSS rules for
+       [data-slide="left"] and [data-slide="right"] exist in
+       quiz.css. It was dropped from Raksha's side simply
+       because he didn't have that branch's changes — there
+       was no reason to exclude it. We restored it here using
+       Raksha's correct variable name.
 
-    WHY data-slide WAS DROPPED:
-      The alternating data-slide attribute requires CSS rules targeting
-      [data-slide="left"] and [data-slide="right"] to do anything. Those
-      rules do not exist in quiz.css. Without them the attribute is inert.
-      It was dropped to keep the HTML clean and avoid confusion.
-      If you want alternating slide directions in the future, add the CSS
-      rules to quiz.css and restore data-slide="${i % 2 === 0 ? 'left' : 'right'}".
-
-    RESOLUTION:
-      Took Raksha's opening line (`programs.map((rec, i) => \``).
-      Dropped `recs`, PROGRAM_SCHOOL_MAP, PROGRAM_ID_MAP, and data-slide.
-      The rest of the card HTML is identical on both sides — no further
-      changes needed inside the template literal.
-    ────────────────────────────────────────────────────────────────────────── */
+     RESOLUTION:
+       Used Raksha's `programs.map()` opening.
+       Kept data-slide="${i % 2 === 0 ? 'left' : 'right'}"
+       from our side since the CSS already supports it.
+       Dropped `recs`, PROGRAM_SCHOOL_MAP, PROGRAM_ID_MAP.
+     ─────────────────────────────────────────────────────────────
+  */
   list.innerHTML = programs.map((rec, i) => `
     <div class="rec-card" data-slide="${i % 2 === 0 ? 'left' : 'right'}">
       <div class="rec-layout">
@@ -551,51 +713,13 @@ function renderResults(programs) {
   localStorage.removeItem('quiz_pending_answers');
   localStorage.removeItem('quiz_pending_lang');
 
-  /*
-    ── CONFLICT RESOLUTION — quiz.js — scroll animation block ─────────────────
-    Location: after localStorage.removeItem calls, before scrollToTop()
-
-    WHAT THE CONFLICT WAS:
-
-      Your side (HEAD / raksha/testing/merge):
-        Added an IntersectionObserver block that watches every .rec-card
-        element and adds the class `rec-card-visible` when the card
-        scrolls into the viewport (threshold: 0.12). This creates a
-        scroll-triggered slide-in reveal animation on the result cards.
-        The `rec-card-visible` class must be defined in quiz.css to
-        produce the actual visual effect (e.g. opacity + transform).
-
-      Raksha's side (93a4ae2):
-        No animation block. Went straight from localStorage.removeItem
-        to scrollToTop() with nothing in between.
-
-    WHY YOUR VERSION WAS KEPT:
-      You explicitly confirmed you want the scroll animation on the
-      result cards. The IntersectionObserver pattern is correct and
-      safe — it only adds a class, it does not modify any data or state.
-      Raksha's side simply omitted it; there was no technical reason
-      to drop it, just a difference in what each branch had added.
-
-    NOTE:
-      For this animation to be visible, quiz.css must have a rule for
-      .rec-card and .rec-card-visible. A typical pattern would be:
-        .rec-card {
-          opacity: 0;
-          transform: translateY(20px);
-          transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        .rec-card-visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      If quiz.css already has these rules from your branch, no action
-      needed. If not, add them to make the animation work.
-
-    RESOLUTION:
-      Kept your IntersectionObserver block in full.
-      Placed it between the localStorage.removeItem calls and scrollToTop()
-      exactly as it appeared in your side of the conflict.
-    ────────────────────────────────────────────────────────────────────────── */
+  // OUR CODE — scroll-triggered slide-in animation on result cards.
+  // IntersectionObserver watches each .rec-card and adds rec-card-visible
+  // when the card enters the viewport (threshold 0.12). The data-slide
+  // attribute set above drives the direction via quiz.css rules for
+  // [data-slide="left"] and [data-slide="right"].
+  // Raksha's side had no animation block here — it was simply omitted,
+  // not intentionally removed. Kept in full.
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -715,12 +839,68 @@ document.addEventListener('click', (e) => {
 });
 
 /* ============================================================
-   INIT
-   — If the URL has ?showResults=true, the user was redirected
-     back here after logging in. Restore their saved answers
-     and go straight to results.
-============================================================ */
+   CONFLICT 3 OF 3 — init() function signature and body opening
+   ─────────────────────────────────────────────────────────────
+   LOCATION: the IIFE at the bottom of the file that boots the
+   quiz on page load.
+
+   OUR SIDE (HEAD):
+     (async function init() {
+       initAuth();
+       updateLangButtons();
+       updateStaticText();
+       await fetchQuestions();
+       ...
+
+     The function was async because it needs to await
+     fetchQuestions() before rendering the first question.
+     It had no animation setup because Valentino's branch
+     didn't exist yet when we wrote this.
+
+   VALENTINO'S SIDE:
+     (function init() {
+       preloadAnimationFrames();
+       quizHeaderAnimator = new LoopingFrameAnimator('#quiz-animation-frame', 8);
+       resultsHeaderAnimator = new LoopingFrameAnimator('#results-animation-frame', 8);
+       initAuth();
+       updateLangButtons();
+       updateStaticText();
+       ...
+
+     Not async (Valentino didn't have fetchQuestions in his
+     branch). Added three animation bootstrap calls at the top:
+     preload all SVG frames into the browser cache, and
+     instantiate the two LoopingFrameAnimator instances that
+     every animation function depends on.
+
+   WHY BOTH ARE KEPT:
+     - async is required: without it, `await fetchQuestions()`
+       becomes a syntax error and questions never load.
+     - Valentino's three lines are required: quizHeaderAnimator
+       and resultsHeaderAnimator are module-level variables that
+       updateQuizHeaderAnimation() and updateResultsHeaderAnimation()
+       call `.play()` on. If they are undefined when those
+       functions run, the page throws a TypeError and the
+       stickman never appears.
+     - preloadAnimationFrames() is optional but harmless —
+       it just warms the browser image cache so frames don't
+       flicker on first play.
+
+   RESOLUTION:
+     Kept `async function init()` from our side.
+     Added Valentino's three animation bootstrap lines at the
+     very top of the function body, before initAuth(), so the
+     animators exist before any function that uses them runs.
+   ─────────────────────────────────────────────────────────────
+*/
 (async function init() {
+  // VALENTINO'S CODE — must run first so quizHeaderAnimator and
+  // resultsHeaderAnimator exist before updateStaticText() calls them.
+  preloadAnimationFrames();
+  quizHeaderAnimator    = new LoopingFrameAnimator('#quiz-animation-frame', 8);
+  resultsHeaderAnimator = new LoopingFrameAnimator('#results-animation-frame', 8);
+
+  // OUR CODE — auth, language, and question loading.
   initAuth();
   updateLangButtons();
   updateStaticText();

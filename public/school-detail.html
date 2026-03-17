@@ -83,6 +83,19 @@
   </nav>
 </header>
 
+<div id="detail-loading-state" class="state-center">
+  <div class="state-animation" aria-hidden="true">
+    <img id="state-chaser" class="state-chaser" src="img/chasing-1.svg" alt="">
+    <img id="state-runner" class="state-runner" src="img/running-1.svg" alt="">
+  </div>
+  <p id="detail-loading-text">Schoolgegevens laden...</p>
+</div>
+
+<div id="detail-error-state" class="state-center" hidden>
+  <p id="detail-error-text">Er ging iets mis bij het laden van deze school.</p>
+</div>
+
+
 <div id="hero-section" style="visibility:hidden;min-height:0;"></div>
 
 <div id="content-section"></div>
@@ -91,6 +104,7 @@
   <p>© 2026 <a href="index.html">Studie4SU</a> — <span id="footer-tagline">Studiekeuze voor Surinaamse studenten</span> • <a href="about.html" id="footer-about-link">Over ons</a></p>
 </footer>
 <script src="/js/favSync.js"></script>
+<script src="js/state-loader.js"></script>
 <script src="js/school-detail.js"></script>
 </body>
 </html>

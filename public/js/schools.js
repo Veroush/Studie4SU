@@ -4,7 +4,7 @@
 let allSchools   = [];
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = [];
-let stateAnimation = null;
+const stateAnimation = { id: null };
 let isLoading = true;
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
@@ -107,14 +107,14 @@ function getDescription(id) {
 
 // ── School Header Images ──────────────────────────────────────
 const SCHOOL_IMAGES = {
-  school_adekus: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop',
+  school_adekus: '/img/anton de kom.jpg',
   school_natin:  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop',
-  school_iol:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=400&fit=crop',
+  school_iol:    '/img/IOL thumbnail.png',
   school_covab:  'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop',
   school_imeao:  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
-  school_ptc:    'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=800&h=400&fit=crop',
-  school_igsr:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop',
-  school_fhr:    'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&h=400&fit=crop',
+  school_ptc:    '/img/PTC thumbnail-1.png',
+  school_igsr:   '/img/IGSR thumbnail-1.png',
+  school_fhr:    '/img/FHR thumbnail.png',
 };
 
 function getSchoolImage(id) {
@@ -128,64 +128,12 @@ const SCHOOL_ICON = `
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
 
-const STICKMAN_CONFUSED_FRAMES = [
-  'img/stickman-confused1.svg',
-  'img/stickman-confused2.svg',
-  'img/stickman-confused3.svg',
-  'img/stickman-confused4.svg',
-];
-
-const CHASER_FRAMES = [
-  'img/chasing-1.svg',
-  'img/chasing-2.svg',
-  'img/chasing-3.svg',
-  'img/chasing-4.svg',
-  'img/chasing-5.svg',
-  'img/chasing-6.svg',
-];
-
-const RUNNER_FRAMES = [
-  'img/running-1.svg',
-  'img/running-2.svg',
-  'img/running-3.svg',
-  'img/running-4.svg',
-  'img/running-5.svg',
-  'img/running-6.svg',
-];
-
 function stopStateAnimation() {
-  if (!stateAnimation) return;
-  clearInterval(stateAnimation);
-  stateAnimation = null;
+  window.StateLoader?.stop(stateAnimation);
 }
 
 function startStateAnimation() {
-  const stickman = document.getElementById('state-stickman');
-  const chaser = document.getElementById('state-chaser');
-  const runner = document.getElementById('state-runner');
-
-  stopStateAnimation();
-
-  if (stickman) {
-    let currentFrame = 0;
-    stateAnimation = window.setInterval(() => {
-      currentFrame = (currentFrame + 1) % STICKMAN_CONFUSED_FRAMES.length;
-      stickman.src = STICKMAN_CONFUSED_FRAMES[currentFrame];
-    }, 400);
-    return;
-  }
-
-  if (!chaser || !runner) return;
-
-  let chaserFrame = 0;
-  let runnerFrame = 0;
-
-  stateAnimation = window.setInterval(() => {
-    chaser.src = CHASER_FRAMES[chaserFrame];
-    runner.src = RUNNER_FRAMES[runnerFrame];
-    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
-    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
-  }, 150);
+  window.StateLoader?.start(stateAnimation);
 }
 
 // ── Fetch schools from backend ─────────────────────────────────

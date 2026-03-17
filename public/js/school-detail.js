@@ -7,10 +7,51 @@ let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = JSON.parse(localStorage.getItem('school_compare')   || '[]');
 let currentSchool = null;
 let currentOpenHouses = [];
+const stateAnimation = { id: null };
 
 // Get school ID from URL ?id=school_adekus
 const params   = new URLSearchParams(window.location.search);
 const schoolId = params.get('id') || '';
+
+/* ============================================================
+   CONFLICT 1 OF 2 — T object, nl translation keys
+   ─────────────────────────────────────────────────────────────
+   LOCATION: inside T.nl (the Dutch translation object).
+
+   OUR SIDE (HEAD):
+     Added two keys at the end of T.nl:
+       footerTagline: 'Studiekeuze voor Surinaamse studenten',
+       footerAbout:   'Over ons',
+     These power the footer bilingual text update inside
+     applyLanguage(). Without them, calling
+     T[lang].footerTagline would return undefined and the
+     footer would go blank on language switch.
+
+   VALENTINO'S SIDE:
+     Added two different keys at the end of T.nl:
+       loading:   'Schoolgegevens laden...',
+       errorLoad: 'Er ging iets mis bij het laden van deze school.',
+     These are used by his showLoadingState() and
+     showDetailErrorMessage() functions to display localised
+     status text in the loading/error UI he added.
+     Without them, his functions would show undefined instead
+     of real text.
+
+   WHY BOTH ARE KEPT:
+     The four keys are completely additive — they don't
+     conflict in any way. Our keys feed the footer, his keys
+     feed the loading/error UI. Dropping either pair breaks
+     a different visible feature.
+
+   RESOLUTION:
+     Included all four keys in T.nl. Our two first, then
+     Valentino's two directly after, in alphabetical grouping
+     so it stays readable.
+
+   NOTE: Conflict 2 of 2 (T.en) is the exact same situation
+   for the English translations — same resolution applied.
+   ─────────────────────────────────────────────────────────────
+*/
 
 // ── Translations ──────────────────────────────────────────────
 const T = {
@@ -41,9 +82,22 @@ const T = {
     errorTitle:      'School niet gevonden',
     errorSub:        'Controleer of de URL correct is en de server actief.',
     online:          'Online',
+    // OUR KEYS — footer bilingual text, used in applyLanguage()
     footerTagline:   'Studiekeuze voor Surinaamse studenten',
     footerAbout:     'Over ons',
+    // VALENTINO'S KEYS — loading/error state UI text
+    loading:         'Schoolgegevens laden...',
+    errorLoad:       'Er ging iets mis bij het laden van deze school.',
   },
+  /* ============================================================
+     CONFLICT 2 OF 2 — T object, en translation keys
+     ───────────────────────────────────────────────────────────
+     Same conflict as T.nl above, on the English side.
+     OUR SIDE added footerTagline and footerAbout.
+     VALENTINO'S SIDE added loading and errorLoad.
+     Same resolution: keep all four keys.
+     ───────────────────────────────────────────────────────────
+  */
   en: {
     back:            '← Back to schools',
     addFav:          'Favorite',
@@ -71,8 +125,12 @@ const T = {
     email:           'Email',
     website:         'Website',
     online:          'Online',
+    // OUR KEYS — footer bilingual text, used in applyLanguage()
     footerTagline:   'Study guidance for Surinamese students',
     footerAbout:     'About us',
+    // VALENTINO'S KEYS — loading/error state UI text
+    loading:         'Loading school details...',
+    errorLoad:       'Something went wrong while loading this school.',
   }
 };
 
@@ -310,8 +368,45 @@ const CLUSTER_META = {
   },
 };
 
+// VALENTINO'S CODE — loading/error state helpers.
+// These three functions were added by Valentino and use window.StateLoader
+// (his animation utility) plus the loading/error keys we merged into T above.
+// They did not exist on our branch at all — no conflict, purely additive.
+function showLoadingState() {
+  const tx = T[language];
+  const loader = document.getElementById('detail-loading-state');
+  const errorBox = document.getElementById('detail-error-state');
+  const hero = document.getElementById('hero-section');
+  const content = document.getElementById('content-section');
+  const loadingText = document.getElementById('detail-loading-text');
+
+  if (loadingText) loadingText.textContent = tx.loading;
+  if (loader) loader.hidden = false;
+  if (errorBox) errorBox.hidden = true;
+  if (hero) { hero.style.visibility = 'hidden'; hero.innerHTML = ''; }
+  if (content) content.innerHTML = '';
+
+  window.StateLoader?.start(stateAnimation);
+}
+
+function hideLoadingState() {
+  window.StateLoader?.stop(stateAnimation);
+  const loader = document.getElementById('detail-loading-state');
+  if (loader) loader.hidden = true;
+}
+
+function showDetailErrorMessage() {
+  const tx = T[language];
+  hideLoadingState();
+  const errorBox = document.getElementById('detail-error-state');
+  const errorText = document.getElementById('detail-error-text');
+  if (errorText) errorText.textContent = tx.errorLoad;
+  if (errorBox) errorBox.hidden = false;
+}
+
 // ── Fetch school from backend ─────────────────────────────────
 async function loadSchool() {
+  showLoadingState();
   if (!schoolId) { renderError(); return; }
 
   try {
@@ -345,21 +440,14 @@ async function loadSchool() {
 
 // ── Render error state ────────────────────────────────────────
 function renderError() {
-  const tx = T[language];
-  document.getElementById('hero-section').innerHTML = `
-    <div style="background:linear-gradient(to right,#16a34a,#15803d);padding:48px 24px;">
-      <div style="max-width:1280px;margin:0 auto;text-align:center;color:#fff;padding:40px 0;">
-        <div style="font-size:3rem;margin-bottom:16px;">🏫</div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:8px;">${tx.errorTitle}</h1>
-        <p style="color:rgba(255,255,255,.8);margin-bottom:20px;">${tx.errorSub}</p>
-        <a href="schools.html" style="display:inline-block;padding:10px 20px;background:rgba(255,255,255,.2);color:#fff;border-radius:10px;text-decoration:none;">${tx.back}</a>
-      </div>
-    </div>`;
+  showDetailErrorMessage();
+  document.getElementById('hero-section').innerHTML = '';
   document.getElementById('content-section').innerHTML = '';
 }
 
 // ── Render full page ──────────────────────────────────────────
 function renderPage() {
+  hideLoadingState();
   const tx     = T[language];
   const school = currentSchool;
   const local  = SCHOOL_DATA[schoolId] || {};
@@ -474,10 +562,6 @@ function renderPage() {
     </div>`).join('');
 
   // ── OPEN HOUSES ──────────────────────────────────────────
-  // CHANGED: wrapped cards in .oh-events-grid (adds oh-multi class when >1),
-  // added image header with zoom+overlay on hover, moved text into .oh-body.
-  // Removed .slice(0, 2) cap so all open houses for the school are shown.
-  // Register button now lives inside the overlay and fades in on image hover.
   const ohImg = OH_IMAGES[schoolId] || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop';
   const openHousesHTML = currentOpenHouses.length === 0
     ? `<p class="oh-empty">${tx.noOpenHouses}</p>`
@@ -674,9 +758,6 @@ function renderPage() {
                   : tuition;
                 const tuitionOverflows = tuition && tuition.length > 30;
 
-                // CHANGED: use CLUSTER_META for emoji, label, sparks.
-                // Accent strip is locked to #10b981 (SCI/Natuurkunde colour) for
-                // visual consistency across all cards regardless of cluster.
                 const meta   = CLUSTER_META[p.cluster] || {};
                 const accent = '#10b981';
                 const emoji  = meta.emoji  || '🎓';
@@ -812,8 +893,7 @@ function showFavToast(added) {
   _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
 }
 
-// ADDED: generic showToast used by registerOH — same self-creating pattern
-// as showFavToast above so no HTML changes are needed on school-detail.html.
+// ADDED: generic showToast used by registerOH
 function showToast(msg, type) {
   let el = document.getElementById('fav-toast');
   if (!el) {
@@ -829,7 +909,6 @@ function showToast(msg, type) {
 }
 
 // ── Favorite toggle ───────────────────────────────────────────
-// Raksha: uses FavSync to sync favorite to DB — localStorage updated automatically
 function toggleFavorite() {
   if (!currentSchool) return;
   const id = currentSchool.id;
@@ -946,9 +1025,6 @@ function pickProgramForCompare(programId) {
 }
 
 // ── Open House registration ───────────────────────────────────
-// CHANGED: replaced old prompt()/alert() flow with the same pattern used on
-// open-houses.js — JWT auth check, POST to backend, Google Calendar redirect,
-// toast notification. No browser prompts or alerts.
 async function registerOH(id, title) {
   const token = localStorage.getItem('auth_token');
   if (!token) {
@@ -957,7 +1033,6 @@ async function registerOH(id, title) {
     return;
   }
 
-  // Find the open house in the already-loaded list so we can pass it to Google Calendar
   const oh = currentOpenHouses.find(e => e.id === id);
 
   try {
@@ -970,9 +1045,7 @@ async function registerOH(id, title) {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    // Mirror the open-houses.js Google Calendar flow exactly
     if (oh) {
-      // Build start/end datetimes from the oh.date ISO string
       const toGCal = (dateStr, timeStr) =>
         dateStr.replace(/-/g, '') + 'T' + timeStr.replace(':', '') + '00';
 
@@ -980,7 +1053,6 @@ async function registerOH(id, title) {
       let startDT, endDT;
 
       if (dateStr) {
-        // Use time from oh.time if present, otherwise fall back to all-day
         const rangeMatch  = oh.time && oh.time.match(/(\d{2}:\d{2})\s*[–—-]\s*(\d{2}:\d{2})/);
         const singleMatch = !rangeMatch && oh.time && oh.time.match(/(\d{2}:\d{2})/);
 
@@ -994,7 +1066,6 @@ async function registerOH(id, title) {
           startDT = toGCal(dateStr, singleMatch[1]);
           endDT   = toGCal(dateStr, endH + ':' + endM);
         } else {
-          // All-day event — end date is next day
           const [y, mo, d] = dateStr.split('-').map(Number);
           const next = new Date(y, mo - 1, d + 1);
           const pad  = n => String(n).padStart(2, '0');
@@ -1017,7 +1088,6 @@ async function registerOH(id, title) {
       }
     }
 
-    // Save to oh_registered in localStorage (keeps existing behaviour)
     const reg = JSON.parse(localStorage.getItem('oh_registered') || '[]');
     if (!reg.includes(id)) { reg.push(id); localStorage.setItem('oh_registered', JSON.stringify(reg)); }
 
@@ -1118,14 +1188,11 @@ document.addEventListener('click', () => {
 });
 
 // ── Boot ──────────────────────────────────────────────────────
-// Raksha: load favorites from DB first so heart state is correct on render.
-// Then load the school. After school loads, check for ?compare=1 param (your feature).
 applyLanguage(language);
 initAuth();
 window.FavSync.loadFromDB().then(() => {
   favorites = JSON.parse(localStorage.getItem('fav_schools') || '[]');
   loadSchool().then(() => {
-    // Auto-enter compare mode if page was opened with ?compare=1
     if (new URLSearchParams(window.location.search).get('compare') === '1') {
       setTimeout(toggleCompare, 600);
     }

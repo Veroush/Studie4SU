@@ -165,9 +165,48 @@ body {
 
 /* ─── LOADING / ERROR ────────────────────────────────────────── */
 .state-center { text-align: center; padding: 80px 24px; }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--gray-100); border-top-color: var(--green-600); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
 .state-center p { color: var(--gray-500); font-size: .95rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
+
+.state-animation {
+  position: relative;
+  width: min(100%, 380px);
+  height: 160px;
+  margin: 0 auto 16px;
+  overflow: hidden;
+}
+
+.state-animation::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(22,163,74,.08), rgba(22,163,74,.22), rgba(22,163,74,.08));
+}
+
+.state-runner,
+.state-chaser {
+  position: absolute;
+  bottom: 18px;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.state-chaser { left: 30px; }
+.state-runner { left: 170px; }
+
+@media (max-width: 480px) {
+  .state-animation { height: 140px; }
+  .state-runner,
+  .state-chaser { width: 76px; height: 76px; }
+  .state-chaser { left: 24px; }
+  .state-runner { left: 140px; }
+}
+
 @keyframes fadeInUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: none; } }
 
 /* ─── CONTENT AREA ──────────────────────────────────────────── */
