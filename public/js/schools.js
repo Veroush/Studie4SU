@@ -4,7 +4,7 @@
 let allSchools   = [];
 let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = [];
-let stateAnimation = null;
+const stateAnimation = { id: null };
 let isLoading = true;
 
 let currentFilters = { type: 'all', location: 'all', level: 'all' };
@@ -128,64 +128,12 @@ const SCHOOL_ICON = `
     <polyline points="9 22 9 12 15 12 15 22"/>
   </svg>`;
 
-const STICKMAN_CONFUSED_FRAMES = [
-  'img/stickman-confused1.svg',
-  'img/stickman-confused2.svg',
-  'img/stickman-confused3.svg',
-  'img/stickman-confused4.svg',
-];
-
-const CHASER_FRAMES = [
-  'img/chasing-1.svg',
-  'img/chasing-2.svg',
-  'img/chasing-3.svg',
-  'img/chasing-4.svg',
-  'img/chasing-5.svg',
-  'img/chasing-6.svg',
-];
-
-const RUNNER_FRAMES = [
-  'img/running-1.svg',
-  'img/running-2.svg',
-  'img/running-3.svg',
-  'img/running-4.svg',
-  'img/running-5.svg',
-  'img/running-6.svg',
-];
-
 function stopStateAnimation() {
-  if (!stateAnimation) return;
-  clearInterval(stateAnimation);
-  stateAnimation = null;
+  window.StateLoader?.stop(stateAnimation);
 }
 
 function startStateAnimation() {
-  const stickman = document.getElementById('state-stickman');
-  const chaser = document.getElementById('state-chaser');
-  const runner = document.getElementById('state-runner');
-
-  stopStateAnimation();
-
-  if (stickman) {
-    let currentFrame = 0;
-    stateAnimation = window.setInterval(() => {
-      currentFrame = (currentFrame + 1) % STICKMAN_CONFUSED_FRAMES.length;
-      stickman.src = STICKMAN_CONFUSED_FRAMES[currentFrame];
-    }, 400);
-    return;
-  }
-
-  if (!chaser || !runner) return;
-
-  let chaserFrame = 0;
-  let runnerFrame = 0;
-
-  stateAnimation = window.setInterval(() => {
-    chaser.src = CHASER_FRAMES[chaserFrame];
-    runner.src = RUNNER_FRAMES[runnerFrame];
-    chaserFrame = (chaserFrame + 1) % CHASER_FRAMES.length;
-    runnerFrame = (runnerFrame + 1) % RUNNER_FRAMES.length;
-  }, 150);
+  window.StateLoader?.start(stateAnimation);
 }
 
 // ── Fetch schools from backend ─────────────────────────────────

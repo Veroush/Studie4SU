@@ -7,6 +7,7 @@ let favorites    = JSON.parse(localStorage.getItem('fav_schools') || '[]');
 let compareItems = JSON.parse(localStorage.getItem('school_compare')   || '[]');
 let currentSchool = null;
 let currentOpenHouses = [];
+const stateAnimation = { id: null };
 
 // Get school ID from URL ?id=school_adekus
 const params   = new URLSearchParams(window.location.search);
@@ -41,6 +42,8 @@ const T = {
     errorTitle:      'School niet gevonden',
     errorSub:        'Controleer of de URL correct is en de server actief.',
     online:          'Online',
+    loading:         'Schoolgegevens laden...',
+    errorLoad:       'Er ging iets mis bij het laden van deze school.',
   },
   en: {
     back:            '← Back to schools',
@@ -69,6 +72,8 @@ const T = {
     email:           'Email',
     website:         'Website',
     online:          'Online',
+    loading:         'Loading school details...',
+    errorLoad:       'Something went wrong while loading this school.',
   }
 };
 
@@ -224,8 +229,41 @@ function formatDate(dateStr) {
   } catch { return dateStr; }
 }
 
+function showLoadingState() {
+  const tx = T[language];
+  const loader = document.getElementById('detail-loading-state');
+  const errorBox = document.getElementById('detail-error-state');
+  const hero = document.getElementById('hero-section');
+  const content = document.getElementById('content-section');
+  const loadingText = document.getElementById('detail-loading-text');
+
+  if (loadingText) loadingText.textContent = tx.loading;
+  if (loader) loader.hidden = false;
+  if (errorBox) errorBox.hidden = true;
+  if (hero) { hero.style.visibility = 'hidden'; hero.innerHTML = ''; }
+  if (content) content.innerHTML = '';
+
+  window.StateLoader?.start(stateAnimation);
+}
+
+function hideLoadingState() {
+  window.StateLoader?.stop(stateAnimation);
+  const loader = document.getElementById('detail-loading-state');
+  if (loader) loader.hidden = true;
+}
+
+function showDetailErrorMessage() {
+  const tx = T[language];
+  hideLoadingState();
+  const errorBox = document.getElementById('detail-error-state');
+  const errorText = document.getElementById('detail-error-text');
+  if (errorText) errorText.textContent = tx.errorLoad;
+  if (errorBox) errorBox.hidden = false;
+}
+
 // ── Fetch school from backend ─────────────────────────────────
 async function loadSchool() {
+  showLoadingState();
   if (!schoolId) { renderError(); return; }
 
   try {
@@ -259,21 +297,14 @@ async function loadSchool() {
 
 // ── Render error state ────────────────────────────────────────
 function renderError() {
-  const tx = T[language];
-  document.getElementById('hero-section').innerHTML = `
-    <div style="background:linear-gradient(to right,#16a34a,#15803d);padding:48px 24px;">
-      <div style="max-width:1280px;margin:0 auto;text-align:center;color:#fff;padding:40px 0;">
-        <div style="font-size:3rem;margin-bottom:16px;">🏫</div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:8px;">${tx.errorTitle}</h1>
-        <p style="color:rgba(255,255,255,.8);margin-bottom:20px;">${tx.errorSub}</p>
-        <a href="schools.html" style="display:inline-block;padding:10px 20px;background:rgba(255,255,255,.2);color:#fff;border-radius:10px;text-decoration:none;">${tx.back}</a>
-      </div>
-    </div>`;
+  showDetailErrorMessage();
+  document.getElementById('hero-section').innerHTML = '';
   document.getElementById('content-section').innerHTML = '';
 }
 
 // ── Render full page ──────────────────────────────────────────
 function renderPage() {
+  hideLoadingState();
   const tx     = T[language];
   const school = currentSchool;
   const local  = SCHOOL_DATA[schoolId] || {};
