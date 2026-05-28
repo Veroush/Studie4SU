@@ -24,6 +24,22 @@ The project combines a static multi-page frontend with an Express API and a Pris
   - platform settings
   - quiz result statistics
 
+
+## IMPORTANT NOTE:
+Unfortunately, our online database has since been shut down, which means some features are no longer functional and certain pages can no longer be accessed. The screenshots below only display the pages and features that are still available. As a result, some parts of the application cannot be demonstrated anymore.
+
+We appreciate your understanding.
+## Screenshots
+
+<img width="1916" height="908" alt="Studie4SU-registrationpage" src="https://github.com/user-attachments/assets/49eff884-6fec-40f6-9b56-de18fe335c55" />
+<img width="1918" height="911" alt="Studie4SU-loginpage" src="https://github.com/user-attachments/assets/930beedf-7b5d-4517-8bf0-60d2abcf6155" />
+<img width="1896" height="8108" alt="Studie4SU-homepage" src="https://github.com/user-attachments/assets/b18888cf-a94e-45fe-9735-730c3749f5ba" />
+<img width="1905" height="911" alt="Studie4SU-scholenpage" src="https://github.com/user-attachments/assets/8a7ae8a9-a287-46aa-bb06-78a6217baa50" />
+<img width="1918" height="662" alt="Studie4SU-quizpage" src="https://github.com/user-attachments/assets/37bd7299-037c-4c63-b177-8208dd9f2493" />
+<img width="1905" height="912" alt="Studie4SU-opendagenpage" src="https://github.com/user-attachments/assets/1ffbbc8e-d043-453c-aba0-21e6f487dd2e" />
+<img width="1896" height="5950" alt="Studie4SU-aboutpage" src="https://github.com/user-attachments/assets/125a1fbf-1e63-48f1-acc3-e7e49d98bcd1" />
+
+
 ## Tech Stack
 
 **Backend**
